@@ -102,12 +102,14 @@ public class PowerUI extends SystemUI {
     }
 
     void updateBatteryWarningLevels() {
+        //打开低电保护的阈值  5
         int critLevel = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_criticalBatteryWarningLevel);
 
         final ContentResolver resolver = mContext.getContentResolver();
         int defWarnLevel = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_lowBatteryWarningLevel);
+        //进入低电警告的阈值 15
         int warnLevel = Settings.Global.getInt(resolver,
                 Settings.Global.LOW_POWER_MODE_TRIGGER_LEVEL, defWarnLevel);
         if (warnLevel == 0) {
@@ -125,7 +127,7 @@ public class PowerUI extends SystemUI {
     }
 
     /**
-     * Buckets the battery level.
+     * Buckets the battery level.  电池状态
      *
      * The code in this function is a little weird because I couldn't comprehend
      * the bucket going up when the battery level was going down. --joeo
@@ -135,9 +137,11 @@ public class PowerUI extends SystemUI {
      * less than 0 means that the battery is low
      */
     private int findBatteryLevelBucket(int level) {
+        //battery is "ok"
         if (level >= mLowBatteryAlertCloseLevel) {
             return 1;
         }
+        //battery is between "ok" and what we should warn about
         if (level > mLowBatteryReminderLevels[0]) {
             return 0;
         }
@@ -214,13 +218,16 @@ public class PowerUI extends SystemUI {
                         && bucket < 0) {
                     // only play SFX when the dialog comes up or the bucket changes
                     final boolean playSound = bucket != oldBucket || oldPlugged;
+                    //低电报警
                     mWarnings.showLowBatteryWarning(playSound);
                 } else if (isPowerSaver || plugged || (bucket > oldBucket && bucket > 0)) {
+                    //低电报警消失
                     mWarnings.dismissLowBatteryWarning();
                 } else {
                     mWarnings.updateLowBatteryWarning();
                 }
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                //记录屏幕时间
                 mScreenOffTime = SystemClock.elapsedRealtime();
             } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 mScreenOffTime = -1;
@@ -239,7 +246,7 @@ public class PowerUI extends SystemUI {
                 resources.getInteger(R.integer.config_showTemperatureWarning)) == 0) {
             return;
         }
-
+        //电池高温警告阈值
         mThresholdTemp = Settings.Global.getFloat(resolver, Settings.Global.WARNING_TEMPERATURE,
                 resources.getInteger(R.integer.config_warningTemperature));
 
@@ -268,6 +275,7 @@ public class PowerUI extends SystemUI {
         }
     }
 
+    //电池高温警告
     private void updateTemperatureWarning() {
         float[] temps = mHardwarePropertiesManager.getDeviceTemperatures(
                 HardwarePropertiesManager.DEVICE_TEMPERATURE_SKIN,
@@ -280,8 +288,10 @@ public class PowerUI extends SystemUI {
             if (statusBar != null && !statusBar.isDeviceInVrMode()
                     && temp >= mThresholdTemp) {
                 logAtTemperatureThreshold(temp);
+                //显示高温警告
                 mWarnings.showHighTemperatureWarning();
             } else {
+                //dismiss高温警告
                 mWarnings.dismissHighTemperatureWarning();
             }
         }
