@@ -2239,6 +2239,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mDemoRotationLock = SystemProperties.getBoolean(
                 "persist.demo.rotationlock", false);
 
+        // mForceDefaultOrientation 切换横屏显示
         // Only force the default orientation if the screen is xlarge, at least 960dp x 720dp, per
         // http://developer.android.com/guide/practices/screens_support.html#range
         mForceDefaultOrientation = longSizeDp >= 960 && shortSizeDp >= 720 &&
@@ -6978,11 +6979,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         if (mForceDefaultOrientation) {
+            //旋转角度Surface.ROTATION_90
             return Surface.ROTATION_0;
         }
 
         synchronized (mLock) {
             int sensorRotation = mOrientationListener.getProposedRotation(); // may be -1
+            //sensorRotation = Surface.ROTATION_90 旋转角度
             if (sensorRotation < 0) {
                 sensorRotation = lastRotation;
             }
