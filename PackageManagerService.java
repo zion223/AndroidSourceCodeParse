@@ -1430,6 +1430,7 @@ public class PackageManagerService extends IPackageManager.Stub
         void doHandleMessage(Message msg) {
             switch (msg.what) {
                 case INIT_COPY: {
+					//在此处返回可禁止安装第三方Apk  定制化 System.Properties 判断系统属性
                     HandlerParams params = (HandlerParams) msg.obj;
                     int idx = mPendingInstalls.size();
                     if (DEBUG_INSTALL) Slog.i(TAG, "init_copy idx=" + idx + ": " + params);

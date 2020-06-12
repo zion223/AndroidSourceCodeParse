@@ -123,6 +123,13 @@ public class InstallStart extends Activity {
         }
 
         if (nextActivity != null) {
+            if(SystemProperties.getBoolean("xxx", false)){
+                //禁止安装第三方应用
+                Intent result = new Intent();
+                result.putExtra(Intent.EXTRA_INSTALL_RESULT,
+                        PackageManager.INSTALL_FAILED_INVALID_URI);
+                setResult(RESULT_FIRST_USER, result);
+            }
             startActivity(nextActivity);
         }
         finish();
