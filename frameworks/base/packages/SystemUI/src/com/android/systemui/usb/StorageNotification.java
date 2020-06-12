@@ -286,6 +286,7 @@ public class StorageNotification extends SystemUI {
         updateMissingPrivateVolumes();
     }
 
+    //盘符挂载到设备上
     private void onPublicVolumeStateChangedInternal(VolumeInfo vol) {
         Log.d(TAG, "Notifying about public volume: " + vol.toString());
 
