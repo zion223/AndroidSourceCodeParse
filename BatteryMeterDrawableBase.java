@@ -53,7 +53,7 @@ public class BatteryMeterDrawableBase extends Drawable {
     private boolean mShowPercent;
 
     private static final boolean SINGLE_DIGIT_PERCENT = false;
-
+    //电量为96时就显示为满电状态
     private static final int FULL = 96;
 
     private static final float BOLT_LEVEL_THRESHOLD = 0.3f;  // opaque bolt below this fraction
@@ -222,6 +222,7 @@ public class BatteryMeterDrawableBase extends Drawable {
         mWarningTextHeight = -mWarningTextPaint.getFontMetrics().ascent;
     }
 
+    //根据电池电量获取图标颜色
     private int getColorForLevel(int percent) {
         // If we are in power save mode, always use the normal color.
         if (mPowerSaveEnabled) {
@@ -267,7 +268,7 @@ public class BatteryMeterDrawableBase extends Drawable {
 
         mFrame.set(0, 0, width, height);
         mFrame.offset(px, 0);
-
+        //电池上面的凸起
         // button-frame: area above the battery body
         mButtonFrame.set(
                 mFrame.left + Math.round(width * 0.25f),
@@ -286,9 +287,9 @@ public class BatteryMeterDrawableBase extends Drawable {
         mFrame.right -= mSubpixelSmoothingRight;
         mFrame.bottom -= mSubpixelSmoothingRight;
 
-        // set the battery charging color
+        // set the battery charging color  电池颜色
         mBatteryPaint.setColor(mCharging ? mChargeColor : getColorForLevel(level));
-
+        //大于96时显示充满电  小于4时显示空电
         if (level >= FULL) {
             drawFrac = 1f;
         } else if (level <= mCriticalLevel) {
@@ -311,6 +312,7 @@ public class BatteryMeterDrawableBase extends Drawable {
         mShapePath.lineTo(mButtonFrame.left, mButtonFrame.top);
 
         if (mCharging) {
+            //绘制闪电图标
             // define the bolt shape
             final float bl = mFrame.left + mFrame.width() / 4f;
             final float bt = mFrame.top + mFrame.height() / 6f;
@@ -343,6 +345,7 @@ public class BatteryMeterDrawableBase extends Drawable {
                 mShapePath.op(mBoltPath, Path.Op.DIFFERENCE);
             }
         } else if (mPowerSaveEnabled) {
+            //power save模式
             // define the plus shape
             final float pw = mFrame.width() * 2 / 3;
             final float pl = mFrame.left + (mFrame.width() - pw) / 2;

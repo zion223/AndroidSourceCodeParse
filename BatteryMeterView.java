@@ -144,6 +144,7 @@ public class BatteryMeterView extends LinearLayout implements
         super.onAttachedToWindow();
         mBatteryController = Dependency.get(BatteryController.class);
         mBatteryController.addCallback(this);
+        //监听 设置中 显示电池电量百分比 开关选项
         getContext().getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(SHOW_BATTERY_PERCENT), false, mSettingObserver);
         updateShowPercent();
@@ -160,9 +161,12 @@ public class BatteryMeterView extends LinearLayout implements
         Dependency.get(ConfigurationController.class).removeCallback(this);
     }
 
+    //电池电量变化时回调
     @Override
     public void onBatteryLevelChanged(int level, boolean pluggedIn, boolean charging) {
+        //电池电量
         mDrawable.setBatteryLevel(level);
+        //是否在充电
         mDrawable.setCharging(pluggedIn);
         mLevel = level;
         updatePercentText();
@@ -181,6 +185,7 @@ public class BatteryMeterView extends LinearLayout implements
                 .inflate(R.layout.battery_percentage_view, null);
     }
 
+    //电量百分比
     private void updatePercentText() {
         if (mBatteryPercentView != null) {
             mBatteryPercentView.setText(
@@ -190,6 +195,7 @@ public class BatteryMeterView extends LinearLayout implements
 
     private void updateShowPercent() {
         final boolean showing = mBatteryPercentView != null;
+        // SHOW_BATTERY_PERCENT 是否显示电池电量百分比
         if (0 != Settings.System.getInt(getContext().getContentResolver(),
                 SHOW_BATTERY_PERCENT, 0) || mForceShowPercent) {
             if (!showing) {
@@ -210,6 +216,7 @@ public class BatteryMeterView extends LinearLayout implements
         }
     }
 
+    //分辨率或字体大小改变时回调 重新绘制
     @Override
     public void onDensityOrFontScaleChanged() {
         scaleBatteryMeterViews();
@@ -263,7 +270,7 @@ public class BatteryMeterView extends LinearLayout implements
         public SettingObserver(Handler handler) {
             super(handler);
         }
-
+        //设置中的 显示电池电量百分比发生变化时回调
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange, uri);
