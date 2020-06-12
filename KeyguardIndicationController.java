@@ -306,6 +306,7 @@ public class KeyguardIndicationController {
         } catch (RemoteException e) {
             Log.e(TAG, "Error calling IBatteryStats: ", e);
         }
+        //显示剩余充电时间
         final boolean hasChargingTime = chargingTimeRemaining > 0;
 
         int chargingId;
