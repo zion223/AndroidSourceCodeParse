@@ -20295,6 +20295,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         // TODO: If our config changes, should we auto dismiss any currently showing dialogs?
         mShowDialogs = shouldShowDialogs(mTempConfig);
 
+        //mShowDialogs = false 可不显示应用ANR、Crash对话框
         AttributeCache ac = AttributeCache.instance();
         if (ac != null) {
             ac.updateConfiguration(mTempConfig);
