@@ -136,6 +136,7 @@ final class PstnIncomingCallNotifier {
 
             // Final verification of the ringing state before sending the intent to Telecom.
             if (call != null && call.getState().isRinging()) {
+                //此处可屏蔽通话
                 sendIncomingCallIntent(connection);
             }
         }
