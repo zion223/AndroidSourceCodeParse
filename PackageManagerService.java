@@ -2378,7 +2378,7 @@ public class PackageManagerService extends IPackageManager.Stub
         Trace.traceBegin(TRACE_TAG_PACKAGE_MANAGER, "create package manager");
         EventLog.writeEvent(EventLogTags.BOOT_PROGRESS_PMS_START,
                 SystemClock.uptimeMillis());
-
+        //SDK版本检查
         if (mSdkVersion <= 0) {
             Slog.w(TAG, "**** ro.build.version.sdk not set!");
         }
@@ -2391,7 +2391,12 @@ public class PackageManagerService extends IPackageManager.Stub
         mFactoryTest = factoryTest;
         mOnlyCore = onlyCore;
         mMetrics = new DisplayMetrics();
+        //存储设置信息
         mSettings = new Settings(mPackages);
+        /**
+            创建 SharedUserSetting 对象并添加到 Settings 的成员变量 mSharedUsers 中，
+            在 Android 系统中，多个 package 通过设置 sharedUserId 属性可以运行在同一个进程，共享同一个 UID
+         */
         mSettings.addSharedUserLPw("android.uid.system", Process.SYSTEM_UID,
                 ApplicationInfo.FLAG_SYSTEM, ApplicationInfo.PRIVATE_FLAG_PRIVILEGED);
         mSettings.addSharedUserLPw("android.uid.phone", RADIO_UID,
@@ -2421,7 +2426,7 @@ public class PackageManagerService extends IPackageManager.Stub
             mDefParseFlags = 0;
             mSeparateProcesses = null;
         }
-
+        //应用安装器
         mInstaller = installer;
         mPackageDexOptimizer = new PackageDexOptimizer(installer, mInstallLock, context,
                 "*dexopt*");
@@ -2447,14 +2452,15 @@ public class PackageManagerService extends IPackageManager.Stub
         synchronized (mPackages) {
             mHandlerThread = new ServiceThread(TAG,
                     Process.THREAD_PRIORITY_BACKGROUND, true /*allowIo*/);
+            //启动消息处理线程                    
             mHandlerThread.start();
             mHandler = new PackageHandler(mHandlerThread.getLooper());
             mProcessLoggingHandler = new ProcessLoggingHandler();
             Watchdog.getInstance().addThread(mHandler, WATCHDOG_TIMEOUT);
-
+            //默认权限给予 在DefaultPermissionGrantPolicy中可手动给予应用权限 无需申请
             mDefaultPermissionPolicy = new DefaultPermissionGrantPolicy(this);
             mInstantAppRegistry = new InstantAppRegistry(this);
-
+            //  dataDir = /data
             File dataDir = Environment.getDataDirectory();
             mAppInstallDir = new File(dataDir, "app");
             mAppLib32InstallDir = new File(dataDir, "app-lib");
@@ -2492,7 +2498,7 @@ public class PackageManagerService extends IPackageManager.Stub
             Trace.traceBegin(TRACE_TAG_PACKAGE_MANAGER, "read user settings");
             mFirstBoot = !mSettings.readLPw(sUserManager.getUsers(false));
             Trace.traceEnd(TRACE_TAG_PACKAGE_MANAGER);
-
+            //清除废弃的packages
             // Clean up orphaned packages for which the code path doesn't exist
             // and they are an update to a system app - caused by bug/32321269
             final int packageSettingCount = mSettings.mPackages.size();
