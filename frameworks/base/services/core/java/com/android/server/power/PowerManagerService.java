@@ -680,9 +680,11 @@ public final class PowerManagerService extends SystemService
 
     @Override
     public void onStart() {
+        //发布到系统服务
         publishBinderService(Context.POWER_SERVICE, new BinderService());
+        //发布到本地服务
         publishLocalService(PowerManagerInternal.class, new LocalService());
-
+        //watchDog监听
         Watchdog.getInstance().addMonitor(this);
         Watchdog.getInstance().addThread(mHandler);
     }
@@ -691,14 +693,17 @@ public final class PowerManagerService extends SystemService
     public void onBootPhase(int phase) {
         synchronized (mLock) {
             if (phase == PHASE_THIRD_PARTY_APPS_CAN_START) {
+                //第三方APK启动个数
                 incrementBootCount();
 
             } else if (phase == PHASE_BOOT_COMPLETED) {
+                //服务启动内容
                 final long now = SystemClock.uptimeMillis();
                 mBootCompleted = true;
                 mDirty |= DIRTY_BOOT_COMPLETED;
                 userActivityNoUpdateLocked(
                         now, PowerManager.USER_ACTIVITY_EVENT_OTHER, 0, Process.SYSTEM_UID);
+                //更新电源状态信息
                 updatePowerStateLocked();
 
                 if (!ArrayUtils.isEmpty(mBootCompletedRunnables)) {
@@ -714,19 +719,21 @@ public final class PowerManagerService extends SystemService
 
     public void systemReady(IAppOpsService appOps) {
         synchronized (mLock) {
+            //systemReady方法被执行过
             mSystemReady = true;
             mAppOps = appOps;
+            //获取本地服务
             mDreamManager = getLocalService(DreamManagerInternal.class);
             mDisplayManagerInternal = getLocalService(DisplayManagerInternal.class);
             mPolicy = getLocalService(WindowManagerPolicy.class);
             mBatteryManagerInternal = getLocalService(BatteryManagerInternal.class);
-
+            //屏幕亮度相关
             PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
             mScreenBrightnessSettingMinimum = pm.getMinimumScreenBrightnessSetting();
             mScreenBrightnessSettingMaximum = pm.getMaximumScreenBrightnessSetting();
             mScreenBrightnessSettingDefault = pm.getDefaultScreenBrightnessSetting();
             mScreenBrightnessForVrSettingDefault = pm.getDefaultScreenBrightnessForVrSetting();
-
+            //系统传感器
             SensorManager sensorManager = new SystemSensorManager(mContext, mHandler.getLooper());
 
             // The notifier runs on the system server's main looper so as not to interfere
@@ -833,7 +840,7 @@ public final class PowerManagerService extends SystemService
         filter.addAction(Intent.ACTION_DOCK_EVENT);
         mContext.registerReceiver(new DockReceiver(), filter, null, mHandler);
     }
-
+    //读取配置文件中的默认值
     private void readConfigurationLocked() {
         final Resources resources = mContext.getResources();
 
@@ -875,31 +882,37 @@ public final class PowerManagerService extends SystemService
                 com.android.internal.R.bool.config_supportDoubleTapWake);
     }
 
+    //更新设置中的相关设置
     private void updateSettingsLocked() {
         final ContentResolver resolver = mContext.getContentResolver();
-
+        //启用屏保
         mDreamsEnabledSetting = (Settings.Secure.getIntForUser(resolver,
                 Settings.Secure.SCREENSAVER_ENABLED,
                 mDreamsEnabledByDefaultConfig ? 1 : 0,
                 UserHandle.USER_CURRENT) != 0);
+        //休眠时是否启用屏保                
         mDreamsActivateOnSleepSetting = (Settings.Secure.getIntForUser(resolver,
                 Settings.Secure.SCREENSAVER_ACTIVATE_ON_SLEEP,
                 mDreamsActivatedOnSleepByDefaultConfig ? 1 : 0,
                 UserHandle.USER_CURRENT) != 0);
+        //插入底座时是否启用屏保                
         mDreamsActivateOnDockSetting = (Settings.Secure.getIntForUser(resolver,
                 Settings.Secure.SCREENSAVER_ACTIVATE_ON_DOCK,
                 mDreamsActivatedOnDockByDefaultConfig ? 1 : 0,
                 UserHandle.USER_CURRENT) != 0);
+        //屏幕关闭超时时间                
         mScreenOffTimeoutSetting = Settings.System.getIntForUser(resolver,
                 Settings.System.SCREEN_OFF_TIMEOUT, DEFAULT_SCREEN_OFF_TIMEOUT,
                 UserHandle.USER_CURRENT);
         mSleepTimeoutSetting = Settings.Secure.getIntForUser(resolver,
                 Settings.Secure.SLEEP_TIMEOUT, DEFAULT_SLEEP_TIMEOUT,
                 UserHandle.USER_CURRENT);
+        //充电时屏幕常亮                
         mStayOnWhilePluggedInSetting = Settings.Global.getInt(resolver,
                 Settings.Global.STAY_ON_WHILE_PLUGGED_IN, BatteryManager.BATTERY_PLUGGED_AC);
         mTheaterModeEnabled = Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.THEATER_MODE_ON, 0) == 1;
+        //屏幕常亮                
         mAlwaysOnEnabled = mAmbientDisplayConfiguration.alwaysOnEnabled(UserHandle.USER_CURRENT);
 
         if (mSupportsDoubleTapWakeConfig) {
@@ -934,11 +947,11 @@ public final class PowerManagerService extends SystemService
         if (oldScreenAutoBrightnessAdjustmentSetting != mScreenAutoBrightnessAdjustmentSetting) {
             mTemporaryScreenAutoBrightnessAdjustmentSettingOverride = Float.NaN;
         }
-
+        //自动调节亮度
         mScreenBrightnessModeSetting = Settings.System.getIntForUser(resolver,
                 Settings.System.SCREEN_BRIGHTNESS_MODE,
                 Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL, UserHandle.USER_CURRENT);
-
+        //是否启用低电量模式
         final boolean lowPowerModeEnabled = Settings.Global.getInt(resolver,
                 Settings.Global.LOW_POWER_MODE, 0) != 0;
         final boolean autoLowPowerModeConfigured = Settings.Global.getInt(resolver,
@@ -949,7 +962,7 @@ public final class PowerManagerService extends SystemService
             mAutoLowPowerModeConfigured = autoLowPowerModeConfigured;
             updateLowPowerModeLocked();
         }
-
+        //更新标志位
         mDirty |= DIRTY_SETTINGS;
     }
 
