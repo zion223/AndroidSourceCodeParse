@@ -274,6 +274,7 @@ public final class SystemServer {
             // APIs crash dealing with negative numbers, notably
             // java.io.File#setLastModified, so instead we fake it and
             // hope that time from cell towers or NTP fixes it shortly.
+            //设置初始时间
             if (System.currentTimeMillis() < EARLIEST_SUPPORTED_TIME) {
                 Slog.w(TAG, "System clock is before 1970; setting to 1970.");
                 SystemClock.setCurrentTimeMillis(EARLIEST_SUPPORTED_TIME);
@@ -296,6 +297,7 @@ public final class SystemServer {
             //
             // NOTE: Most changes made here will need an equivalent change to
             // core/jni/AndroidRuntime.cpp
+            //系统语言
             if (!SystemProperties.get("persist.sys.language").isEmpty()) {
                 final String languageTag = Locale.getDefault().toLanguageTag();
 
@@ -368,14 +370,14 @@ public final class SystemServer {
             android.os.Process.setCanSelfBackground(false);
             Looper.prepareMainLooper();
 
-            // Initialize native services.
+            // Initialize native services. 加载动态库
             System.loadLibrary("android_servers");
 
             // Check whether we failed to shut down last time we tried.
             // This call may not return.
             performPendingShutdown();
 
-            // Initialize the system context.
+            // Initialize the system context.   创建系统Context
             createSystemContext();
 
             // Create the system service manager.
@@ -389,10 +391,14 @@ public final class SystemServer {
         }
 
         // Start services.
+        // 开启服务
         try {
             traceBeginAndSlog("StartServices");
+            //引导服务
             startBootstrapServices();
+            //核心服务
             startCoreServices();
+            //其他服务
             startOtherServices();
             SystemServerInitThreadPool.shutdown();
         } catch (Throwable ex) {
