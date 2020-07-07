@@ -514,7 +514,7 @@ public final class SystemServer {
         mSystemServiceManager.startService(DeviceIdentifiersPolicyService.class);
         traceEnd();
 
-        // Activity manager runs the show.
+        // Activity manager runs the show. Start ActivityManagerService
         traceBeginAndSlog("StartActivityManager");
         mActivityManagerService = mSystemServiceManager.startService(
                 ActivityManagerService.Lifecycle.class).getService();

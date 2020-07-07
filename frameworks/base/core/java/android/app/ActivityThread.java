@@ -229,6 +229,7 @@ public final class ActivityThread {
     final ApplicationThread mAppThread = new ApplicationThread();
     final Looper mLooper = Looper.myLooper();
     final H mH = new H();
+    //存储了所有的Activity
     final ArrayMap<IBinder, ActivityClientRecord> mActivities = new ArrayMap<>();
     // List of new activities (via ActivityRecord.nextIdle) that should
     // be reported when next we idle.
@@ -237,6 +238,7 @@ public final class ActivityThread {
     int mNumVisibleActivities = 0;
     ArrayList<WeakReference<AssistStructure>> mLastAssistStructures = new ArrayList<>();
     private int mLastSessionId;
+    //存储了所有的Service
     final ArrayMap<IBinder, Service> mServices = new ArrayMap<>();
     AppBindData mBoundApplication;
     Profiler mProfiler;
@@ -779,7 +781,7 @@ public final class ActivityThread {
 
             r.overrideConfig = overrideConfig;
             updatePendingConfiguration(curConfig);
-
+            //发送消息给H类 在主线程中启动Activity
             sendMessage(H.LAUNCH_ACTIVITY, r);
         }
 
@@ -1584,6 +1586,7 @@ public final class ActivityThread {
         public void handleMessage(Message msg) {
             if (DEBUG_MESSAGES) Slog.v(TAG, ">>> handling: " + codeToString(msg.what));
             switch (msg.what) {
+                //启动Activity
                 case LAUNCH_ACTIVITY: {
                     Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "activityStart");
                     final ActivityClientRecord r = (ActivityClientRecord) msg.obj;
