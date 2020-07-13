@@ -49,7 +49,7 @@ import com.android.systemui.util.NotificationChannels;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
-
+//电量通知警告相关
 public class PowerNotificationWarnings implements PowerUI.WarningsUI {
     private static final String TAG = PowerUI.TAG + ".Notification";
     private static final boolean DEBUG = PowerUI.DEBUG;
@@ -136,14 +136,16 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         mBucket = bucket;
         mScreenOffTime = screenOffTime;
     }
-
+    //更新通知
     private void updateNotification() {
         if (DEBUG) Slog.d(TAG, "updateNotification mWarning=" + mWarning + " mPlaySound="
                 + mPlaySound + " mInvalidCharger=" + mInvalidCharger);
         if (mInvalidCharger) {
+            //无效充电器类型
             showInvalidChargerNotification();
             mShowing = SHOWING_INVALID_CHARGER;
         } else if (mWarning) {
+            //显示警告
             showWarningNotification();
             mShowing = SHOWING_WARNING;
         } else {
@@ -171,7 +173,9 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
     }
 
     private void showWarningNotification() {
+        //仅剩 s% 
         final int textRes = R.string.battery_low_percent_format;
+        //当前电量
         final String percentage = NumberFormat.getPercentInstance().format((double) mBatteryLevel / 100.0);
         final Notification.Builder nb =
                 new Notification.Builder(mContext, NotificationChannels.ALERTS)
@@ -188,6 +192,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         if (hasBatterySettings()) {
             nb.setContentIntent(pendingBroadcast(ACTION_SHOW_BATTERY_SETTINGS));
         }
+        //开启省点模式
         nb.addAction(0,
                 mContext.getString(R.string.battery_saver_start_action),
                 pendingBroadcast(ACTION_START_SAVER));
@@ -237,6 +242,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         mNoMan.cancelAsUser(TAG_TEMPERATURE, SystemMessage.NOTE_HIGH_TEMP, UserHandle.ALL);
     }
 
+    //手机高温警告
     @Override
     public void showHighTemperatureWarning() {
         if (mHighTempWarning) {
@@ -248,7 +254,9 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
                         .setSmallIcon(R.drawable.ic_device_thermostat_24)
                         .setWhen(0)
                         .setShowWhen(false)
+                        //手机温度上升中
                         .setContentTitle(mContext.getString(R.string.high_temp_title))
+                        //手机降温时，部分功能的使用会受限制
                         .setContentText(mContext.getString(R.string.high_temp_notif_message))
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
                         .setContentIntent(pendingBroadcast(ACTION_CLICKED_TEMP_WARNING))
@@ -290,6 +298,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         mThermalShutdownDialog = d;
     }
 
+    //手机严重发热警告
     @Override
     public void showThermalShutdownWarning() {
         final Notification.Builder nb =
@@ -331,6 +340,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         return mOpenBatterySettings.resolveActivity(mContext.getPackageManager()) != null;
     }
 
+    //低电警告 电量低于15时显示
     @Override
     public void showLowBatteryWarning(boolean playSound) {
         Slog.i(TAG,
@@ -340,7 +350,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         mWarning = true;
         updateNotification();
     }
-
+    //低电报警声音
     private void attachLowBatterySound(Notification.Builder b) {
         final ContentResolver cr = mContext.getContentResolver();
 
@@ -376,13 +386,13 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
     public void dismissInvalidChargerWarning() {
         dismissInvalidChargerNotification();
     }
-
+    //dismiss无效充电器警告
     private void dismissInvalidChargerNotification() {
         if (mInvalidCharger) Slog.i(TAG, "dismissing invalid charger notification");
         mInvalidCharger = false;
         updateNotification();
     }
-
+    //无效充电器警告
     @Override
     public void showInvalidChargerWarning() {
         mInvalidCharger = true;
@@ -394,6 +404,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
         updateNotification();
     }
 
+    //确认是否开启省点模式
     private void showStartSaverConfirmation() {
         if (mSaverConfirmation != null) return;
         final SystemUIDialog d = new SystemUIDialog(mContext);
@@ -456,7 +467,7 @@ public class PowerNotificationWarnings implements PowerUI.WarningsUI {
             }
         }
     }
-
+    //异步开启节电模式
     private final OnClickListener mStartSaverMode = new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {

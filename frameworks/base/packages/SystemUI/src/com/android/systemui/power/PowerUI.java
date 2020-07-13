@@ -218,7 +218,7 @@ public class PowerUI extends SystemUI {
                         && bucket < 0) {
                     // only play SFX when the dialog comes up or the bucket changes
                     final boolean playSound = bucket != oldBucket || oldPlugged;
-                    //低电报警
+                    //低电报警 是否带有声音
                     mWarnings.showLowBatteryWarning(playSound);
                 } else if (isPowerSaver || plugged || (bucket > oldBucket && bucket > 0)) {
                     //低电报警消失
