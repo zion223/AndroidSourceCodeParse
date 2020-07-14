@@ -15255,6 +15255,7 @@ public class PackageManagerService extends IPackageManager.Stub
                 if (res.returnCode == PackageManager.INSTALL_SUCCEEDED) {
                     args.doPreInstall(res.returnCode);
                     synchronized (mInstallLock) {
+                        //安装应用
                         installPackageTracedLI(args, res);
                     }
                     args.doPostInstall(res.returnCode, res.uid);
@@ -17867,7 +17868,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     "Instant app package must use targetSanboxVersion 2");
             return;
         }
-
+        //添加应用白名单
         if (pkg.applicationInfo.isStaticSharedLibrary()) {
             // Static shared libraries have synthetic package names
             renameStaticSharedLibraryPackage(pkg);
