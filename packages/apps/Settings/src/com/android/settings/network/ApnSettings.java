@@ -275,15 +275,18 @@ public class ApnSettings extends RestrictedSettingsFragment
         return SubscriptionManager.from(getActivity()).getActiveSubscriptionInfo(subId);
     }
 
+	//填充数据
     private void fillList() {
         final int subId = mSubscriptionInfo != null ? mSubscriptionInfo.getSubscriptionId()
                 : SubscriptionManager.INVALID_SUBSCRIPTION_ID;
         final Uri simApnUri = Uri.withAppendedPath(Telephony.Carriers.SIM_APN_URI,
                 String.valueOf(subId));
+		//构建查询语句					
         StringBuilder where = new StringBuilder("NOT (type='ia' AND (apn=\"\" OR apn IS NULL)) AND "
                 + "user_visible!=0");
 
         if (mHideImsApn) {
+			//是否隐藏类型为ims的APN
             where.append(" AND NOT (type='ims')");
         }
 
@@ -321,10 +324,11 @@ public class ApnSettings extends RestrictedSettingsFragment
                 } else {
                     pref.setSummary(apn);
                 }
-
+				//是否可选择
                 boolean selectable = ((type == null) || !type.equals("mms"));
                 pref.setSelectable(selectable);
                 if (selectable) {
+					//是否为当前选中的APN
                     if ((mSelectedKey != null) && mSelectedKey.equals(key)) {
                         pref.setChecked();
                     }
@@ -376,6 +380,7 @@ public class ApnSettings extends RestrictedSettingsFragment
         return super.onOptionsItemSelected(item);
     }
 
+	//添加新的APN
     private void addNewApn() {
         Intent intent = new Intent(Intent.ACTION_INSERT, Telephony.Carriers.CONTENT_URI);
         int subId = mSubscriptionInfo != null ? mSubscriptionInfo.getSubscriptionId()
@@ -403,12 +408,13 @@ public class ApnSettings extends RestrictedSettingsFragment
     private void setSelectedApnKey(String key) {
         mSelectedKey = key;
         ContentResolver resolver = getContentResolver();
-
+		//更新数据库
         ContentValues values = new ContentValues();
         values.put(APN_ID, mSelectedKey);
         resolver.update(getUriForCurrSubId(PREFERAPN_URI), values, null, null);
     }
 
+	//查询当前选中的APN
     private String getSelectedApnKey() {
         String key = null;
 
@@ -422,6 +428,7 @@ public class ApnSettings extends RestrictedSettingsFragment
         return key;
     }
 
+	//重置默认APN
     private boolean restoreDefaultApn() {
         showDialog(DIALOG_RESTORE_DEFAULTAPN);
         mRestoreDefaultApnMode = true;
