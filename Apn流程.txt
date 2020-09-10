@@ -1,0 +1,102 @@
+1.Sim卡开机检卡流程中关于APN相关的处理
+	检sim卡过程时会注册一个DcTracker对象,再此对象中进行apn相关的解析配置处理。DcTracker对象注册了一个监听sim卡信息状态变化的回调。
+	DcTracker中重要的一个方法createAllApnList(),根据sim卡的mcc/mnc去查找在TelephonyProvider中解析到数据库中的apn配置
+	<apn carrier="APN_NAME_CUNET"   沃宽带用户连接互联网
+		apn="3gnet"
+		mcc="460"
+		mnc="01"
+		port="80"
+		type="default,supl"
+		read_only="true"  //不可编辑
+		/>
+	
+	void createAllApnList(){
+		//获取卡的信息  mcc/mnc
+		String operator = getOperatorNumeric();
+		Cursor cursor = mPhone.getContext().getContextResolver().query(sim_apn_uri, subId + mPhone.subId());
+		while(cursor.moveToNext()){
+			//创建APN
+			mAllApnSettings.add(ApnSetting.makeApnSetting(cursor));
+		}
+		//紧急拨号
+		emergencyApnSetting();
+		//去除重复的APN
+		dedupeApnSettings();
+		//偏爱的APN
+		getPreferredApn();
+	}
+	
+	//当监听到sim卡加载完成时 回调函数被调用
+	void onRecordsLoadedOrSubIdChanged(){
+		//创建apn
+		createAllApnList();
+		setDataProfilesAsNeeded();
+		setInitialAttachApn();
+		mPhone.notifyDataConnection();
+		setupDataOnAllConnectableApns();
+	}
+	
+	
+	setInitialAttachApn方法选择初始时使用的APN   APN优先级
+	The priority of apn candidates from highest to lowest is:
+       1) APN_TYPE_IA (Initial Attach)  类型是ia类型的
+       2) mPreferredApn, i.e. the current preferred apn  用户选择的
+       3) The first apn that than handle APN_TYPE_DEFAULT type类型为default的
+       4) The first APN we can find.  遍历时找到的第一个APN(非Emergency类型的)
+	initialAttachApnSetting = findAPN;
+	选择完毕后发送APN信息给Modem
+	mPhone.mCi.setInitialAttachApn(initialAttachApnSetting.apn,
+                initialAttachApnSetting.protocol, initialAttachApnSetting.authType,
+                initialAttachApnSetting.user, initialAttachApnSetting.password, null);
+	
+2.TelephonyProvider中关于APN相关的业务流程
+	初始化TelephonyProvider 时
+	onCreate(){
+		...
+		initDatabase();//初始化数据库
+	}
+	initDatabase(){
+		//读取内部APN数据  apns.xml
+		parser = Resources.getXml(com.android.internal.R.xml.apns.xml);
+		//读取信息到数据库中
+		loadApn(parser);
+		
+		//读取外部APN数据  四个路径  1.etc/apns-conf.xml(2006中是此路径) 2.telephony/apns-conf.xml 3.misc/apns/apns-conf.xml 4.etc/old-apns-conf.xml
+		//数据读取同上  在代码中 etc/apns-conf.xml对应的android/vendor/qcom/proprietary/telephony/telephony-apps/etc/apns-conf.xml
+		//加载完的数据供DcTracker去查询
+	}
+
+3.设置中的APN设置
+	ApnSettings Fragment
+	onResume()方法中调用fillList方法查询apn数据
+	void fillList(){
+		Cursor cursor = getContextResolver().query(uri, where, SortType);
+		while(!cursor.isAfterLast()){
+			//解析数据
+			name apn key type edited 
+			
+			//解析selectable 是否可以选择  
+			boolean selectable = (type == null|| !type.equals("mms"));
+			pref.setSelectable(selectable);
+		}
+	}
+	
+	//切换APN相关          //更新数据库将当前key设置为preferapn        Handler机制
+	onPreferenceChange()   -> setSelectedApnKey()                 ->  DcTracker.onApnChanged()
+	
+	onApnChanged(){
+		//重新设置APN
+		createAllApnList();
+		setDataProfilesAsNeeded();
+		setInitialAttachApn();
+		//Apn改变时重新注册
+		cleanUpConnectionsOnUpdatedApns();
+		if(当前网络使用的sim卡是当前改变的sim卡){
+			setupDataOnAllConnectableApns();
+		}
+	}
+	
+	
+	
+	
+	
