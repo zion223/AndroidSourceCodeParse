@@ -9,7 +9,7 @@
 		type="default,supl"
 		read_only="true"  //不可编辑
 		/>
-	
+
 	void createAllApnList(){
 		//获取卡的信息  mcc/mnc
 		String operator = getOperatorNumeric();
@@ -25,7 +25,7 @@
 		//偏爱的APN
 		getPreferredApn();
 	}
-	
+
 	//当监听到sim卡加载完成时 回调函数被调用
 	void onRecordsLoadedOrSubIdChanged(){
 		//创建apn
@@ -35,8 +35,8 @@
 		mPhone.notifyDataConnection();
 		setupDataOnAllConnectableApns();
 	}
-	
-	
+
+
 	setInitialAttachApn方法选择初始时使用的APN   APN优先级
 	The priority of apn candidates from highest to lowest is:
        1) APN_TYPE_IA (Initial Attach)  类型是ia类型的
@@ -48,7 +48,7 @@
 	mPhone.mCi.setInitialAttachApn(initialAttachApnSetting.apn,
                 initialAttachApnSetting.protocol, initialAttachApnSetting.authType,
                 initialAttachApnSetting.user, initialAttachApnSetting.password, null);
-	
+
 2.TelephonyProvider中关于APN相关的业务流程
 	初始化TelephonyProvider 时
 	onCreate(){
@@ -83,7 +83,7 @@
 	
 	//切换APN相关          //更新数据库将当前key设置为preferapn        Handler机制
 	onPreferenceChange()   -> setSelectedApnKey()                 ->  DcTracker.onApnChanged()
-	
+
 	onApnChanged(){
 		//重新设置APN
 		createAllApnList();
@@ -95,8 +95,3 @@
 			setupDataOnAllConnectableApns();
 		}
 	}
-	
-	
-	
-	
-	
