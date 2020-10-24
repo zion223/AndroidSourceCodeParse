@@ -34,6 +34,17 @@ AndroidManifest.xml中在activity节点下有android:ConfigChanges属性可以�
 
 - standard: 标准模式,系统的默认模式。每次启动Activity时都会创建一个新的Activity实例,不管这个Activity实例是否已经存在。
 - singleTop：栈顶复用模式。如果要启动的Activity已经在当前任务栈的栈顶，则此Activity不会被重新创建，同时onNewIntent()会被回调。
-- singleTask：栈内复用模式，这是一种单实例模式，只要Activity在一个任务栈中存在，那么启动该Activity时不会创建新的Activity实例
+- singleTask：栈内复用模式，这是一种单实例模式，只要Activity在一个任务栈中存在，那么启动该Activity时不会创建新的Activity实例，和singleTop一样系统也会回调其onNewIntent()
 - singleInstance: 单实例模式。加强的singleTask模式，具有singleTask的特性并且还有所加强，配置此模式的Activity只能单独的位于一个独立的任务栈中。
 
+### singleTask模式场景:
+  - 当前任务栈S1中有ABC,这是启动已singleTask模式配置的Activity D, 此Activity需要的任务栈为S2,由于S2和D都不存在，则系统会先创建S2然后创建D的实例放入S2中。
+  - 如果Activity D需要的任务栈是S1，则系统直接创建D实例然后放入S1
+  - 如果Activity D需要的任务栈是S1,并且当前S1栈内的情况为ADBC四个Activity,此时D不会被重新创建，系统会把D切换到栈顶并且调用onNewIntent(),由于singleTask具有clearTop效果，于是BC会被出栈，最终任务栈S1中的情况为AD.
+
+### 指定Activity启动方式
+  - 通过AndroidManifest.xml中指定android:launchMode
+  - Intent启动时设置标志位(优先级更高)
+
+singleTask模式中启动Activity需要的任务栈可以通过在AndroidManifest.xml中的taskAffinity指定, allowTaskReparenting参数配置为true后。
+当应用A启动应用B的Activity B ,则此Activity的任务栈会从应用A转移到应用B
