@@ -1,4 +1,4 @@
-# View的基础知识
+# **View的基础知识**
 
 ## MotionEvent和TouchSlop
 1. MotionEvent
@@ -97,3 +97,5 @@ public boolean dispatchTouchEvent(MotionEvent ev){
 ```
 
 ![View事件传递](View事件传递.jpg)
+
+# View的滑动冲突
