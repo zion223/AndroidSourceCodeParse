@@ -20,7 +20,7 @@ getRawX()/getRawY() 相对于屏幕左上角的坐标
 ## VelocityTracker、GestureDetector和Scroller
 
 VelocityTracker: 用于跟踪手指在滑动过程中的速度，包括水平和垂直方向上的速度  
-GestureDetector: 手势检测，用于辅助检测用户的单击、滑动、长按、双击等行为
+GestureDetector: 手势检测，用于辅助检测用户的单击、滑动、长按、双击等行为  
 Scroller:弹性滑动对象，实现View的弹性滑动。
 
 # View的滑动
@@ -98,4 +98,9 @@ public boolean dispatchTouchEvent(MotionEvent ev){
 
 ![View事件传递](View事件传递.jpg)
 
-# View的滑动冲突
+# **View的滑动冲突**
+
+## 常见的滑动冲突场景
+- 外部滑动方向和内部滑动方向不一致 (ViewPager嵌套RecyclerView)
+- 外部滑动方向和内部滑动方向一致 (RecyclerView嵌套RecyclerView)
+- 上面两种情况的结合
