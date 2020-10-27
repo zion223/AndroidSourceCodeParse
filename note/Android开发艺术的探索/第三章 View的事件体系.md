@@ -96,7 +96,7 @@ public boolean dispatchTouchEvent(MotionEvent ev){
 
 ```
 
-![View事件传递](View事件传递.jpg)
+![View事件传递](image/View事件传递.jpg)
 
 # **View的滑动冲突**
 
