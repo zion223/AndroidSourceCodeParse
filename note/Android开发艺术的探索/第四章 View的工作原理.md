@@ -201,7 +201,7 @@ View的工作流程主要是指measure、layout、draw这三大流程，即测�
 - ViewGroup的measure过程  
   ViewGroup除了完成自己的measure过程以外，还会去遍历调用所有子元素的measure方法，各个子元素再去递归的执行这个过程，与View不同的是ViewGroup是一个抽象类，因此它没有重写View的onMeasure方法，但是提供了一个measureChildren()方法
 
-  ![View的Measure过程](image/ViewGroup的Measure过程.jpg)
+  ![ViewGroup的Measure过程](image/ViewGroup的Measure过程.jpg)  
   ViewGroup没有定义其测量的具体过程，那是因为ViewGroup是一个抽象类，其测量过程的onMeasure方法需要各自子类去实现。  
   当measure完成后，就可以通过view.getMeasuredWidth/Height方法就可以正确的获取到View的宽和高。  
 
@@ -375,6 +375,8 @@ public void layout(int l, int t, int r, int b) {
         }
     }
 ```
+
+### draw过程
 
 
 

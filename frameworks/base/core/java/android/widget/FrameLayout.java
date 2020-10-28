@@ -169,7 +169,7 @@ public class FrameLayout extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int count = getChildCount();
-
+        //判断当前布局的宽高是否是match_parent模式或者指定一个精确的大小，如果是则置measureMatchParent为false. 
         final boolean measureMatchParentChildren =
                 MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY ||
                 MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
@@ -178,17 +178,22 @@ public class FrameLayout extends ViewGroup {
         int maxHeight = 0;
         int maxWidth = 0;
         int childState = 0;
-
+        //遍历子View    
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
             if (mMeasureAllChildren || child.getVisibility() != GONE) {
+                //对每一个子View进行测量
                 measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                //寻找子View中宽高的最大者，因为如果FrameLayout是wrap_content属性
+                //那么它的大小取决于子View中的最大者
                 maxWidth = Math.max(maxWidth,
                         child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight,
                         child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
+                //如果FrameLayout是wrap_content模式，那么往mMatchParentChildren中添加
+                //宽或者高为match_parent的子View，因为该子View的最终测量大小会受到FrameLayout的最终测量大小影响
                 if (measureMatchParentChildren) {
                     if (lp.width == LayoutParams.MATCH_PARENT ||
                             lp.height == LayoutParams.MATCH_PARENT) {
@@ -212,11 +217,11 @@ public class FrameLayout extends ViewGroup {
             maxHeight = Math.max(maxHeight, drawable.getMinimumHeight());
             maxWidth = Math.max(maxWidth, drawable.getMinimumWidth());
         }
-
+        //保存测量结果
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState),
                 resolveSizeAndState(maxHeight, heightMeasureSpec,
                         childState << MEASURED_HEIGHT_STATE_SHIFT));
-
+        //子View中设置为match_parent的个数并且 当前FrameLayout设置为wrap_content模式
         count = mMatchParentChildren.size();
         if (count > 1) {
             for (int i = 0; i < count; i++) {
@@ -224,6 +229,20 @@ public class FrameLayout extends ViewGroup {
                 final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
 
                 final int childWidthMeasureSpec;
+                /**
+                * 如果子View的宽度是match_parent属性，那么对当前FrameLayout的MeasureSpec修改：
+                * 把widthMeasureSpec的宽度规格修改为:总宽度 - padding - margin，这样做的意思是：
+                * 对于子Viw来说，如果要match_parent，那么它可以覆盖的范围是FrameLayout的测量宽度
+                * 减去padding和margin后剩下的空间。
+                *
+                * 以下两点的结论，可以查看getChildMeasureSpec()方法：
+                *
+                * 如果子View的宽度是一个确定的值，比如50dp，那么FrameLayout的widthMeasureSpec的宽度规格修改为：
+                * SpecSize为子View的宽度，即50dp，SpecMode为EXACTLY模式
+                * 
+                * 如果子View的宽度是wrap_content属性，那么FrameLayout的widthMeasureSpec的宽度规格修改为：
+                * SpecSize为子View的宽度减去padding减去margin，SpecMode为AT_MOST模式
+                */
                 if (lp.width == LayoutParams.MATCH_PARENT) {
                     final int width = Math.max(0, getMeasuredWidth()
                             - getPaddingLeftWithForeground() - getPaddingRightWithForeground()
@@ -250,7 +269,7 @@ public class FrameLayout extends ViewGroup {
                             lp.topMargin + lp.bottomMargin,
                             lp.height);
                 }
-
+                //子View 的measure方法
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
         }
