@@ -202,7 +202,190 @@ View的工作流程主要是指measure、layout、draw这三大流程，即测�
   ViewGroup除了完成自己的measure过程以外，还会去遍历调用所有子元素的measure方法，各个子元素再去递归的执行这个过程，与View不同的是ViewGroup是一个抽象类，因此它没有重写View的onMeasure方法，但是提供了一个measureChildren()方法
 
   ![View的Measure过程](image/ViewGroup的Measure过程.jpg)
-  ViewGroup没有定义其测量的具体过程，那是因为ViewGroup是一个抽象类，其测量过程的onMeasure方法需要各自子类去实现。
+  ViewGroup没有定义其测量的具体过程，那是因为ViewGroup是一个抽象类，其测量过程的onMeasure方法需要各自子类去实现。  
+  当measure完成后，就可以通过view.getMeasuredWidth/Height方法就可以正确的获取到View的宽和高。  
+
+  **如何在Activity中获取view的宽度和高度 ?**  
+  Activity的生命周期和view的measure过程并没有同步，因为无法再Activity的生命周期回调中获取view的宽度和高度。  
+  1. Activity/View#onWindowFocusChanged
+    onWindowFocusChanged()回调发生时View已经初始化完毕了，可以再此方法中获取View的宽度和高度，需要注意的是此方法可能会被调用多次。
+  2. view.post(runnable)
+    通过post方法可以将一个runnable投递到消息队列的尾部，然后等到Looper调用此runnable的时候，View已经初始化完毕了。
+    ```java
+    protected void onStart(){
+        super.onStart();
+        view.post(new Runnable(){
+
+            @Override
+            public void run(){
+                int width = view.getMeasuredWidth();
+                int height = view.getMeasuredHeight();
+            }
+        });
+    }
+    ```
+    3. ViewTreeObserver  
+        使用ViewTreeObserver的众多接口回调可以完成这个功能，比如使用OnGlobalLayoutListener这个接口。
+    4. view.measure(int widthMeasureSpec, int heightMeasureSpec)  
+    手动对View进行measure来得到View的宽/高     
+
+### layout过程
+View的绘制流程是从ViewRootImpl的performTraversals方法开始的，在此方法中会依次调用performMeasure()、performLayout()、performDraw()。
+``` java
+private void performLayout(WindowManager.LayoutParams lp, int desiredWindowWidth,
+        int desiredWindowHeight) {
+    mLayoutRequested = false;
+    mScrollMayChange = true;
+    mInLayout = true;
+
+    final View host = mView;
+    if (DEBUG_ORIENTATION || DEBUG_LAYOUT) {
+        Log.v(TAG, "Laying out " + host + " to (" +
+                host.getMeasuredWidth() + ", " + host.getMeasuredHeight() + ")");
+    }
+
+    Trace.traceBegin(Trace.TRACE_TAG_VIEW, "layout");
+    try {
+        //调用View的layout方法
+        host.layout(0, 0, host.getMeasuredWidth(), host.getMeasuredHeight()); // 1
+
+        //省略...
+    } finally {
+        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+    }
+    mInLayout = false;
+}
+
+```
+从上面代码可以看出在调用DecorView的layout方法时传递的参数分别是上下左右四个位置的坐标。接下来是View#layout方法
+
+```java 
+public void layout(int l, int t, int r, int b) {
+        if ((mPrivateFlags3 & PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT) != 0) {
+            onMeasure(mOldWidthMeasureSpec, mOldHeightMeasureSpec);
+            mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+        }
+
+        int oldL = mLeft;
+        int oldT = mTop;
+        int oldB = mBottom;
+        int oldR = mRight;
+        //调用setFrame方法
+        boolean changed = isLayoutModeOptical(mParent) ?
+                setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
+
+        if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+            //调用onLayout方法
+            onLayout(changed, l, t, r, b);
+            mPrivateFlags &= ~PFLAG_LAYOUT_REQUIRED;
+
+            ListenerInfo li = mListenerInfo;
+            if (li != null && li.mOnLayoutChangeListeners != null) {
+                ArrayList<OnLayoutChangeListener> listenersCopy =
+                        (ArrayList<OnLayoutChangeListener>)li.mOnLayoutChangeListeners.clone();
+                int numListeners = listenersCopy.size();
+                for (int i = 0; i < numListeners; ++i) {
+                    listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);
+                }
+            }
+        }
+
+        mPrivateFlags &= ~PFLAG_FORCE_LAYOUT;
+        mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;
+    }
+```
+调用setFrame()方法来设定View的四个顶点的位置，View的四个顶点的位置一旦确定，那么View在父容器中的位置也确定了，接着调用onLayout方法用来在父容器中确定子元素的位置。View的onLayout方法是空实现。需要交由子类去实现。FrameLayout中的实现如下
+```java
+@Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        layoutChildren(left, top, right, bottom, false /* no force left gravity */);
+    }
+
+    void layoutChildren(int left, int top, int right, int bottom, boolean forceLeftGravity) {
+        final int count = getChildCount();
+        //影响子View的布局参数
+        final int parentLeft = getPaddingLeftWithForeground();
+        final int parentRight = right - left - getPaddingRightWithForeground();
+
+        final int parentTop = getPaddingTopWithForeground();
+        final int parentBottom = bottom - top - getPaddingBottomWithForeground();
+        //循环遍历子View
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            //不为GONE类型的
+            if (child.getVisibility() != GONE) {
+                //子View的布局参数
+                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+                final int width = child.getMeasuredWidth();
+                final int height = child.getMeasuredHeight();
+
+                int childLeft;
+                int childTop;
+
+                int gravity = lp.gravity;
+                if (gravity == -1) {
+                    gravity = DEFAULT_CHILD_GRAVITY;
+                }
+
+                final int layoutDirection = getLayoutDirection();
+                final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
+                final int verticalGravity = gravity & Gravity.VERTICAL_GRAVITY_MASK;
+                //水平方向的layout_gravity参数
+                switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+                    /* 水平居中，由于子View要在水平中间的位置显示，因此，要先计算出以下：
+                    * (parentRight - parentLeft -width)/2 此时得出的是父容器减去子View宽度后的
+                    * 剩余空间的一半，那么再加上parentLeft后，就是子View初始左上角横坐标(此时正好位于中间位置)，
+                    * 假如子View还受到margin约束，由于leftMargin使子View右偏而rightMargin使子View左偏，所以最后
+                    * 是 +leftMargin - rightMargin .
+                    */
+                    case Gravity.CENTER_HORIZONTAL:
+                        childLeft = parentLeft + (parentRight - parentLeft - width) / 2 +
+                        lp.leftMargin - lp.rightMargin;
+                        break;
+                    //水平居右 父容器Right-子View宽度 - 子View右Margin    
+                    case Gravity.RIGHT:
+                        if (!forceLeftGravity) {
+                            childLeft = parentRight - width - lp.rightMargin;
+                            break;
+                        }
+                    //不设置layout_gravity时默认就是靠左 子View的左Margin+父容器的左Margin    
+                    case Gravity.LEFT:
+                    default:
+                        childLeft = parentLeft + lp.leftMargin;
+                }
+
+                switch (verticalGravity) {
+                    case Gravity.TOP:
+                        childTop = parentTop + lp.topMargin;
+                        break;
+                    case Gravity.CENTER_VERTICAL:
+                        childTop = parentTop + (parentBottom - parentTop - height) / 2 +
+                        lp.topMargin - lp.bottomMargin;
+                        break;
+                    case Gravity.BOTTOM:
+                        childTop = parentBottom - height - lp.bottomMargin;
+                        break;
+                    default:
+                        childTop = parentTop + lp.topMargin;
+                }
+                //调用子View自己的layout方法
+                child.layout(childLeft, childTop, childLeft + width, childTop + height);
+            }
+        }
+    }
+```
+
+
+
+
+
+
+
+     
+
+
+
 
 
 
