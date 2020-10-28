@@ -378,6 +378,7 @@ public void layout(int l, int t, int r, int b) {
 
 ### draw过程
 
+  ![View的draw过程](image/View的draw过程.jpg)
 
 
 

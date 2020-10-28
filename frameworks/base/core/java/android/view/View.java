@@ -16820,7 +16820,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     }
 
     /**
-     * Implement this to do your drawing.
+     * Implement this to do your drawing.交给子类去实现
      *
      * @param canvas the canvas on which the background will be drawn
      */
