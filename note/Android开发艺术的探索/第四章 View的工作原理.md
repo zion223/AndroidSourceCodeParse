@@ -77,8 +77,15 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
     }
 ```
 
-对于普通的View的来说，View的measure过程由ViewGroup传递过来
+对于普通的View的来说，View的measure过程由ViewGroup传递过来，
 ``` java
+ /**
+     * Ask one of the children of this view to measure itself, taking into
+     * account both the MeasureSpec requirements for this view and its padding
+     * and margins. The child must have MarginLayoutParams The heavy lifting is
+     * done in getChildMeasureSpec.
+     *
+     */
     protected void measureChildWithMargins(View child,
             int parentWidthMeasureSpec, int widthUsed,
             int parentHeightMeasureSpec, int heightUsed) {
@@ -100,16 +107,17 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
 
 ```java 
  public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
+        //传递进来的父容器的测量模式和尺寸
         int specMode = MeasureSpec.getMode(spec);
         int specSize = MeasureSpec.getSize(spec);
-
+        //父容器最大可用尺寸 容器尺寸 - padding
         int size = Math.max(0, specSize - padding);
-
+        //算出的子View的尺寸和模式
         int resultSize = 0;
         int resultMode = 0;
-
+        //判断父容器的测量模式
         switch (specMode) {
-        // Parent has imposed an exact size on us
+        // Parent has imposed an exact size on us 父容器指定了具体的尺寸
         case MeasureSpec.EXACTLY:
             if (childDimension >= 0) {
                 resultSize = childDimension;
@@ -126,7 +134,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
             }
             break;
 
-        // Parent has imposed a maximum size on us
+        // Parent has imposed a maximum size on us 父容器指定了一个最大尺寸
         case MeasureSpec.AT_MOST:
             if (childDimension >= 0) {
                 // Child wants a specific size... so be it
@@ -178,6 +186,66 @@ View的工作流程主要是指measure、layout、draw这三大流程，即测�
   
 ![View的Measure过程](image/View的Measure过程.jpg)
 
+View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下
+```java
+ /**
+     * <p>
+     * Measure the view and its content to determine the measured width and the
+     * measured height. This method is invoked by {@link #measure(int, int)} and
+     * should be overridden by subclasses to provide accurate and efficient
+     * measurement of their contents.
+     * </p>
+     * <p>
+     * 这个方法由measure(int, int)调用，并且应该被子类覆盖，以提供对其内容的准确和有效的度量。
+     * </p>
+     * <p>
+     *  When overriding this method, you must call        
+     * {@link#setMeasuredDimension(int, int)} to store the
+     * measured width and height of this view. Failure to do so will trigger an
+     * <code>IllegalStateException</code>, thrown by
+     * {@link #measure(int, int)}. Calling the superclass'
+     * {@link #onMeasure(int, int)} is a valid use.
+     * </p>
+     *
+     * <p>
+     * The base class implementation of measure defaults to the background size,
+     * unless a larger size is allowed by the MeasureSpec. Subclasses should
+     * override {@link #onMeasure(int, int)} to provide better measurements of
+     * their content.
+     * </p>
+     *
+     * <p>
+     * If this method is overridden, it is the subclass's responsibility to make
+     * sure the measured height and width are at least the view's minimum height
+     * and width ({@link #getSuggestedMinimumHeight()} and
+     * {@link #getSuggestedMinimumWidth()}).
+     * </p>
+     */
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+    }
+
+```
+setMeasuredDimension方法会设置测量好的View的宽/高的值。
+```java
+public static int getDefaultSize(int size, int measureSpec) {
+        int result = size;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        switch (specMode) {
+        case MeasureSpec.UNSPECIFIED:
+            result = size;
+            break;
+        case MeasureSpec.AT_MOST:
+        case MeasureSpec.EXACTLY:
+            result = specSize;
+            break;
+        }
+        return result;
+    }
+```
 从getDefaultSize()方法来看,View的宽/高由specSize决定，由此可以得出结论:直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样。解决此问题的代码如下
 ```java
 @Override
@@ -378,7 +446,35 @@ public void layout(int l, int t, int r, int b) {
 
 ### draw过程
 
-  ![View的draw过程](image/View的draw过程.jpg)
+1. Draw the background(绘制背景)
+2. If necessary, save the canvas' layers to prepare for fading
+3. Draw view's content(绘制自己   重写onDraw()方法)
+4. Draw children(绘制子节点 dispatchDraw())
+5. If necessary, draw the fading edges and restore layers
+6. Draw decorations (scrollbars for instance)(绘制装饰)
+
+
+![View的draw过程](image/View的draw过程.jpg)
+
+
+## 自定义View  
+
+
+自定义View的分类
+- 继承View重写onDraw()方法，采用这种方式需要自己支持wrap_content并且padding也需要自己处理
+- 继承ViewGroup派生特殊的Layout
+- 继承特殊的View(TextView、ImageView)
+- 继承特殊的ViewGroup(LinearLayout)
+
+自定义View须知
+
+1. 让自定义View支持wrap_content,如果继承自View或者ViewGroup的控件，如果不在onMeasure()方法中对于wrap_content做处理则当view设置为wrap_content时效果和match_parent是一样的。
+2. 如果有必要让自定义View支持padding,如果直接继承自View的控件如果不在draw()方法中处理padding,那么padding属性是无法起作用的。
+3. 尽量不要在View中使用Handler,View本身提供了post系列的方法可以代替Handler的作用
+4. View中如果有线程在运行或者动画在执行，在View#onDetachedFromWindow方法中及时停止，否则可能导致内存泄漏
+5. View可以滑动嵌套情形时，需要处理好滑动冲突
+
+
 
 
 
