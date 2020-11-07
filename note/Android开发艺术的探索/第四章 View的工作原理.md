@@ -103,7 +103,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
 
 ```
 
-从代码可以看出来子View的MeasureSpec的创建与父容器的MeasureSpec和其自身的LayoutParams有关。此外还与View的margin及padding有关。
+**从代码可以看出来子View的MeasureSpec的创建与父容器的MeasureSpec和其自身的LayoutParams有关**。此外还与View的margin及padding有关。
 
 ```java 
  public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
