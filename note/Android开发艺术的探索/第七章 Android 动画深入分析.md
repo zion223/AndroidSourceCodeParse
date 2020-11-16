@@ -105,15 +105,51 @@ android:shareInterpolator
 
 
 ### 帧动画
+帧动画是顺序播放一组预先定义好的图片，类似于电影播放。不同于View动画，系统提供了另外一个类AnimationDrawable来使用帧动画。在res/drawable目录下新建xml文件。
+``` xml
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
 
-  &lt;animation-list android:id=&quot;@+id/selected&quot; android:oneshot=&quot;false&quot;&gt;
-     &lt;item android:drawable=&quot;@drawable/wheel0&quot; android:duration=&quot;50&quot; /&gt;
-     &lt;item android:drawable=&quot;@drawable/wheel1&quot; android:duration=&quot;50&quot; /&gt;
-     &lt;item android:drawable=&quot;@drawable/wheel2&quot; android:duration=&quot;50&quot; /&gt;
-    &lt;item android:drawable=&quot;@drawable/wheel3&quot; android:duration=&quot;50&quot; /&gt;
-     &lt;item android:drawable=&quot;@drawable/wheel4&quot; android:duration=&quot;50&quot; /&gt;
-     &lt;item android:drawable=&quot;@drawable/wheel5&quot; android:duration=&quot;50&quot; /&gt;
-  &lt;/animation-list&gt;
+    <item android:drawable="@drawable/image1" android:duration="500"/>
+    <item android:drawable="@drawable/image2" android:duration="500"/>
+    <item android:drawable="@drawable/image3" android:duration="500"/>
+
+</animation-list>
+
+```
+然后将上述Drawable作为View的背景并通过Drawable来显示动画即可。
+``` java
+    view.setBackgroundResources(R.drawable/.frame_animation);
+    AnimationDrawable drawable = view.getBackground();
+    drawable.start();
+```
+在使用帧动画时避免使用尺寸较大的图片容易引起OOM。
+
+## View动画的特殊使用场景
+
+## 属性动画
+
+### 使用属性动画
+属性动画可以对任意对象的属性进行动画而不仅仅是View,动画的默认时间间隔为300ms，默认帧率为10ms/帧。属性动画可以完成在一个时间间隔内完成对象的一个属性值到另一个属性值的改变。属性动画和View动画的区别如下。
+![View动画和属性动画的区别](image/anim.jpg)
+
+属性动画使用方法
+```java
+    public static ObjectAnimator ofFloat(Object target, String propertyName, float... values) {
+        ObjectAnimator anim = new ObjectAnimator(target, propertyName);
+        anim.setFloatValues(values);
+        return anim;
+    }
+```
+### 理解插值器和估值器
+### 属性动画的监听器
+### 属性动画的工作原理
+
+
+## 使用动画的注意事项
+
+
 
 
 
