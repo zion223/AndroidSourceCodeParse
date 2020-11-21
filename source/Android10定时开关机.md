@@ -1,4 +1,4 @@
-### Android10 定时开关机实现思路  
+### Android10 定时开关机实现思路	-2020/11/19
 
 Android10 中AlarmManager取消了RTC_POWEROFF_WAKEUP 不支持通过AlarmManager设置关机唤醒设备。  
 Android7.1中AlarmManager代码中关于中AlarmManager取消了RTC_POWEROFF_WAKEUP的说明。
