@@ -124,7 +124,7 @@ android:shareInterpolator
     AnimationDrawable drawable = view.getBackground();
     drawable.start();
 ```
-在使用帧动画时避免使用尺寸较大的图片容易引起OOM。
+> 在使用帧动画时避免使用尺寸较大的图片容易引起OOM。
 
 ## View动画的特殊使用场景
 
