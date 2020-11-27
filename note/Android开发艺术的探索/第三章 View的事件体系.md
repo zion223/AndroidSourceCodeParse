@@ -1,5 +1,21 @@
 # **View的基础知识**
 
+
+
+## View的位置参数
+Android坐标系:以屏幕左上角为坐标原点， 向右为x轴增大方向，向下为y轴增大方向。  
+View的位置由四个顶点的位置决定，分别对应于View的四个属性：left、top、right、bottom。这些坐标是相对于view父容器而言的，是相对坐标。  
+
+![View坐标系](image/View坐标系.png)
+
+> 因此，View的宽高和坐标关系：width = right - left，height = bottom - top。
+
+Android3.0后新添加了x、y和translationX、translationY其中x和y是左上角的坐标，translationX和translationY是是View左上角的偏移量。
+![View坐标系](image/view新坐标参数.png)
+
+> 存在关系：x = left + translationX，y = top + translationY  
+> 由此可见，x和left不同体现在：left是View的初始坐标，在绘制完毕后就不会再改变；而x是View偏移后的实时坐标，是实际坐标。y和top的区别同理。
+
 ## MotionEvent和TouchSlop
 1. MotionEvent
  - Action_DOWN 手指刚接触屏幕
@@ -11,7 +27,7 @@ getX()/getY() 相对于当前View左上角的坐标
 getRawX()/getRawY() 相对于屏幕左上角的坐标
 
 2. TouchSlop
- TouchSlop 是系统所能识别出的被认为是滑动的最小距离,处理滑动时可以利用这个常量来做一些过滤.
+ TouchSlop 是系统所能识别出的被认为是滑动的最小距离,处理滑动时可以利用这个常量来做一些过滤.  
  /frameworks/base/core/res/res/values/config.xml  
  `
 <dimen name="config_viewConfigurationTouchSlop">8dp</dimen>
@@ -19,9 +35,9 @@ getRawX()/getRawY() 相对于屏幕左上角的坐标
 
 ## VelocityTracker、GestureDetector和Scroller
 
-VelocityTracker: 用于跟踪手指在滑动过程中的速度，包括水平和垂直方向上的速度  
-GestureDetector: 手势检测，用于辅助检测用户的单击、滑动、长按、双击等行为  
-Scroller:弹性滑动对象，实现View的弹性滑动。
+VelocityTracker: 用于跟踪手指在滑动过程中的速度，包括水平和垂直方向上的速度。  
+GestureDetector: 手势检测，用于辅助检测用户的单击、滑动、长按、双击等行为。  
+Scroller: 弹性滑动对象，实现View的弹性滑动。
 
 # View的滑动
 
@@ -49,14 +65,14 @@ Scroller:弹性滑动对象，实现View的弹性滑动。
             }
         }
     }
-
+    // 相对于当前位置的滑动
     public void scrollBy(int x, int y) {
         scrollTo(mScrollX + x, mScrollY + y);
     }
 ```
 
-使用scrollTo()和scrollBy()实现View的滑动只能将View的内容进行移动，并不能将View本身移动.
-
+使用scrollTo()和scrollBy()实现View的滑动只能将View的内容进行移动，并不能将View本身移动。  
+使用scrollBy()方法进行滑动时是基于当前位置进行滑动的，mScrollX表示View内容左边缘和View左边缘的差值。
 ``` java
  /**
      * The offset, in pixels, by which the content of this view is scrolled
@@ -210,6 +226,7 @@ ViewPager中处理滑动冲突就是采用的此方法。
                     mIsUnableToDrag = true;
                     return false;
                 }
+                // 通过滑动的角度来判断 xDiff * 0.5f > yDiff
                 if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
                     if (DEBUG) Log.v(TAG, "Starting drag!");
                     mIsBeingDragged = true;
@@ -229,6 +246,7 @@ ViewPager中处理滑动冲突就是采用的此方法。
                 }
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
+                    // 处理滑动
                     if (performDrag(x)) {
                         ViewCompat.postInvalidateOnAnimation(this);
                     }
