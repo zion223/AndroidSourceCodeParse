@@ -326,7 +326,7 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
 
         prepareNavigationBarView();
         checkNavBarModes();
-
+        // 监听广播
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_USER_SWITCHED);
@@ -649,16 +649,16 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
 
     private void prepareNavigationBarView() {
         mNavigationBarView.reorient();
-
+        // 最近打开的应用按钮
         ButtonDispatcher recentsButton = mNavigationBarView.getRecentsButton();
         recentsButton.setOnClickListener(this::onRecentsClick);
         recentsButton.setOnTouchListener(this::onRecentsTouch);
         recentsButton.setLongClickable(true);
         recentsButton.setOnLongClickListener(this::onLongPressBackRecents);
-
+        // 返回按钮
         ButtonDispatcher backButton = mNavigationBarView.getBackButton();
         backButton.setLongClickable(true);
-
+        // Home按钮
         ButtonDispatcher homeButton = mNavigationBarView.getHomeButton();
         homeButton.setOnTouchListener(this::onHomeTouch);
         homeButton.setOnLongClickListener(this::onHomeLongClick);
@@ -1060,6 +1060,7 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            // 屏幕亮灭广播
             if (Intent.ACTION_SCREEN_OFF.equals(action)
                     || Intent.ACTION_SCREEN_ON.equals(action)) {
                 notifyNavigationBarScreenOn();

@@ -588,6 +588,7 @@ public class NavigationBarView extends FrameLayout implements
         updateSystemUiStateFlags();
     }
 
+    // 更新底部按钮图标
     public void updateNavButtonIcons() {
         // We have to replace or restore the back and home button icons when exiting or entering
         // carmode, respectively. Recents are not available in CarMode in nav bar so change
@@ -613,7 +614,7 @@ public class NavigationBarView extends FrameLayout implements
 
         boolean disableHome = isGesturalMode(mNavBarMode)
                 || ((mDisabledFlags & View.STATUS_BAR_DISABLE_HOME) != 0);
-
+        // car mode 模式下不显示最近打开的应用按钮
         // Always disable recents when alternate car mode UI is active and for secondary displays.
         boolean disableRecent = isRecentsButtonDisabled();
 
@@ -643,7 +644,7 @@ public class NavigationBarView extends FrameLayout implements
                 }
             }
         }
-
+        //判断是否需要显示
         getBackButton().setVisibility(disableBack      ? View.INVISIBLE : View.VISIBLE);
         getHomeButton().setVisibility(disableHome      ? View.INVISIBLE : View.VISIBLE);
         getRecentsButton().setVisibility(disableRecent ? View.INVISIBLE : View.VISIBLE);
