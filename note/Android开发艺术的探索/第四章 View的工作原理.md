@@ -14,12 +14,13 @@
 
 &ensp;&ensp;View的绘制流程是从ViewRootImpl的performTraversals方法开始的，其中measure用来测量View的宽和高，layout用来确定View的位置，draw用来负责将View绘制在屏幕上。
 
-&ensp;&ensp;DecorView作为顶级的View,一般情况下它内部会包含一个竖直方向的LinearLayout,在这个LinearLayout中有上下两部分，上面是标题栏下面是内容栏。在Activity中的onCreate()方法中通过setContentView()方法设置的layout的id就是设置内容栏的布局。
+&ensp;&ensp;DecorView作为顶级的View，一般情况下它内部会包含一个竖直方向的LinearLayout，在这个LinearLayout中有上下两部分，上面是标题栏下面是内容栏。在Activity中的onCreate()方法中通过setContentView()方法设置的layout的id就是设置内容栏的布局。  
+
 ![DecorView](image/DecorView.jpg)
 
 ## 理解MeasureSpec
 
-&ensp;&ensp;MeaureSpec代表一个32位的int值，高2位代表的是SpecMode,低30位代表的是SpecSize,SpecMode代表的是测量模式，SpecSize代表的是某种测量模式下的规格大小。SpecMode有三类在下面代码注释中有说明。
+&ensp;&ensp;MeaureSpec代表一个32位的int值，高2位代表的是SpecMode，低30位代表的是SpecSize，SpecMode代表的是测量模式，SpecSize代表的是某种测量模式下的规格大小。SpecMode有三类在下面代码注释中有说明。
 ```java
         private static final int MODE_SHIFT = 30;
         //运算遮罩 0x3十六进制 对应二进制 11 
@@ -37,15 +38,17 @@
         /**
          * Measure specification mode: The parent has determined an exact size
          * for the child. The child is going to be given those bounds regardless
-         * of how big it wants to be.对应于LayoutParams中的match_parent和具体的数值
-          01 0000 0000 0000 0000 0000 0000 0000 00
+         * of how big it wants to be.
+         * 对应于LayoutParams中的match_parent和具体的数值
+         * 01 0000 0000 0000 0000 0000 0000 0000 00
          */
         public static final int EXACTLY     = 1 << MODE_SHIFT;
 
         /**
          * Measure specification mode: The child can be as large as it wants up
-         * to the specified size. 对应于LayoutParams中的wrap_content
-          10 0000 0000 0000 0000 0000 0000 0000 00
+         * to the specified size. 
+         * 对应于LayoutParams中的wrap_content
+         * 10 0000 0000 0000 0000 0000 0000 0000 00
          */
         public static final int AT_MOST     = 2 << MODE_SHIFT;
 
@@ -199,7 +202,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
 
 View的工作流程主要是指measure、layout、draw这三大流程，即测量、布局和绘制，其中measure主要确定View的宽和高,layout确定View的最终宽/高和四个顶点的位置，而draw会将View绘制到屏幕上。
 
-### measure过程
+### **measure过程**
 - View的measure过程
   
 ![View的Measure过程](image/View的Measure过程.jpg)
@@ -264,7 +267,7 @@ public static int getDefaultSize(int size, int measureSpec) {
         return result;
     }
 ```
-从getDefaultSize()方法来看,View的宽/高由specSize决定，由此可以得出结论:直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样([链接文章](https://www.jianshu.com/p/ca118d704b5e))，解决此问题的代码如下。
+从getDefaultSize()方法来看，View的宽/高由specSize决定，由此可以得出结论:直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样([链接文章](https://www.jianshu.com/p/ca118d704b5e))，解决此问题的代码如下。
 ```java
 @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -301,13 +304,14 @@ public static int getDefaultSize(int size, int measureSpec) {
   ViewGroup除了完成自己的measure过程以外，还会去遍历调用所有子元素的measure方法，各个子元素再去递归的执行这个过程，与View不同的是ViewGroup是一个抽象类，因此它没有重写View的onMeasure方法，但是提供了一个measureChildren()方法
 
   ![ViewGroup的Measure过程](image/ViewGroup的Measure过程.jpg)  
+
   ViewGroup没有定义其测量的具体过程，那是因为ViewGroup是一个抽象类，其测量过程的onMeasure方法需要各自子类去实现。
   当measure完成后，就可以通过view.getMeasuredWidth/Height方法就可以正确的获取到View的宽和高。自定义ViewGroup实现onMeasure()方法的思路如下
   ```java
     /**
-    * 根据自身的测量逻辑复写onMeasure（），分为3步
-    * 1. 遍历所有子View & 测量：measureChildren（）
-    * 2. 合并所有子View的尺寸大小,最终得到ViewGroup父视图的测量值（自身实现）
+    * 根据自身的测量逻辑复写onMeasure()，分为3步
+    * 1. 遍历所有子View & 测量：measureChildren()
+    * 2. 合并所有子View的尺寸大小,最终得到ViewGroup父视图的测量值(自身实现)
     * 3. 存储测量后View宽/高的值：调用setMeasuredDimension()  
     **/ 
 
@@ -318,7 +322,7 @@ public static int getDefaultSize(int size, int measureSpec) {
         int widthMeasure ;
         int heightMeasure ;
 
-        // 1. 遍历所有子View & 测量(measureChildren（）)
+        // 1. 遍历所有子View & 测量(measureChildren())
         // ->> 分析1
         measureChildren(widthMeasureSpec, heightMeasureSpec)；
 
@@ -332,7 +336,7 @@ public static int getDefaultSize(int size, int measureSpec) {
         setMeasuredDimension(widthMeasure,  heightMeasure);  
   }
   // 从上可看出：
-  // 复写onMeasure（）有三步，其中2步直接调用系统方法
+  // 复写onMeasure()有三步，其中2步直接调用系统方法
   // 需自身实现的功能实际仅为步骤2：合并所有子View的尺寸大小
 
     /**
@@ -407,10 +411,11 @@ public static int getDefaultSize(int size, int measureSpec) {
     2. view.measure(int widthMeasureSpec, int heightMeasureSpec)  
     手动对View进行measure来得到View的宽/高     
 
-### layout过程
+### **layout过程**
 layout过程的作用是确定View的四个顶点的位置top、left、right和bottom。
 
-![View计算图例](image/View计算图例.png)
+![View计算图例](image/View计算图例.png)  
+
 View的绘制流程是从ViewRootImpl的performTraversals方法开始的，在此方法中会依次调用performMeasure()、performLayout()、performDraw()。
 ``` java
 private void performLayout(WindowManager.LayoutParams lp, int desiredWindowWidth,
@@ -557,7 +562,7 @@ public void layout(int l, int t, int r, int b) {
     }
 ```
 
-### draw过程
+### **draw过程**
 
 1. Draw the background(绘制背景)
 2. If necessary, save the canvas' layers to prepare for fading
