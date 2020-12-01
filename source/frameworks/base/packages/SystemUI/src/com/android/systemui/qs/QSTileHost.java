@@ -220,6 +220,7 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, D
         if (newValue == null && UserManager.isDeviceInDemoMode(mContext)) {
             newValue = mContext.getResources().getString(R.string.quick_settings_tiles_retail_mode);
         }
+        // 加载config.xml配置文件中配置的图标
         final List<String> tileSpecs = loadTileSpecs(mContext, newValue);
         int currentUser = ActivityManager.getCurrentUser();
         if (tileSpecs.equals(mTileSpecs) && currentUser == mCurrentUser) return;
@@ -246,6 +247,7 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, D
             } else {
                 if (DEBUG) Log.d(TAG, "Creating tile: " + tileSpec);
                 try {
+                    // 创建tile
                     tile = createTile(tileSpec);
                     if (tile != null) {
                         if (tile.isAvailable()) {

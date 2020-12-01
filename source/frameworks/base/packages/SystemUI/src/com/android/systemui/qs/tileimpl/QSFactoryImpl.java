@@ -122,7 +122,7 @@ public class QSFactoryImpl implements QSFactory {
     public void setHost(QSTileHost host) {
         mHost = host;
     }
-
+    // 创建tile的具体实现
     public QSTile createTile(String tileSpec) {
         QSTileImpl tile = createTileInternal(tileSpec);
         if (tile != null) {

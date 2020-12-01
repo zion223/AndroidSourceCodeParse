@@ -108,6 +108,8 @@
     <integer name="quick_settings_user_time_settings_tile_span">1</integer>
 
     <!-- The default tiles to display in QuickSettings -->
+    <!-- 默认显示在QuickSettings中的图标 -->
+    <!-- WLAN、蓝牙、手电筒、自动旋转屏幕、省电模式、移动数据、飞行模式、屏幕投射-->
     <string name="quick_settings_tiles_default" translatable="false">
         wifi,bt,dnd,flashlight,rotation,battery,cell,airplane,cast
     </string>
