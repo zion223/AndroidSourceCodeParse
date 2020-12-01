@@ -229,7 +229,7 @@ public class PhoneStatusBarView extends PanelBar {
                         barConsumedEvent ? 1 : 0);
             }
         }
-
+        // return false 可以禁止状态栏下拉
         return barConsumedEvent || super.onTouchEvent(event);
     }
 
