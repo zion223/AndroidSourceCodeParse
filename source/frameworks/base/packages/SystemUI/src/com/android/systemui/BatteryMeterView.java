@@ -134,6 +134,7 @@ public class BatteryMeterView extends LinearLayout implements
     @Override
     public void onTuningChanged(String key, String newValue) {
         if (StatusBarIconController.ICON_BLACKLIST.equals(key)) {
+            // 控制是否显示电池图标
             ArraySet<String> icons = StatusBarIconController.getIconBlacklist(newValue);
             setVisibility(icons.contains(mSlotBattery) ? View.GONE : View.VISIBLE);
         }
@@ -148,6 +149,7 @@ public class BatteryMeterView extends LinearLayout implements
         getContext().getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(SHOW_BATTERY_PERCENT), false, mSettingObserver);
         updateShowPercent();
+        // 添加监听接口回调
         Dependency.get(TunerService.class).addTunable(this, StatusBarIconController.ICON_BLACKLIST);
         Dependency.get(ConfigurationController.class).addCallback(this);
     }
@@ -155,6 +157,7 @@ public class BatteryMeterView extends LinearLayout implements
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        // 注销回调
         mBatteryController.removeCallback(this);
         getContext().getContentResolver().unregisterContentObserver(mSettingObserver);
         Dependency.get(TunerService.class).removeTunable(this);
@@ -175,6 +178,7 @@ public class BatteryMeterView extends LinearLayout implements
                         : R.string.accessibility_battery_level, level));
     }
 
+    // 省点模式
     @Override
     public void onPowerSaveChanged(boolean isPowerSave) {
         mDrawable.setPowerSave(isPowerSave);
