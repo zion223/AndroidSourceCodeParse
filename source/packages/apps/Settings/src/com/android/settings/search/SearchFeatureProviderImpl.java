@@ -62,6 +62,7 @@ public class SearchFeatureProviderImpl implements SearchFeatureProvider {
         return mSearchIndexableResources;
     }
 
+    // 构建searchIntent 最后交由 /packages/apps/SettingsIntelligence 应用处理
     @Override
     public Intent buildSearchIntent(Context context, int pageId) {
         return new Intent(Settings.ACTION_APP_SEARCH_SETTINGS)

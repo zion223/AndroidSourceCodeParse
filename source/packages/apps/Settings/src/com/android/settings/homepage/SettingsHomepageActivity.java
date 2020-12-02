@@ -51,6 +51,7 @@ public class SettingsHomepageActivity extends FragmentActivity {
         setHomepageContainerPaddingTop();
 
         final Toolbar toolbar = findViewById(R.id.search_action_bar);
+        // 初始化Toolbar 搜索功能实现
         FeatureFactory.getFactory(this).getSearchFeatureProvider()
                 .initSearchToolbar(this /* activity */, toolbar, SettingsEnums.SETTINGS_HOMEPAGE);
         // 账号头像

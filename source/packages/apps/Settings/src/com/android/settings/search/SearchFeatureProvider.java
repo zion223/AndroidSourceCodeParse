@@ -55,12 +55,17 @@ public interface SearchFeatureProvider {
      */
     SearchIndexableResources getSearchIndexableResources();
 
+    /**
+     *  <string name="config_settingsintelligence_package_name">
+     *      com.android.settings.intelligence
+     *  </string>
+     */ 
     default String getSettingsIntelligencePkgName(Context context) {
         return context.getString(R.string.config_settingsintelligence_package_name);
     }
 
     /**
-     * Initializes the search toolbar.
+     * Initializes the search toolbar. 初始化toolbar
      */
     default void initSearchToolbar(Activity activity, Toolbar toolbar, int pageId) {
         if (activity == null || toolbar == null) {
@@ -83,11 +88,12 @@ public interface SearchFeatureProvider {
         navView.setClickable(false);
         navView.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         navView.setBackground(null);
-
+        // 点击事件
         toolbar.setOnClickListener(tb -> {
             final Context context = activity.getApplicationContext();
+            // 构建searchIntent
             final Intent intent = buildSearchIntent(context, pageId);
-
+            // 防止出现ActivityNotFoundException
             if (activity.getPackageManager().queryIntentActivities(intent,
                     PackageManager.MATCH_DEFAULT_ONLY).isEmpty()) {
                 return;
@@ -100,6 +106,6 @@ public interface SearchFeatureProvider {
             activity.startActivityForResult(intent, REQUEST_CODE);
         });
     }
-
+    // 交由Impl来实现
     Intent buildSearchIntent(Context context, int pageId);
 }
