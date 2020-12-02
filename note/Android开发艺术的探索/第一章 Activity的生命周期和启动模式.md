@@ -14,16 +14,17 @@ onStart()和onStop()这两个回调从是否可见的角度
 onResume()和onPause()这两个回调从是否位于前台的角度
 
 当前为ActivityA 从当前Activity启动ActivityB时回调 顺序?   
-ActivityA onPasue()  
-ActivityB onCreate()  
-ActivityB onStart()  
-ActivityB onResume()  
-ActivityA onStop()
+-------> ActivityA onPasue()  
+-------> ActivityB onCreate()  
+-------> ActivityB onStart()  
+-------> ActivityB onResume()  
+-------> ActivityA onStop()
 
 ### 2.异常情况下的生命周期
 1. 资源相关的系统配置发生改变导致Activity被杀死并且重新创建 
     
-  常见如横竖屏切换时会发生,当发生时当前Activity会被销毁 onPause() onStop() onDestroy()回调均会被调用，同时onSaveInstanceState()方法会被调用 用来保存当前状态，这个方法会在onStop()之前被调用。重新创建Activity后onRestoreInstanceState()方法会被调用用来恢复Activity状态，onRestoreInstanceState()回调发生在onStart()后面。Android中的View如EditText在遇到此现象发生时会自动恢复状态。
+  常见如横竖屏切换时会发生，当发生时当前Activity会被销毁并且重建 onPause() onStop() onDestroy()回调均会被调用，同时onSaveInstanceState()方法会被调用 用来保存当前状态，这个方法会在onStop()之前被调用。重新创建Activity后onRestoreInstanceState()方法会被调用用来恢复Activity状态，onRestoreInstanceState()回调发生在onStart()后面。Android中的View如EditText在遇到此现象发生时会自动恢复状态。  
+  多窗口模式的切换也会导致此现象发生。
 
 2. 资源内存不足时低优先级的Activity被系统杀死
    此情况的恢复过程与上述情况相同
