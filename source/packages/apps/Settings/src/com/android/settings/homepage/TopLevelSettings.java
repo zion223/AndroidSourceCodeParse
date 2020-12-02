@@ -52,6 +52,7 @@ public class TopLevelSettings extends DashboardFragment implements
         setArguments(args);
     }
 
+    // R.xml.top_level_settings中就是Settings首页显示的设置项
     @Override
     protected int getPreferenceScreenResId() {
         return R.xml.top_level_settings;
