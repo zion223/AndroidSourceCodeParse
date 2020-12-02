@@ -14,11 +14,11 @@ onStart()和onStop()这两个回调从是否可见的角度
 onResume()和onPause()这两个回调从是否位于前台的角度
 
 当前为ActivityA 从当前Activity启动ActivityB时回调 顺序?   
--------> ActivityA onPasue()  
--------> ActivityB onCreate()  
--------> ActivityB onStart()  
--------> ActivityB onResume()  
--------> ActivityA onStop()
+ActivityA onPasue()  
+ActivityB onCreate()  
+ActivityB onStart()  
+ActivityB onResume()  
+ActivityA onStop()
 
 ### 2.异常情况下的生命周期
 1. 资源相关的系统配置发生改变导致Activity被杀死并且重新创建 
