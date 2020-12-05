@@ -203,11 +203,11 @@ public class FrameLayout extends ViewGroup {
             }
         }
 
-        // Account for padding too
+        // Account for padding too 加入前景色
         maxWidth += getPaddingLeftWithForeground() + getPaddingRightWithForeground();
         maxHeight += getPaddingTopWithForeground() + getPaddingBottomWithForeground();
 
-        // Check against our minimum height and width
+        // Check against our minimum height and width 检查最小宽高
         maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
         maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
