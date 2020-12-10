@@ -197,7 +197,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
     }
 
 ```
-
+![总结](image/获取子View测量方式.png)
 ## View的工作流程
 
 View的工作流程主要是指measure、layout、draw这三大流程，即测量、布局和绘制，其中measure主要确定View的宽和高,layout确定View的最终宽/高和四个顶点的位置，而draw会将View绘制到屏幕上。
@@ -267,7 +267,7 @@ public static int getDefaultSize(int size, int measureSpec) {
         return result;
     }
 ```
-从getDefaultSize()方法来看，View的宽/高由specSize决定，由此可以得出结论:直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样([链接文章](https://www.jianshu.com/p/ca118d704b5e))，解决此问题的代码如下。
+从getDefaultSize()方法来看，不去考虑UNSPECIFIED情况，这种情况一般出现在系统内部的测量过程，那么View的宽/高由specSize决定，由此可以得出结论:直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样([链接文章](https://www.jianshu.com/p/ca118d704b5e))，解决此问题的代码如下。
 ```java
 @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
