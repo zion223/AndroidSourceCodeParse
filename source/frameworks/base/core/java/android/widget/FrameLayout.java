@@ -169,7 +169,7 @@ public class FrameLayout extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int count = getChildCount();
-        //判断当前布局的宽高是否是match_parent模式或者指定一个精确的大小，如果是则置measureMatchParent为false. 
+        //判断当前布局的宽高是否是match_parent模式或者指定一个精确的大小，如果是则置measureMatchParentChildren为false. 
         final boolean measureMatchParentChildren =
                 MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY ||
                 MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
@@ -191,6 +191,7 @@ public class FrameLayout extends ViewGroup {
                         child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight,
                         child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
+                // childState | child.getMeasuredState()
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
                 //如果FrameLayout是wrap_content模式，那么往mMatchParentChildren中添加
                 //宽或者高为match_parent的子View，因为该子View的最终测量大小会受到FrameLayout的最终测量大小影响
@@ -250,6 +251,7 @@ public class FrameLayout extends ViewGroup {
                     childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
                             width, MeasureSpec.EXACTLY);
                 } else {
+                    // 非MATCH_PARENT情况下，走measureChildWithMargins()方法中的内容
                     childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
                             getPaddingLeftWithForeground() + getPaddingRightWithForeground() +
                             lp.leftMargin + lp.rightMargin,
