@@ -788,7 +788,7 @@ public class LinearLayout extends ViewGroup {
             totalWeight += lp.weight;
             // 如果高度是0 并且设置了权重 useExcessSpace为true
             final boolean useExcessSpace = lp.height == 0 && lp.weight > 0;
-            // 如果LnearLayout的高度模式为EXACTLY, 并且子View设置了权重
+            // 如果LinearLayout的高度模式为EXACTLY, 并且子View设置了权重
             if (heightMode == MeasureSpec.EXACTLY && useExcessSpace) {
                 // Optimization: don't bother measuring children who are only
                 // laid out using excess space. These views will get measured
