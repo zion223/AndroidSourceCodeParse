@@ -98,17 +98,41 @@ ObjectAnimator.ofFloat(targetView, "translationX", 0 300).setDuration(1000).star
 
 # View的事件分发机制
 
-事件分发其实就是对于MotionEvent对象的传递过程。
-``` java
-public boolean dispatchTouchEvent(MotionEvent ev){
-    boolean consume = false;
-    if(onInterceptTouchEvent(ev)){
-        consume = onTouchEvent(ev);
-    }else{
-        consume = child.dispatchTouchEvent() //交给子元素去处理
+事件分发其实就是对于MotionEvent对象的传递过程。  
+ViewGroup中dispatchTouchEvent()方法的伪代码如下  
+```java
+
+TouchTarget mFirstTouchTarget = null;//子控件是否消费
+
+public boolean dispatchTouchEvent(MotionEvent event) {
+        //是否拦截
+        final boolean isIntercept = false;
+        //onInterceptTouchEvent()方法是否拦截此事件
+        if(onInterceptTouchEvent(event)){
+            isIntercept = true;
+        }
+        if(!isIntercept){
+            //如果onInterceptTouchEvent()方法中没有拦截 执行子View的dispatchTouchEvent()方法
+            boolean consume = child.dispatchTouchEvent(event);
+            if(!consume){
+                //子控件没有消费事件
+                mFirstTouchTarget = null;
+            }else{
+                //子控件消费了事件，给mFirstTouchTarget赋值
+                mFirstTouchTarget = addTouchTarget(child, idBitsToAssign);
+            }
+        }else{
+            //如果拦截,子控件没有消费事件
+            mFirstTouchTarget = null;
+        }
+        if(mFirstTouchTarget == null){
+            //子控件没有消费事件
+            return onTouchEvent(event);
+        }else{
+            //子控件消费了事件
+            return true;
+        }
     }
-    return consume;
-}
 
 ```
 

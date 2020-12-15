@@ -11680,8 +11680,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * Pass the touch screen motion event down to the target view, or this
      * view if it is the target.
      *
-     * @param event The motion event to be dispatched.
-     * @return True if the event was handled by the view, false otherwise.
+     * @param event The motion event to be dispatched. 分发到view的事件
+     * @return True if the event was handled by the view, false otherwise. 当前view是否处理此事件
      */
     public boolean dispatchTouchEvent(MotionEvent event) {
         // If the event should be handled by accessibility focus first.
@@ -11693,7 +11693,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             // We have focus and got the event, then use normal event dispatch.
             event.setTargetAccessibilityFocus(false);
         }
-
+        // 方法的返回值 事件是否被当前View处理
         boolean result = false;
 
         if (mInputEventConsistencyVerifier != null) {
@@ -11717,7 +11717,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                     && li.mOnTouchListener.onTouch(this, event)) {
                 result = true;
             }
-
+            // 调用自身的onTouchEvenet()
             if (!result && onTouchEvent(event)) {
                 result = true;
             }
