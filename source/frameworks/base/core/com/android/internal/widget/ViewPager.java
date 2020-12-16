@@ -1862,6 +1862,7 @@ public class ViewPager extends ViewGroup {
                 if (dx != 0 && !isGutterDrag(mLastMotionX, dx) &&
                         canScroll(this, false, (int) dx, (int) x, (int) y)) {
                     // Nested view has scrollable area under this point. Let it be handled there.
+                    // 嵌套的View在此点下具有可滚动区域， 让它处理。
                     mLastMotionX = x;
                     mLastMotionY = y;
                     mIsUnableToDrag = true;
@@ -1870,8 +1871,10 @@ public class ViewPager extends ViewGroup {
                 // 解决滑动冲突的逻辑 通过滑动的角度来判断
                 if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
                     if (DEBUG) Log.v(TAG, "Starting drag!");
+                    // 具备横向滚动的条件
                     mIsBeingDragged = true;
                     requestParentDisallowInterceptTouchEvent(true);
+                    // 设置滑动状态
                     setScrollState(SCROLL_STATE_DRAGGING);
                     mLastMotionX = dx > 0 ? mInitialMotionX + mTouchSlop :
                             mInitialMotionX - mTouchSlop;
@@ -2032,8 +2035,10 @@ public class ViewPager extends ViewGroup {
                     final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
                     final float x = ev.getX(activePointerIndex);
                     final int totalDelta = (int) (x - mInitialMotionX);
+                    // 计算目标页面
                     final int nextPage = determineTargetPage(
                             currentPage, nextPageOffset, initialVelocity, totalDelta);
+                    // 设置当前要滑动到的页面                            
                     setCurrentItemInternal(nextPage, true, true, initialVelocity);
 
                     mActivePointerId = INVALID_POINTER;
@@ -2226,7 +2231,9 @@ public class ViewPager extends ViewGroup {
      */
     private int determineTargetPage(int currentPage, float pageOffset, int velocity, int deltaX) {
         int targetPage;
+        // x轴滑动距离大于mFlingDistance 并且滑动速度的绝对值大于mMinimumVelocity
         if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
+            // 计算目标page
             targetPage = currentPage - (velocity < 0 ? mLeftIncr : 0);
         } else {
             final float truncator = currentPage >= mCurItem ? 0.4f : 0.6f;

@@ -11719,7 +11719,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                     && li.mOnTouchListener.onTouch(this, event)) {
                 result = true;
             }
-            // 如果设置了OnTouchListener则result为true，不会调用自身的onTouchEvent()方法
+            // 如果设置了OnTouchListener并且onTouch()方法返回值为true，则result为true，不会调用自身的onTouchEvent()方法，即onClickListener回调不会触发如果设置了
             // 否则调用自身的onTouchEvenet()
             if (!result && onTouchEvent(event)) {
                 result = true;
