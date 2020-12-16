@@ -142,7 +142,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 
 ## 常见的滑动冲突场景
  场景一: 外部滑动方向和内部滑动方向不一致 (ViewPager嵌套RecyclerView)  
- 场景二: 外部滑动方向和内部滑动方向一致 (RecyclerView嵌套RecyclerView)  
+ 场景二: 外部滑动方向和内部滑动方向一致 (同方向RecyclerView嵌套RecyclerView)  
  场景三: 上面两种情况的结合
 
 
@@ -166,7 +166,7 @@ public boolean onInterceptTouchEvent(MotionEvent event){
             intercepted = false;
             break;
         case MotionEvent.ACTION_MOVE:
-            if(父容器需要拦截此事件){
+            if(父容器需要拦截此事件(判断条件)){
                 intercepted = true;
             }else{
                 intercepted = false;
@@ -186,7 +186,7 @@ public boolean onInterceptTouchEvent(MotionEvent event){
 
 ViewPager中处理滑动冲突就是采用的此方法。
 ``` java
-@Override
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         /*
          * This method JUST determines whether we want to intercept the motion.

@@ -146,11 +146,13 @@ public class ViewPager extends ViewGroup {
 
     private boolean mPopulatePending;
     private int mOffscreenPageLimit = DEFAULT_OFFSCREEN_PAGES;
-
+    // 是否可以横向拖动
     private boolean mIsBeingDragged;
+    // 是否不可以拖动
     private boolean mIsUnableToDrag;
     private final int mDefaultGutterSize;
     private int mGutterSize;
+    // 最小滑动距离
     private final int mTouchSlop;
     /**
      * Position of the last motion event.
@@ -1805,6 +1807,7 @@ public class ViewPager extends ViewGroup {
         final int action = ev.getAction() & MotionEvent.ACTION_MASK;
 
         // Always take care of the touch gesture being complete.
+        // 当前事件是取消 或者是抬起事件
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             // Release the drag.
             if (DEBUG) Log.v(TAG, "Intercept done!");
@@ -1864,6 +1867,7 @@ public class ViewPager extends ViewGroup {
                     mIsUnableToDrag = true;
                     return false;
                 }
+                // 解决滑动冲突的逻辑 通过滑动的角度来判断
                 if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
                     if (DEBUG) Log.v(TAG, "Starting drag!");
                     mIsBeingDragged = true;
@@ -1986,10 +1990,12 @@ public class ViewPager extends ViewGroup {
                         mLastMotionX = x - mInitialMotionX > 0 ? mInitialMotionX + mTouchSlop :
                                 mInitialMotionX - mTouchSlop;
                         mLastMotionY = y;
+                        // 设置scroll状态
                         setScrollState(SCROLL_STATE_DRAGGING);
                         setScrollingCacheEnabled(true);
 
                         // Disallow Parent Intercept, just in case
+                        // 不允许父View拦截事件
                         ViewParent parent = getParent();
                         if (parent != null) {
                             parent.requestDisallowInterceptTouchEvent(true);

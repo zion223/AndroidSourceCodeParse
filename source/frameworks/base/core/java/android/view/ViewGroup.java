@@ -2490,17 +2490,19 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             // action & 0xff
             final int actionMasked = action & MotionEvent.ACTION_MASK;
 
-            // Handle an initial down. 当前是否为ACTION_DOWN事件
+            // Handle an initial down. 当前是否为ACTION_DOWN事件(新的touch动作)
             if (actionMasked == MotionEvent.ACTION_DOWN) {
                 // Throw away all previous state when starting a new touch gesture.
                 // The framework may have dropped the up or cancel event for the previous gesture
                 // due to an app switch, ANR, or some other state change.
+                // 重置标志位 mGroupFlags 因此子类调用requestDisallowInterceptTouchEvent()后 ViewGroup仍然可以拦截到ACTION_DOWN事件
                 cancelAndClearTouchTargets(ev);
                 resetTouchState();
             }
 
             // Check for interception. 是否拦截此事件
             final boolean intercepted;
+            // 当前事件类型是ACTION_DOWN事件或者没有交给ViewGroup的子View处理
             if (actionMasked == MotionEvent.ACTION_DOWN
                     || mFirstTouchTarget != null) {
                 // mGroupFlags可以在子类调用requestDisallowInterceptTouchEvent()方法   默认为false                     
@@ -2653,7 +2655,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             // Dispatch to touch targets.
             if (mFirstTouchTarget == null) {
                 // No touch targets so treat this as an ordinary view.
-                // 在当前类处理事件
+                // 在当前ViewGroup处理事件
                 handled = dispatchTransformedTouchEvent(ev, canceled, null,
                         TouchTarget.ALL_POINTER_IDS);
             } else {

@@ -6253,6 +6253,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         final ListenerInfo li = mListenerInfo;
         if (li != null && li.mOnClickListener != null) {
             playSoundEffect(SoundEffectConstants.CLICK);
+            // 调用onClick回调方法
             li.mOnClickListener.onClick(this);
             result = true;
         } else {
@@ -11712,12 +11713,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             }
             //noinspection SimplifiableIfStatement
             ListenerInfo li = mListenerInfo;
+            // 是否设置了OnTouchListener
             if (li != null && li.mOnTouchListener != null
                     && (mViewFlags & ENABLED_MASK) == ENABLED
                     && li.mOnTouchListener.onTouch(this, event)) {
                 result = true;
             }
-            // 调用自身的onTouchEvenet()
+            // 如果设置了OnTouchListener则result为true，不会调用自身的onTouchEvent()方法
+            // 否则调用自身的onTouchEvenet()
             if (!result && onTouchEvent(event)) {
                 result = true;
             }
@@ -12984,6 +12987,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                                     mPerformClick = new PerformClick();
                                 }
                                 if (!post(mPerformClick)) {
+                                    // 调用OnClickListener 如果存在
                                     performClick();
                                 }
                             }
