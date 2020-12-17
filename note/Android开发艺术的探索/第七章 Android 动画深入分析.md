@@ -3,7 +3,7 @@
 Android中的动画分为三种View动画、帧动画和属性动画，其中帧动画也属于View动画的一种，只不过它和平移、旋转等常见的View动画在表现形式上略有不同而已。View动画通过对场景里的对象不断做图像变换(平移、缩放、旋转、透明度)从而产生动画效果，它是一种渐进式动画,并且View动画支持自定义。帧动画通过播放一系列图像从而产生动画效果，可以简单的理解为图片切换动画，很显然，如果图片过大会产生OOM，属性动画通过动态的改变对象的属性从而产生动画效果。
 
 ## View动画
-View动画的作用对象是View,它支持四种动画效果，分别是平移动画、缩放动画、旋转动画、透明度动画。
+View动画的作用对象是View，它支持四种动画效果，分别是平移动画、缩放动画、旋转动画、透明度动画。
 
 ### View动画的种类
 View动画的四种变化效果对应的Animation的四个子类：TranslateAnimation、AlphaAnimation、RotateAnimation、ScaleAnimation。
@@ -14,7 +14,7 @@ View动画的四种变化效果对应的Animation的四个子类：TranslateAnim
 | 缩放动画      | scale      |ScaleAnimation       | 放大或缩小View
 | 旋转动画      | rotate     |RotateAnimation     | 旋转View
 | 透明度动画    | alpha      |AlphaAnimation      | 改变View的透明度
-使用View动画，要先创建动画的XML文件，文件的路径为:res/anim/filename.xml
+使用View动画，要先创建动画的XML文件，文件的路径为: res/anim/filename.xml
 ``` xml
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android"
@@ -102,7 +102,7 @@ android:shareInterpolator
 ```
 
 ### 自定义View动画
-
+自定义View动画需要继承Animation类并且重写applyTransformation()和initialize()方法。
 
 ### 帧动画
 帧动画是顺序播放一组预先定义好的图片，类似于电影播放。不同于View动画，系统提供了另外一个类AnimationDrawable来使用帧动画。在res/drawable目录下新建xml文件。
@@ -120,14 +120,30 @@ android:shareInterpolator
 ```
 然后将上述Drawable作为View的背景并通过Drawable来显示动画即可。
 ``` java
-    view.setBackgroundResources(R.drawable/.frame_animation);
+    view.setBackgroundResources(R.drawable.frame_animation);
     AnimationDrawable drawable = view.getBackground();
     drawable.start();
 ```
 > 在使用帧动画时避免使用尺寸较大的图片容易引起OOM。
 
 ## View动画的特殊使用场景
+### LayoutAnimation  
+### Activity的切换效果
+启动Activity时可以设置自定义的切换效果
+```java
+    Intent intent = new Intent(MainActivity.this, TestActivity.class);
+    startActivity(intent);
+    overridePendingTransition(R.anim.enter_anim, R.anim.exit_anim);
 
+```
+当Activity退出时也可以指定切换效果
+```java
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.enter_anim, R.anim.exit_anim);//用于activity间的切换动画
+    }
+```
 ## 属性动画
 
 ### 使用属性动画
@@ -143,7 +159,50 @@ android:shareInterpolator
     }
 ```
 ### 理解插值器和估值器
+TimeInterpolator翻译为时间差值器，它的作用是根据时间流逝的百分比来计算出当前属性值改变的百分比。  
+系统预置时间差值器
+- LinearInterpolator(线性差值器: 匀速动画)
+- AccelerateDecelerateInterpolator(加速减速差值器：动画两头慢中间快)
+- DecelerateInterpolator(减速差值器：动画越来越慢)
+- BounceInterpolator(弹性差值器：高空下落重力影响效果)
+
+TypeEvaluator的翻译为类型估值法，也叫估值器。它的作用是根据当前属性改变的百分比计算出改变后的属性值。
 ### 属性动画的监听器
+属性动画提供了监听器用于监听动画的播放过程，主要提供了两个接口。AnimationListener和AnimatorUpdateListener。  
+AnimationListener的定义如下。
+```java
+
+    public static interface AnimationListener {
+        /**
+         * <p>Notifies the start of the animation.</p>
+         */
+        void onAnimationStart(Animation animation);
+
+        /**
+         * <p>Notifies the end of the animation. This callback is not invoked
+         * for animations with repeat count set to INFINITE.</p>
+         */
+        void onAnimationEnd(Animation animation);
+
+        /**
+         * <p>Notifies the repetition of the animation.</p>
+         */
+        void onAnimationRepeat(Animation animation);
+    }
+```
+AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播放一帧，onAnimationUpdate()就会被调用一次。
+```java
+
+    public static interface AnimatorUpdateListener {
+        /**
+         * <p>Notifies the occurrence of another frame of the animation.</p>
+         */
+        void onAnimationUpdate(ValueAnimator animation);
+
+    }
+```
+### 对任意属性做动画
+
 ### 属性动画的工作原理
 
 
