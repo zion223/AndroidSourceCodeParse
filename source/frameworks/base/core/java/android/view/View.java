@@ -11713,14 +11713,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             }
             //noinspection SimplifiableIfStatement
             ListenerInfo li = mListenerInfo;
-            // 是否设置了OnTouchListener
+            // 如果设置了OnTouchListener并且onTouch()方法返回值为true
             if (li != null && li.mOnTouchListener != null
                     && (mViewFlags & ENABLED_MASK) == ENABLED
                     && li.mOnTouchListener.onTouch(this, event)) {
                 result = true;
             }
-            // 如果设置了OnTouchListener并且onTouch()方法返回值为true，则result为true，不会调用自身的onTouchEvent()方法，即onClickListener回调不会触发如果设置了
-            // 否则调用自身的onTouchEvenet()
+            // 如果上面成立则不会调用onTouchEvent
+            // 否则如果调用onTouchEvent()并且返回值为true
             if (!result && onTouchEvent(event)) {
                 result = true;
             }
@@ -12934,6 +12934,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
             // A disabled view that is clickable still consumes the touch
             // events, it just doesn't respond to them.
+            // 会消耗触摸事件只是不响应
             return clickable;
         }
         if (mTouchDelegate != null) {
