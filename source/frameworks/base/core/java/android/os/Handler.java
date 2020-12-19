@@ -92,16 +92,20 @@ public class Handler {
     
     /**
      * Handle system messages here.
+     * 由Looper中调用，处理消息
      */
     public void dispatchMessage(Message msg) {
         if (msg.callback != null) {
+            // Runnable中的run()方法执行
             handleCallback(msg);
         } else {
             if (mCallback != null) {
+                // callback中的回调
                 if (mCallback.handleMessage(msg)) {
                     return;
                 }
             }
+            // 实现类的方法回调
             handleMessage(msg);
         }
     }
@@ -653,11 +657,13 @@ public class Handler {
         return enqueueMessage(queue, msg, 0);
     }
 
+    // 入列消息  sendMessage和post方法最终调用
     private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
         msg.target = this;
         if (mAsynchronous) {
             msg.setAsynchronous(true);
         }
+        // 调用MessageQueue的enqueueMessage()方法
         return queue.enqueueMessage(msg, uptimeMillis);
     }
 

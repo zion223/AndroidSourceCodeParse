@@ -6524,7 +6524,7 @@ public final class ActivityThread {
         TrustedCertificateStore.setDefaultUserDirectory(configDir);
 
         Process.setArgV0("<pre-initialized>");
-
+        // Looper开启主线程的消息循环
         Looper.prepareMainLooper();
 
         ActivityThread thread = new ActivityThread();
@@ -6541,6 +6541,7 @@ public final class ActivityThread {
 
         // End of event ActivityThreadMain.
         Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+        // 开启消息循环
         Looper.loop();
 
         throw new RuntimeException("Main thread loop unexpectedly exited");

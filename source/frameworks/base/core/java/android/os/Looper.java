@@ -139,6 +139,7 @@ public final class Looper {
         final long ident = Binder.clearCallingIdentity();
 
         for (;;) {
+            // 从MessageQueue中读取下一条消息 可能会阻塞
             Message msg = queue.next(); // might block
             if (msg == null) {
                 // No message indicates that the message queue is quitting.
@@ -161,6 +162,7 @@ public final class Looper {
             final long start = (slowDispatchThresholdMs == 0) ? 0 : SystemClock.uptimeMillis();
             final long end;
             try {
+                // 分发消息 调用Handler的dispatchMessage方法
                 msg.target.dispatchMessage(msg);
                 end = (slowDispatchThresholdMs == 0) ? 0 : SystemClock.uptimeMillis();
             } finally {

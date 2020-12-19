@@ -532,6 +532,7 @@ public final class MessageQueue {
         }
     }
 
+    // Handler sendMessage()、post()方法最终最调用此方法将消息入列
     boolean enqueueMessage(Message msg, long when) {
         if (msg.target == null) {
             throw new IllegalArgumentException("Message must have a target.");
