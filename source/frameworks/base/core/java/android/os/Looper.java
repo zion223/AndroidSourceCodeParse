@@ -216,7 +216,9 @@ public final class Looper {
     }
 
     private Looper(boolean quitAllowed) {
+        // 创建MessageQueue对象，供Handler获取
         mQueue = new MessageQueue(quitAllowed);
+        // 保存当前线程实例
         mThread = Thread.currentThread();
     }
 

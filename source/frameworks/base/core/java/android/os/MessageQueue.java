@@ -359,8 +359,11 @@ public final class MessageQueue {
                 }
 
                 // Process the quit message now that all pending messages have been handled.
+                // 退出
                 if (mQuitting) {
+                    // 销毁组件
                     dispose();
+                    // 返回null
                     return null;
                 }
 
@@ -421,9 +424,11 @@ public final class MessageQueue {
             if (mQuitting) {
                 return;
             }
+            // 设置退出标志位
             mQuitting = true;
 
             if (safe) {
+                // 安全退出
                 removeAllFutureMessagesLocked();
             } else {
                 removeAllMessagesLocked();

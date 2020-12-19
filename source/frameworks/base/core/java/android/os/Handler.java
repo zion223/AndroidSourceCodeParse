@@ -201,12 +201,13 @@ public class Handler {
                     klass.getCanonicalName());
             }
         }
-
+        // Return the Looper object associated with the current thread
         mLooper = Looper.myLooper();
         if (mLooper == null) {
             throw new RuntimeException(
                 "Can't create handler inside thread that has not called Looper.prepare()");
         }
+        // 获取Looper中的MessageQueue
         mQueue = mLooper.mQueue;
         mCallback = callback;
         mAsynchronous = async;
