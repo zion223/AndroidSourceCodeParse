@@ -2588,6 +2588,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                             // to get the event first and if not handled we will perform a
                             // normal dispatch. We may do a double iteration but this is
                             // safer given the timeframe.
+                            //判断1，View可见并且没有播放动画。2，点击事件的坐标落在View的范围内
+                            //如果上述两个条件有一项不满足则continue继续循环下一个View
                             if (childWithAccessibilityFocus != null) {
                                 if (childWithAccessibilityFocus != child) {
                                     continue;
