@@ -97,6 +97,9 @@ ObjectAnimator.ofFloat(targetView, "translationX", 0 300).setDuration(1000).star
 通过改变View的LayoutParams即可改变View的位置
 
 # View的事件分发机制
+事件传递从底层传递到Activity的流程图  
+
+![Activity事件传递](image/Activity事件传递.png)
 
 事件分发其实就是对于MotionEvent对象的传递过程。  
 ViewGroup中dispatchTouchEvent()方法的伪代码如下  
