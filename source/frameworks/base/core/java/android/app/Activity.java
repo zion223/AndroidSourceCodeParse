@@ -3289,6 +3289,7 @@ public class Activity extends ContextThemeWrapper
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             onUserInteraction();
         }
+        // 通过PhoneWindow传递给DecorView，DecorView是一个ViewGroup
         if (getWindow().superDispatchTouchEvent(ev)) {
             return true;
         }
@@ -3318,6 +3319,7 @@ public class Activity extends ContextThemeWrapper
      * intercept all generic motion events before they are dispatched to the
      * window.  Be sure to call this implementation for generic motion events
      * that should be handled normally.
+     * 从DecorView的dispatchGenericMotionEvent方法调用
      *
      * @param ev The generic motion event.
      *
@@ -6909,9 +6911,10 @@ public class Activity extends ContextThemeWrapper
         attachBaseContext(context);
 
         mFragments.attachHost(null /*parent*/);
-
+        // 创建PhoneWindow
         mWindow = new PhoneWindow(this, window, activityConfigCallback);
         mWindow.setWindowControllerCallback(this);
+        // 设置 callback
         mWindow.setCallback(this);
         mWindow.setOnWindowDismissedCallback(this);
         mWindow.getLayoutInflater().setPrivateFactory(this);
@@ -7075,7 +7078,7 @@ public class Activity extends ContextThemeWrapper
         mLastNonConfigurationInstances = null;
 
         mCalled = false;
-        // mResumed is set by the instrumentation
+        // mResumed is set by the instrumentation onResume()被调用
         mInstrumentation.callActivityOnResume(this);
         if (!mCalled) {
             throw new SuperNotCalledException(

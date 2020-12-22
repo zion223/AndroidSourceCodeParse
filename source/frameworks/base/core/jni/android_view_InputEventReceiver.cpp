@@ -310,6 +310,7 @@ status_t NativeInputEventReceiver::consumeEvents(JNIEnv* env,
                 if (kDebugDispatchCycle) {
                     ALOGD("channel '%s' ~ Dispatching input event.", getInputChannelName());
                 }
+                // 调用InputEventReceiver中的dispatchInputEvent方法
                 env->CallVoidMethod(receiverObj.get(),
                         gInputEventReceiverClassInfo.dispatchInputEvent, seq, inputEventObj);
                 if (env->ExceptionCheck()) {

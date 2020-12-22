@@ -3620,6 +3620,7 @@ public final class ActivityThread {
                     deliverResults(r, r.pendingResults);
                     r.pendingResults = null;
                 }
+                // Activity的onResume()回调
                 r.activity.performResume();
 
                 synchronized (mResourcesManager) {
@@ -3734,6 +3735,8 @@ public final class ActivityThread {
                 if (a.mVisibleFromClient) {
                     if (!a.mWindowAdded) {
                         a.mWindowAdded = true;
+                        // WindowManager的addView方法 添加DecorView
+                        // WindowManagerImpl -> WindowManagerGlobal -> 创建ViewRootImpl等流程
                         wm.addView(decor, l);
                     } else {
                         // The activity will get a callback for this {@link LayoutParams} change

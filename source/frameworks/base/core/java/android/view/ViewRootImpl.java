@@ -496,6 +496,7 @@ public final class ViewRootImpl implements ViewParent,
         mPreviousTransparentRegion = new Region();
         mFirst = true; // true for the first time the view is added
         mAdded = false;
+        // 创建AttachInfo
         mAttachInfo = new View.AttachInfo(mWindowSession, mWindow, display, this, mHandler, this,
                 context);
         mAccessibilityManager = AccessibilityManager.getInstance(context);
@@ -712,6 +713,7 @@ public final class ViewRootImpl implements ViewParent,
                 // Schedule the first layout -before- adding to the window
                 // manager, to make sure we do the relayout before receiving
                 // any other events from the system.
+                // 第一次layout
                 requestLayout();
                 if ((mWindowAttributes.inputFeatures
                         & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
@@ -723,6 +725,7 @@ public final class ViewRootImpl implements ViewParent,
                     mOrigWindowType = mWindowAttributes.type;
                     mAttachInfo.mRecomputeGlobalAttributes = true;
                     collectViewAttributes();
+                    // 调用Session类的addToDisplay方法 最终通过IPC调用WindowManagerService的addView方法
                     res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,
                             getHostVisibility(), mDisplay.getDisplayId(),
                             mAttachInfo.mContentInsets, mAttachInfo.mStableInsets,
@@ -1152,8 +1155,10 @@ public final class ViewRootImpl implements ViewParent,
     @Override
     public void requestLayout() {
         if (!mHandlingLayoutInLayoutRequest) {
+            // 检查当前线程是否是主线程
             checkThread();
             mLayoutRequested = true;
+            // 异步调用
             scheduleTraversals();
         }
     }
@@ -1573,6 +1578,7 @@ public final class ViewRootImpl implements ViewParent,
         return (int) (displayMetrics.density * dip + 0.5f);
     }
 
+    // 对View树进行测量布局绘制流程
     private void performTraversals() {
         // cache mView since it is used so much below...
         final View host = mView;
@@ -2235,6 +2241,7 @@ public final class ViewRootImpl implements ViewParent,
 
         if (triggerGlobalLayoutListener) {
             mAttachInfo.mRecomputeGlobalAttributes = false;
+            // 回调OnGlobalLayoutListener接口
             mAttachInfo.mTreeObserver.dispatchOnGlobalLayout();
         }
 
@@ -3886,6 +3893,7 @@ public final class ViewRootImpl implements ViewParent,
                 doDie();
                 break;
             case MSG_DISPATCH_INPUT_EVENT: {
+                // 处理输入事件
                 SomeArgs args = (SomeArgs)msg.obj;
                 InputEvent event = (InputEvent)args.arg1;
                 InputEventReceiver receiver = (InputEventReceiver)args.arg2;
@@ -4484,6 +4492,7 @@ public final class ViewRootImpl implements ViewParent,
             } else {
                 final int source = q.mEvent.getSource();
                 if ((source & InputDevice.SOURCE_CLASS_POINTER) != 0) {
+                    // 输入事件
                     return processPointerEvent(q);
                 }
             }
@@ -4591,6 +4600,7 @@ public final class ViewRootImpl implements ViewParent,
                 } else if ((source & InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
                     return processTrackballEvent(q);
                 } else {
+                    // 处理MotionEvent
                     return processGenericMotionEvent(q);
                 }
             }
@@ -4773,6 +4783,7 @@ public final class ViewRootImpl implements ViewParent,
 
             mAttachInfo.mUnbufferedDispatchRequested = false;
             mAttachInfo.mHandlingPointerEvent = true;
+            // DecorView的dispatchPointerEvent
             boolean handled = mView.dispatchPointerEvent(event);
             maybeUpdatePointerIcon(event);
             maybeUpdateTooltip(event);
@@ -4823,6 +4834,7 @@ public final class ViewRootImpl implements ViewParent,
             final MotionEvent event = (MotionEvent)q.mEvent;
 
             // Deliver the event to the view.
+            // DecorView的dispatchGenericMotionEvent方法
             if (mView.dispatchGenericMotionEvent(event)) {
                 return FINISH_HANDLED;
             }
@@ -6574,8 +6586,10 @@ public final class ViewRootImpl implements ViewParent,
                 mPendingInputEventCount);
 
         if (processImmediately) {
+            // 同步处理
             doProcessInputEvents();
         } else {
+            // 异步
             scheduleProcessInputEvents();
         }
     }
@@ -6612,7 +6626,7 @@ public final class ViewRootImpl implements ViewParent,
                 }
             }
             mChoreographer.mFrameInfo.updateInputEventTime(eventTime, oldestEventTime);
-
+            // 分发输入事件
             deliverInputEvent(q);
         }
 
@@ -6735,6 +6749,7 @@ public final class ViewRootImpl implements ViewParent,
     }
     final TraversalRunnable mTraversalRunnable = new TraversalRunnable();
 
+    // 窗口输入事件接收器
     final class WindowInputEventReceiver extends InputEventReceiver {
         public WindowInputEventReceiver(InputChannel inputChannel, Looper looper) {
             super(inputChannel, looper);
@@ -6898,6 +6913,7 @@ public final class ViewRootImpl implements ViewParent,
         dispatchInputEvent(event, null);
     }
 
+    // 分发输入时间
     public void dispatchInputEvent(InputEvent event, InputEventReceiver receiver) {
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = event;
