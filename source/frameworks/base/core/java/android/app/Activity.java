@@ -5404,7 +5404,7 @@ public class Activity extends ContextThemeWrapper
             }
         }
     }
-
+    // 使Activity可见
     void makeVisible() {
         if (!mWindowAdded) {
             ViewManager wm = getWindowManager();

@@ -840,6 +840,7 @@ public final class ActivityThread {
             sendMessage(H.DESTROY_BACKUP_AGENT, d);
         }
 
+        // 创建Service
         public final void scheduleCreateService(IBinder token,
                 ServiceInfo info, CompatibilityInfo compatInfo, int processState) {
             updateProcessState(processState, false);
@@ -2708,6 +2709,7 @@ public final class ActivityThread {
         Activity activity = null;
         try {
             java.lang.ClassLoader cl = appContext.getClassLoader();
+            // 通过反射创建Activity
             activity = mInstrumentation.newActivity(
                     cl, component.getClassName(), r.intent);
             StrictMode.incrementExpectedActivityCount(activity.getClass());
@@ -2761,12 +2763,14 @@ public final class ActivityThread {
                 r.lastNonConfigurationInstances = null;
                 checkAndBlockForNetworkAccess();
                 activity.mStartedActivity = false;
+                // Activity的主题资源
                 int theme = r.activityInfo.getThemeResource();
                 if (theme != 0) {
                     activity.setTheme(theme);
                 }
 
                 activity.mCalled = false;
+                // onCreate
                 if (r.isPersistable()) {
                     mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);
                 } else {
@@ -2780,6 +2784,7 @@ public final class ActivityThread {
                 r.activity = activity;
                 r.stopped = true;
                 if (!r.activity.mFinished) {
+                    // onStart
                     activity.performStart();
                     r.stopped = false;
                 }
@@ -2809,7 +2814,7 @@ public final class ActivityThread {
                 }
             }
             r.paused = true;
-
+            // 存储到mActivities
             mActivities.put(r.token, r);
 
         } catch (SuperNotCalledException e) {
@@ -2891,13 +2896,14 @@ public final class ActivityThread {
 
         // Initialize before creating the activity
         WindowManagerGlobal.initialize();
-
+        // 启动Activity onCreate onStart
         Activity a = performLaunchActivity(r, customIntent);
 
         if (a != null) {
             r.createdConfig = new Configuration(mConfiguration);
             reportSizeConfigurations(r);
             Bundle oldState = r.state;
+            // resumeActivity onResume
             handleResumeActivity(r.token, false, r.isForward,
                     !r.activity.mFinished && !r.startsNotResumed, r.lastProcessedSeq, reason);
 
@@ -3222,6 +3228,7 @@ public final class ActivityThread {
         BroadcastReceiver receiver;
         ContextImpl context;
         try {
+            // 反射创建BroadcastReceiver
             app = packageInfo.makeApplication(false, mInstrumentation);
             context = (ContextImpl) app.getBaseContext();
             if (data.info.splitName != null) {
@@ -3252,6 +3259,7 @@ public final class ActivityThread {
 
             sCurrentBroadcastIntent.set(data.intent);
             receiver.setPendingResult(data);
+            // 回调OnReceive方法
             receiver.onReceive(context.getReceiverRestrictedContext(),
                     data.intent);
         } catch (Exception e) {
@@ -3385,6 +3393,7 @@ public final class ActivityThread {
                 data.info.applicationInfo, data.compatInfo);
         Service service = null;
         try {
+            // 通过反射创建Service
             java.lang.ClassLoader cl = packageInfo.getClassLoader();
             service = (Service) cl.loadClass(data.info.name).newInstance();
         } catch (Exception e) {
@@ -3404,7 +3413,9 @@ public final class ActivityThread {
             Application app = packageInfo.makeApplication(false, mInstrumentation);
             service.attach(context, this, data.info.name, data.token, app,
                     ActivityManager.getService());
+            // onCreate被调用                    
             service.onCreate();
+            // 存入mServices
             mServices.put(data.token, service);
             try {
                 ActivityManager.getService().serviceDoneExecuting(
@@ -3788,6 +3799,7 @@ public final class ActivityThread {
                 r.activity.mVisibleFromServer = true;
                 mNumVisibleActivities++;
                 if (r.activity.mVisibleFromClient) {
+                    // 在调用此方法后才对用户可见 而不是在onResume()后 最终调用 mDecor.setVisibility(View.VISIBLE)
                     r.activity.makeVisible();
                 }
             }
@@ -3802,6 +3814,7 @@ public final class ActivityThread {
             r.onlyLocalRequest = false;
 
             // Tell the activity manager we have resumed.
+            // 告诉ActivityManager Actitivy已经resume
             if (reallyResume) {
                 try {
                     ActivityManager.getService().activityResumed(token);
@@ -4428,6 +4441,7 @@ public final class ActivityThread {
             }
             try {
                 r.activity.mCalled = false;
+                // onDestroy回调
                 mInstrumentation.callActivityOnDestroy(r.activity);
                 if (!r.activity.mCalled) {
                     throw new SuperNotCalledException(
@@ -4447,6 +4461,7 @@ public final class ActivityThread {
                 }
             }
         }
+        // 从mActivities中移除
         mActivities.remove(token);
         StrictMode.decrementExpectedActivityCount(activityClass);
         return r;
@@ -4457,6 +4472,7 @@ public final class ActivityThread {
         return component == null ? "[Unknown]" : component.toShortString();
     }
 
+    // 销毁Activity
     private void handleDestroyActivity(IBinder token, boolean finishing,
             int configChanges, boolean getNonConfigInstance) {
         ActivityClientRecord r = performDestroyActivity(token, finishing,
@@ -5794,6 +5810,7 @@ public final class ActivityThread {
             }
 
             try {
+                // Application onCreate
                 mInstrumentation.callApplicationOnCreate(app);
             } catch (Exception e) {
                 if (!mInstrumentation.onException(app, e)) {
@@ -6368,6 +6385,7 @@ public final class ActivityThread {
         sCurrentActivityThread = this;
         mSystemThread = system;
         if (!system) {
+            // set application object here
             ViewRootImpl.addFirstDrawHandler(new Runnable() {
                 @Override
                 public void run() {
@@ -6377,8 +6395,10 @@ public final class ActivityThread {
             android.ddm.DdmHandleAppName.setAppName("<pre-initialized>",
                                                     UserHandle.myUserId());
             RuntimeInit.setApplicationObject(mAppThread.asBinder());
+            // ActivityManagerService
             final IActivityManager mgr = ActivityManager.getService();
             try {
+                // 调用attachApplication方法
                 mgr.attachApplication(mAppThread);
             } catch (RemoteException ex) {
                 throw ex.rethrowFromSystemServer();
@@ -6529,7 +6549,7 @@ public final class ActivityThread {
         Process.setArgV0("<pre-initialized>");
         // Looper开启主线程的消息循环
         Looper.prepareMainLooper();
-
+        // 创建ActicityThread
         ActivityThread thread = new ActivityThread();
         thread.attach(false);
 
@@ -6546,7 +6566,7 @@ public final class ActivityThread {
         Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
         // 开启消息循环
         Looper.loop();
-
+        // 主线程的loop不能退出否则会走到下面的异常
         throw new RuntimeException("Main thread loop unexpectedly exited");
     }
 
