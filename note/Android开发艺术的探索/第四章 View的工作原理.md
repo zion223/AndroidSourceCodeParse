@@ -16,7 +16,7 @@
 
 &ensp;&ensp;DecorView作为顶级的View，一般情况下它内部会包含一个竖直方向的LinearLayout，在这个LinearLayout中有上下两部分，上面是标题栏下面是内容栏。在Activity中的onCreate()方法中通过setContentView()方法设置的layout的id就是设置内容栏的布局。  
 
-![DecorView](image/DecorView.jpg)
+![Avtivity窗口](image/Activity窗口.jpg)
 
 ## 理解MeasureSpec
 

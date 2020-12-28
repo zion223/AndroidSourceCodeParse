@@ -3110,7 +3110,7 @@ public class Activity extends ContextThemeWrapper
             }
         }
     }
-
+    // 可通过PhoneWindow的setContentView方法结束后回调
     public void onContentChanged() {
     }
 
