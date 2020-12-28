@@ -129,6 +129,7 @@ public final class Looper {
     public static void loop() {
         final Looper me = myLooper();
         if (me == null) {
+            // 当前线程没有获取到Looper
             throw new RuntimeException("No Looper; Looper.prepare() wasn't called on this thread.");
         }
         final MessageQueue queue = me.mQueue;
@@ -139,6 +140,7 @@ public final class Looper {
         final long ident = Binder.clearCallingIdentity();
 
         for (;;) {
+            // 死循环
             // 从MessageQueue中读取下一条消息 可能会阻塞
             Message msg = queue.next(); // might block
             if (msg == null) {

@@ -96,6 +96,7 @@ public class Handler {
      */
     public void dispatchMessage(Message msg) {
         if (msg.callback != null) {
+            // 通过post(Runnable r)方法传递的参数
             // Runnable中的run()方法执行
             handleCallback(msg);
         } else {
@@ -105,7 +106,7 @@ public class Handler {
                     return;
                 }
             }
-            // 实现类的方法回调
+            // 子类实现的方法回调
             handleMessage(msg);
         }
     }
@@ -660,6 +661,7 @@ public class Handler {
 
     // 入列消息  sendMessage和post方法最终调用
     private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+        // 设置target为当前Handler
         msg.target = this;
         if (mAsynchronous) {
             msg.setAsynchronous(true);
@@ -781,6 +783,7 @@ public class Handler {
 
     private static Message getPostMessage(Runnable r) {
         Message m = Message.obtain();
+        // 设置message的callback为runnable
         m.callback = r;
         return m;
     }
@@ -791,7 +794,7 @@ public class Handler {
         m.callback = r;
         return m;
     }
-
+    // Runnable的run方法
     private static void handleCallback(Message message) {
         message.callback.run();
     }
