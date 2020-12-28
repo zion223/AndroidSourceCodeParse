@@ -422,6 +422,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         mContentParent.requestApplyInsets();
         final Callback cb = getCallback();
         if (cb != null && !isDestroyed()) {
+            // 回调Activity的onContentChange方法
             cb.onContentChanged();
         }
         mContentParentExplicitlySet = true;

@@ -3799,7 +3799,8 @@ public final class ActivityThread {
                 r.activity.mVisibleFromServer = true;
                 mNumVisibleActivities++;
                 if (r.activity.mVisibleFromClient) {
-                    // 在调用此方法后才对用户可见 而不是在onResume()后 最终调用 mDecor.setVisibility(View.VISIBLE)
+                    // 在调用此方法后才对用户可见 而不是在onResume()后 
+                    // 最终调用 mDecor.setVisibility(View.VISIBLE)
                     r.activity.makeVisible();
                 }
             }
