@@ -6104,6 +6104,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      */
     public void setOnClickListener(@Nullable OnClickListener l) {
         if (!isClickable()) {
+            // 设置clickable为true
             setClickable(true);
         }
         getListenerInfo().mOnClickListener = l;
@@ -12922,11 +12923,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         final float y = event.getY();
         final int viewFlags = mViewFlags;
         final int action = event.getAction();
-
+        // 只要有一个设置为true 则clickable设置为true
+        // 如果设置了OnClickListener则clickable为true
         final boolean clickable = ((viewFlags & CLICKABLE) == CLICKABLE
                 || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE)
                 || (viewFlags & CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE;
-
+        // 如果当前View设置为DISABLED
         if ((viewFlags & ENABLED_MASK) == DISABLED) {
             if (action == MotionEvent.ACTION_UP && (mPrivateFlags & PFLAG_PRESSED) != 0) {
                 setPressed(false);
@@ -12942,7 +12944,9 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                 return true;
             }
         }
-
+        // 如果当前View可以点击 或者当前View可以在悬停或长按时显示tip
+        // 返回true 消耗事件
+        // PS.像ImageView、TextView的默认clickable都为false 只有在设置了OnClickerListener后clickable属性才为true
         if (clickable || (viewFlags & TOOLTIP) == TOOLTIP) {
             switch (action) {
                 case MotionEvent.ACTION_UP:
