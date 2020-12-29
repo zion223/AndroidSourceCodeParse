@@ -12955,7 +12955,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                         handleTooltipUp();
                     }
                     if (!clickable) {
+                        //当前view不可点击
+                        // 移除tap的callback
                         removeTapCallback();
+                        // 移除长按的callback
                         removeLongPressCallback();
                         mInContextButtonPress = false;
                         mHasPerformedLongPress = false;
@@ -12968,6 +12971,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                         // touch mode.
                         boolean focusTaken = false;
                         if (isFocusable() && isFocusableInTouchMode() && !isFocused()) {
+                            // 申请focus
                             focusTaken = requestFocus();
                         }
 
@@ -12976,11 +12980,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                             // showed it as pressed.  Make it show the pressed
                             // state now (before scheduling the click) to ensure
                             // the user sees it.
+                            // 设置点击态
                             setPressed(true, x, y);
                         }
-
+                        // mHasPerformedLongPress: 是否已经执行过onLongClick方法并且该方法返回true
+                        // 如果onLongClick方法返回true则onClick不会被执行
                         if (!mHasPerformedLongPress && !mIgnoreNextUpEvent) {
                             // This is a tap, so remove the longpress check
+                            // 移除长按的callback
                             removeLongPressCallback();
 
                             // Only perform take click actions if we were in the pressed state
@@ -13003,6 +13010,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                         }
 
                         if (prepressed) {
+                            // 重置press状态
                             postDelayed(mUnsetPressedState,
                                     ViewConfiguration.getPressedStateDuration());
                         } else if (!post(mUnsetPressedState)) {
@@ -13019,13 +13027,15 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                     if (event.getSource() == InputDevice.SOURCE_TOUCHSCREEN) {
                         mPrivateFlags3 |= PFLAG3_FINGER_DOWN;
                     }
+                    // 置为false 没有执行过长按
                     mHasPerformedLongPress = false;
 
                     if (!clickable) {
+                        // 检查LongClick
                         checkForLongClick(0, x, y);
                         break;
                     }
-
+                    // 处理鼠标事件 默认返回false
                     if (performButtonActionOnTouchDown(event)) {
                         break;
                     }
@@ -13035,22 +13045,28 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
                     // For views inside a scrolling container, delay the pressed feedback for
                     // a short period in case this is a scroll.
+                    // 判断是否当前view在一个scrolling view内
                     if (isInScrollingContainer) {
+                        // 设置PFLAG_PREPRESSED标志位  预按状态
                         mPrivateFlags |= PFLAG_PREPRESSED;
                         if (mPendingCheckForTap == null) {
                             mPendingCheckForTap = new CheckForTap();
                         }
                         mPendingCheckForTap.x = event.getX();
                         mPendingCheckForTap.y = event.getY();
+                        // 发送延迟消息判断是滚动还是点击  100ms
                         postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
                     } else {
                         // Not inside a scrolling container, so show the feedback right away
+                        // 立刻设置点击态
                         setPressed(true, x, y);
+                        // 检查是否要处理长按事件  500ms
                         checkForLongClick(0, x, y);
                     }
                     break;
 
                 case MotionEvent.ACTION_CANCEL:
+                    // 重置状态
                     if (clickable) {
                         setPressed(false);
                     }
@@ -13068,9 +13084,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                     }
 
                     // Be lenient about moving outside of buttons
+                    // 对于触碰是否超出view的边界宽容一点 加上一个mTouchSlop的距离
                     if (!pointInView(x, y, mTouchSlop)) {
                         // Outside button
                         // Remove any future long press/tap checks
+                        // 超出了边界 则移除callback 设置点击态为false
                         removeTapCallback();
                         removeLongPressCallback();
                         if ((mPrivateFlags & PFLAG_PRESSED) != 0) {
@@ -24672,6 +24690,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             if ((mOriginalPressedState == isPressed()) && (mParent != null)
                     && mOriginalWindowAttachCount == mWindowAttachCount) {
                 if (performLongClick(mX, mY)) {
+                    // 如果onLongClick方法返回为true，则mHasPerformedLongPress也为true
                     mHasPerformedLongPress = true;
                 }
             }
@@ -24697,8 +24716,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
         @Override
         public void run() {
+            // 清除PFLAG_PREPRESSED标志位
             mPrivateFlags &= ~PFLAG_PREPRESSED;
             setPressed(true, x, y);
+            // 检查长按事件
             checkForLongClick(ViewConfiguration.getTapTimeout(), x, y);
         }
     }

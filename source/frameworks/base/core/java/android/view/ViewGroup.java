@@ -2651,6 +2651,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                     if (newTouchTarget == null && mFirstTouchTarget != null) {
                         // Did not find a child to receive the event.
                         // Assign the pointer to the least recently added target.
+                        // 没有子View接受事件，则将指针指向最近添加的target
                         newTouchTarget = mFirstTouchTarget;
                         while (newTouchTarget.next != null) {
                             newTouchTarget = newTouchTarget.next;
@@ -2959,10 +2960,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
             event.setAction(MotionEvent.ACTION_CANCEL);
             if (child == null) {
-                // 调用View.dispatchTouchEvent(event)方法
                 handled = super.dispatchTouchEvent(event);
             } else {
-                // 调用child的dispatchTouchEvent()方法
                 handled = child.dispatchTouchEvent(event);
             }
             event.setAction(oldAction);
@@ -2987,12 +2986,14 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         if (newPointerIdBits == oldPointerIdBits) {
             if (child == null || child.hasIdentityMatrix()) {
                 if (child == null) {
+                    // 调用super.dispatchTouchEvent(event)方法
                     handled = super.dispatchTouchEvent(event);
                 } else {
                     final float offsetX = mScrollX - child.mLeft;
                     final float offsetY = mScrollY - child.mTop;
                     event.offsetLocation(offsetX, offsetY);
-
+                    // 调用child的dispatchTouchEvent()方法
+                    // 传递给子View的event的位置需要做相应的偏移
                     handled = child.dispatchTouchEvent(event);
 
                     event.offsetLocation(-offsetX, -offsetY);
