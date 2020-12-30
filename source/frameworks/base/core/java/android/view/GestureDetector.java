@@ -286,6 +286,7 @@ public class GestureDetector {
         public void handleMessage(Message msg) {
             switch (msg.what) {
             case SHOW_PRESS:
+                // 回调onShowPress
                 mListener.onShowPress(mCurrentDownEvent);
                 break;
                 
@@ -295,6 +296,7 @@ public class GestureDetector {
                 
             case TAP:
                 // If the user's finger is still down, do not count it as a tap
+                // 如果当前用户的手指仍在处于DOWN状态下, 不把他当成一个tap
                 if (mDoubleTapListener != null) {
                     if (!mStillDown) {
                         mDoubleTapListener.onSingleTapConfirmed(mCurrentDownEvent);
@@ -482,6 +484,7 @@ public class GestureDetector {
     /**
      * Analyzes the given motion event and if applicable triggers the
      * appropriate callbacks on the {@link OnGestureListener} supplied.
+     * 分析给予的MotionEvent并且触发相应的手势检测回调
      *
      * @param ev The current motion event.
      * @return true if the {@link OnGestureListener} consumed the event,
@@ -493,7 +496,7 @@ public class GestureDetector {
         }
 
         final int action = ev.getAction();
-
+        // 创建VelocityTracker用于跟踪滑动过程中的速度
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
@@ -506,6 +509,7 @@ public class GestureDetector {
                 (ev.getFlags() & MotionEvent.FLAG_IS_GENERATED_GESTURE) != 0;
 
         // Determine focal point
+        // 计算触摸的中心位置
         float sumX = 0, sumY = 0;
         final int count = ev.getPointerCount();
         for (int i = 0; i < count; i++) {
@@ -516,14 +520,16 @@ public class GestureDetector {
         final int div = pointerUp ? count - 1 : count;
         final float focusX = sumX / div;
         final float focusY = sumY / div;
-
+        // 是否处理事件
         boolean handled = false;
 
         switch (action & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_POINTER_DOWN:
+            //  A non-primary pointer has gone down
             mDownFocusX = mLastFocusX = focusX;
             mDownFocusY = mLastFocusY = focusY;
             // Cancel long press and taps
+            // 取消LONGPRESS、SHOWPRESS和TAP
             cancelTaps();
             break;
 
@@ -554,19 +560,26 @@ public class GestureDetector {
             break;
 
         case MotionEvent.ACTION_DOWN:
+            // ACTION_DOWN事件
             if (mDoubleTapListener != null) {
+                // 是有含有TAP消息
                 boolean hadTapMessage = mHandler.hasMessages(TAP);
+                // 移除TAP消息，如果有
                 if (hadTapMessage) mHandler.removeMessages(TAP);
+                // 判断是否是双击事件
                 if ((mCurrentDownEvent != null) && (mPreviousUpEvent != null) && hadTapMessage &&
                         isConsideredDoubleTap(mCurrentDownEvent, mPreviousUpEvent, ev)) {
                     // This is a second tap
+                    // 第二次tap
                     mIsDoubleTapping = true;
+                    // 先回调onDoubleTap再回调onDoubleTapEvent
                     // Give a callback with the first tap of the double-tap
                     handled |= mDoubleTapListener.onDoubleTap(mCurrentDownEvent);
                     // Give a callback with down event of the double-tap
                     handled |= mDoubleTapListener.onDoubleTapEvent(ev);
                 } else {
                     // This is a first tap
+                    // 这是第一次tap  300ms后发送TAP消息 如果没有取消就说明是TAP
                     mHandler.sendEmptyMessageDelayed(TAP, DOUBLE_TAP_TIMEOUT);
                 }
             }
@@ -574,6 +587,7 @@ public class GestureDetector {
             mDownFocusX = mLastFocusX = focusX;
             mDownFocusY = mLastFocusY = focusY;
             if (mCurrentDownEvent != null) {
+                // 回收上次的Event
                 mCurrentDownEvent.recycle();
             }
             mCurrentDownEvent = MotionEvent.obtain(ev);
@@ -583,17 +597,21 @@ public class GestureDetector {
             mInLongPress = false;
             mDeferConfirmSingleTap = false;
 
+            // 判断是否长按是使能的
             if (mIsLongpressEnabled) {
                 mHandler.removeMessages(LONG_PRESS);
+                // 500ms后发送LONGPRESS
                 mHandler.sendEmptyMessageAtTime(LONG_PRESS,
                         mCurrentDownEvent.getDownTime() + LONGPRESS_TIMEOUT);
             }
+            // 100ms后发送SHOW_PRESS
             mHandler.sendEmptyMessageAtTime(SHOW_PRESS,
                     mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);
             handled |= mListener.onDown(ev);
             break;
 
         case MotionEvent.ACTION_MOVE:
+            // ACTION_MOVE事件
             if (mInLongPress || mInContextClick) {
                 break;
             }
@@ -601,17 +619,21 @@ public class GestureDetector {
             final float scrollY = mLastFocusY - focusY;
             if (mIsDoubleTapping) {
                 // Give the move events of the double-tap
+                // 交给double-tap处理
                 handled |= mDoubleTapListener.onDoubleTapEvent(ev);
             } else if (mAlwaysInTapRegion) {
                 final int deltaX = (int) (focusX - mDownFocusX);
                 final int deltaY = (int) (focusY - mDownFocusY);
                 int distance = (deltaX * deltaX) + (deltaY * deltaY);
                 int slopSquare = isGeneratedGesture ? 0 : mTouchSlopSquare;
+                // 判断是否在滑动
                 if (distance > slopSquare) {
+                    // 回调onScroll
                     handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
                     mLastFocusX = focusX;
                     mLastFocusY = focusY;
                     mAlwaysInTapRegion = false;
+                    // 移除TAP、SHOW_PRESS和LONG_PRESS消息
                     mHandler.removeMessages(TAP);
                     mHandler.removeMessages(SHOW_PRESS);
                     mHandler.removeMessages(LONG_PRESS);
@@ -621,6 +643,8 @@ public class GestureDetector {
                     mAlwaysInBiggerTapRegion = false;
                 }
             } else if ((Math.abs(scrollX) >= 1) || (Math.abs(scrollY) >= 1)) {
+                // 横向或者纵向的滑动速度大于1
+                // 回调onScroll
                 handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
                 mLastFocusX = focusX;
                 mLastFocusY = focusY;
@@ -628,15 +652,19 @@ public class GestureDetector {
             break;
 
         case MotionEvent.ACTION_UP:
+            // ACTION_UP事件
             mStillDown = false;
             MotionEvent currentUpEvent = MotionEvent.obtain(ev);
             if (mIsDoubleTapping) {
                 // Finally, give the up event of the double-tap
                 handled |= mDoubleTapListener.onDoubleTapEvent(ev);
             } else if (mInLongPress) {
+                // 移除TAP消息
                 mHandler.removeMessages(TAP);
+                //不再处于长按模式下
                 mInLongPress = false;
             } else if (mAlwaysInTapRegion && !mIgnoreNextUpEvent) {
+                // 单次点击手指抬起
                 handled = mListener.onSingleTapUp(ev);
                 if (mDeferConfirmSingleTap && mDoubleTapListener != null) {
                     mDoubleTapListener.onSingleTapConfirmed(ev);
@@ -649,9 +677,10 @@ public class GestureDetector {
                 velocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
                 final float velocityY = velocityTracker.getYVelocity(pointerId);
                 final float velocityX = velocityTracker.getXVelocity(pointerId);
-
+                // 判断手指抬起时的滑动速度 是否大于最小Fling的速度
                 if ((Math.abs(velocityY) > mMinimumFlingVelocity)
                         || (Math.abs(velocityX) > mMinimumFlingVelocity)){
+                    // 回调onFling                            
                     handled = mListener.onFling(mCurrentDownEvent, ev, velocityX, velocityY);
                 }
             }
@@ -659,6 +688,7 @@ public class GestureDetector {
                 mPreviousUpEvent.recycle();
             }
             // Hold the event we obtained above - listeners may have changed the original.
+            // 记录上一个Event
             mPreviousUpEvent = currentUpEvent;
             if (mVelocityTracker != null) {
                 // This may have been cleared when we called out to the
@@ -669,6 +699,7 @@ public class GestureDetector {
             mIsDoubleTapping = false;
             mDeferConfirmSingleTap = false;
             mIgnoreNextUpEvent = false;
+            // 移除SHOW_PRESS和LONG_PRESS消息
             mHandler.removeMessages(SHOW_PRESS);
             mHandler.removeMessages(LONG_PRESS);
             break;
@@ -752,19 +783,21 @@ public class GestureDetector {
         mIgnoreNextUpEvent = false;
     }
 
+    // 判断是否是双击事件
     private boolean isConsideredDoubleTap(MotionEvent firstDown, MotionEvent firstUp,
             MotionEvent secondDown) {
         if (!mAlwaysInBiggerTapRegion) {
             return false;
         }
-
+        // 两个点击的间隔事件
         final long deltaTime = secondDown.getEventTime() - firstUp.getEventTime();
         if (deltaTime > DOUBLE_TAP_TIMEOUT || deltaTime < DOUBLE_TAP_MIN_TIME) {
             return false;
         }
-
+        // 两次点击的位置点 是否在同一个位置上
         int deltaX = (int) firstDown.getX() - (int) secondDown.getX();
         int deltaY = (int) firstDown.getY() - (int) secondDown.getY();
+        // 事件是否由手势生成器生成
         final boolean isGeneratedGesture =
                 (firstDown.getFlags() & MotionEvent.FLAG_IS_GENERATED_GESTURE) != 0;
         int slopSquare = isGeneratedGesture ? 0 : mDoubleTapSlopSquare;
@@ -772,9 +805,12 @@ public class GestureDetector {
     }
 
     private void dispatchLongPress() {
+        // 移除TAP回调
         mHandler.removeMessages(TAP);
         mDeferConfirmSingleTap = false;
+        // 长按模式标志位
         mInLongPress = true;
+        // 回调onLongPress
         mListener.onLongPress(mCurrentDownEvent);
     }
 }
