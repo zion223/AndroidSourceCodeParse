@@ -103,6 +103,10 @@ ObjectAnimator.ofFloat(targetView, "translationX", 0 300).setDuration(1000).star
 
 事件分发其实就是对于MotionEvent对象的传递过程。  
 ViewGroup中dispatchTouchEvent()方法的伪代码如下  
+[ViewGroup事件分发源码分析1](https://juejin.cn/post/6844904065613201421)
+[ViewGroup事件分发源码分析2](https://juejin.cn/post/6844903923770195975)
+[ViewGroup事件分发多点触摸](https://juejin.cn/post/6844904065617362952)
+
 ```java
 
 TouchTarget mFirstTouchTarget = null;//子控件是否消费
@@ -141,7 +145,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 View的dispatchTouchEvent()方法的伪代码如下，从代码可以看出如果设置了OnTouchListener则先执行onTouch回调，  
 如果onTouch()返回true，则此事件被消费掉不会执行onTouchEvent()，因此onClickListener就不会执行(如果设置了)，
 如果onTouch()返回false，则会继续往下执行 onTouchEvent()被调用，在onTouchEvent()方法里面如果设置了OnClickListener则会回调onClick方法。  
-Viewo的onLongClickListener是在ACTION_MOVE触发，onClick是在ACTION_UP时触发
+View的onLongClick()是在ACTION_DOWN时开启检测触发逻辑，onClick()则是在ACTION_UP时触发
 
 ``` java
 public boolean dispatchTouchEvent(MotionEvent event) {  

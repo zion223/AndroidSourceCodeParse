@@ -299,6 +299,7 @@ public class GestureDetector {
                 // 如果当前用户的手指仍在处于DOWN状态下, 不把他当成一个tap
                 if (mDoubleTapListener != null) {
                     if (!mStillDown) {
+                        // 严格的点击行为
                         mDoubleTapListener.onSingleTapConfirmed(mCurrentDownEvent);
                     } else {
                         mDeferConfirmSingleTap = true;
@@ -500,11 +501,13 @@ public class GestureDetector {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
+        // 添加动作
         mVelocityTracker.addMovement(ev);
 
         final boolean pointerUp =
                 (action & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP;
         final int skipIndex = pointerUp ? ev.getActionIndex() : -1;
+        // 事件是否由手势生成器生成
         final boolean isGeneratedGesture =
                 (ev.getFlags() & MotionEvent.FLAG_IS_GENERATED_GESTURE) != 0;
 
@@ -597,7 +600,7 @@ public class GestureDetector {
             mInLongPress = false;
             mDeferConfirmSingleTap = false;
 
-            // 判断是否长按是使能的
+            // 判断是否长按是使能的  默认是使能的
             if (mIsLongpressEnabled) {
                 mHandler.removeMessages(LONG_PRESS);
                 // 500ms后发送LONGPRESS
@@ -607,6 +610,7 @@ public class GestureDetector {
             // 100ms后发送SHOW_PRESS
             mHandler.sendEmptyMessageAtTime(SHOW_PRESS,
                     mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);
+            // 回调onDown                    
             handled |= mListener.onDown(ev);
             break;
 
@@ -628,10 +632,11 @@ public class GestureDetector {
                 int slopSquare = isGeneratedGesture ? 0 : mTouchSlopSquare;
                 // 判断是否在滑动
                 if (distance > slopSquare) {
-                    // 回调onScroll
+                    // 回调onScroll 开启滑动行为
                     handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
                     mLastFocusX = focusX;
                     mLastFocusY = focusY;
+                    // 已经不再tap的区域了
                     mAlwaysInTapRegion = false;
                     // 移除TAP、SHOW_PRESS和LONG_PRESS消息
                     mHandler.removeMessages(TAP);
@@ -640,6 +645,7 @@ public class GestureDetector {
                 }
                 int doubleTapSlopSquare = isGeneratedGesture ? 0 : mDoubleTapTouchSlopSquare;
                 if (distance > doubleTapSlopSquare) {
+                    // 已经不再稍大于tap的区域了(用来判断双击行为)
                     mAlwaysInBiggerTapRegion = false;
                 }
             } else if ((Math.abs(scrollX) >= 1) || (Math.abs(scrollY) >= 1)) {
@@ -667,6 +673,7 @@ public class GestureDetector {
                 // 单次点击手指抬起
                 handled = mListener.onSingleTapUp(ev);
                 if (mDeferConfirmSingleTap && mDoubleTapListener != null) {
+                    // 严格的单击行为 回调onSingleTapConfirmed
                     mDoubleTapListener.onSingleTapConfirmed(ev);
                 }
             } else if (!mIgnoreNextUpEvent) {
@@ -794,7 +801,7 @@ public class GestureDetector {
         if (deltaTime > DOUBLE_TAP_TIMEOUT || deltaTime < DOUBLE_TAP_MIN_TIME) {
             return false;
         }
-        // 两次点击的位置点 是否在同一个位置上
+        // 两次点击的位置点 是否大致在同一个位置上
         int deltaX = (int) firstDown.getX() - (int) secondDown.getX();
         int deltaY = (int) firstDown.getY() - (int) secondDown.getY();
         // 事件是否由手势生成器生成
@@ -805,7 +812,7 @@ public class GestureDetector {
     }
 
     private void dispatchLongPress() {
-        // 移除TAP回调
+        // 移除TAP消息
         mHandler.removeMessages(TAP);
         mDeferConfirmSingleTap = false;
         // 长按模式标志位

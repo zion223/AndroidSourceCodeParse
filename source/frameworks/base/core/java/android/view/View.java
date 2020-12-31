@@ -6252,6 +6252,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     public boolean performClick() {
         final boolean result;
         final ListenerInfo li = mListenerInfo;
+        // 是否设置了onClickListener
         if (li != null && li.mOnClickListener != null) {
             playSoundEffect(SoundEffectConstants.CLICK);
             // 调用onClick回调方法
@@ -13017,7 +13018,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                             // If the post failed, unpress right now
                             mUnsetPressedState.run();
                         }
-
+                        // 移除tap检测的callback(mPendingCheckForTap)
                         removeTapCallback();
                     }
                     mIgnoreNextUpEvent = false;
@@ -13058,7 +13059,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                         postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
                     } else {
                         // Not inside a scrolling container, so show the feedback right away
-                        // 立刻设置点击态
+                        // 当前view不在scroll view内，则立刻设置点击态
                         setPressed(true, x, y);
                         // 检查是否要处理长按事件  500ms
                         checkForLongClick(0, x, y);
@@ -23166,6 +23167,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         }
     }
 
+    // 检查长按事件
     private void checkForLongClick(int delayOffset, float x, float y) {
         if ((mViewFlags & LONG_CLICKABLE) == LONG_CLICKABLE || (mViewFlags & TOOLTIP) == TOOLTIP) {
             mHasPerformedLongPress = false;
@@ -24718,6 +24720,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         public void run() {
             // 清除PFLAG_PREPRESSED标志位
             mPrivateFlags &= ~PFLAG_PREPRESSED;
+            // 设置点击状态
             setPressed(true, x, y);
             // 检查长按事件
             checkForLongClick(ViewConfiguration.getTapTimeout(), x, y);
