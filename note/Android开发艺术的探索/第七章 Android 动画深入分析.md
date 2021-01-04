@@ -147,10 +147,54 @@ android:shareInterpolator
 ## 属性动画
 
 ### 使用属性动画
-&emsp;&emsp;属性动画可以对任意对象的属性进行动画而不仅仅是View,动画的默认时间间隔为300ms，默认帧率为10ms/帧。属性动画可以完成在一个时间间隔内完成对象的一个属性值到另一个属性值的改变。属性动画和View动画的区别如下。
+&emsp;&emsp;属性动画可以对任意对象的属性进行动画而不仅仅是View,动画的默认时间间隔为300ms，默认帧率为10ms/帧。属性动画可以完成在一个时间间隔内完成对象的一个属性值到另一个属性值的改变。  
+&emsp;&emsp; 属性动画和View动画的区别如下。 
+
 ![View动画和属性动画的区别](image/anim.jpg)
 
-属性动画使用方法
+**属性动画使用方法**  
+1. 使用ValueAnimator
+```java
+Button mButton = (Button) findViewById(R.id.Button);
+        // 创建动画作用对象：此处以Button为例
+
+// 步骤1：设置属性数值的初始值 & 结束值
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(mButton.getLayoutParams().width, 500);
+        // 初始值 = 当前按钮的宽度，此处在xml文件中设置为150
+        // 结束值 = 500
+        // ValueAnimator.ofInt()内置了整型估值器,直接采用默认的.不需要设置
+        // 即默认设置了如何从初始值150 过渡到 结束值500
+
+// 步骤2：设置动画的播放各种属性
+        valueAnimator.setDuration(2000);
+        // 设置动画运行时长:1s
+
+// 步骤3：将属性数值手动赋值给对象的属性:此处是将 值 赋给 按钮的宽度
+        // 设置更新监听器：即数值每次变化更新都会调用该方法
+        valueAnimator.addUpdateListener(new AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+
+                int currentValue = (Integer) animator.getAnimatedValue();
+                // 获得每次变化后的属性值
+                System.out.println(currentValue);
+                // 输出每次变化后的属性值进行查看
+
+                mButton.getLayoutParams().width = currentValue;
+                // 每次值变化时，将值手动赋值给对象的属性
+                // 即将每次变化后的值 赋 给按钮的宽度，这样就实现了按钮宽度属性的动态变化
+// 步骤4：刷新视图，即重新绘制，从而实现动画效果
+                mButton.requestLayout();
+                
+            }
+        });
+
+        valueAnimator.start();
+        // 启动动画
+
+    }
+```
+2. 使用ObjectAnimator
 ```java
     public static ObjectAnimator ofFloat(Object target, String propertyName, float... values) {
         ObjectAnimator anim = new ObjectAnimator(target, propertyName);
@@ -202,7 +246,7 @@ AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播�
     }
 ```
 ### 对任意属性做动画
-&emsp;&emsp;View动画只支持四种类型:平移、旋转、缩放、透明度。实现效果有限。  
+&emsp;&emsp;View动画只支持四种类型:平移、旋转、缩放、透明度。能够实现的效果有限。  
 
 **属性动画的工作原理**  
 &emsp;&emsp;属性动画要求动画作用的对象提供该属性的get和set方法，属性动画根据外界传递的该属性的初始值和最终值，以动画的效果多次去调用set方法，每次传递给set的值都不一样，确切的说是随着时间的推移，所传递的值越来越接近最终值。  
@@ -215,10 +259,19 @@ AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播�
 - 用一个包装类来包装原始对象，间接提供set和get方法
 - 采用ValueAnimator，监听动画过程，自己实现属性的改变
 
+```java
+
+
+```
 ### 属性动画的工作原理
 
 
 ## 使用动画的注意事项
+- OOM问题 主要出现在帧动画上，当图片数量较多并且较大时就容易出现OOM。
+- 内存泄漏 在属性动画中有一种无限循环的动画，这类动画在Activity退出时及时停止，否则将导致Activity无法释放从而造成内存泄漏，View动画中不存在此现象。
+- View的动画问题 View动画是对View的影像做动画，并不是真正的改变View的状态，因此有时候会出现动画完成后View无法隐藏的现象，即setVisibility(View.GONE)失效，这时调用下view.clearAnimation()方法即可。
+- 不使用px 在执行动画的过程中，尽量使用dp，px在不同的设备上会有不同的效果。px：像素点 dp：设备无关像素 两者换算关系1dp = (屏幕的dpi/160)px
+- 硬件加速，使用动画过程中开启硬件加速，这样会提高动画的流畅性。
 
 
 
