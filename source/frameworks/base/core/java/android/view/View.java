@@ -11715,14 +11715,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             }
             //noinspection SimplifiableIfStatement
             ListenerInfo li = mListenerInfo;
-            // 如果设置了OnTouchListener并且onTouch()方法返回值为true
+            // 如果设置了OnTouchListener并且onTouch()方法返回值为true则表示消费了该事件
             if (li != null && li.mOnTouchListener != null
                     && (mViewFlags & ENABLED_MASK) == ENABLED
                     && li.mOnTouchListener.onTouch(this, event)) {
                 result = true;
             }
-            // 如果上面成立则不会调用onTouchEvent
-            // 否则如果调用onTouchEvent()并且返回值为true
+            // 如果上面成立则表示在onTouch()方法中消费了该事件，后面不会调用onTouchEvent
+            // 否则如果调用onTouchEvent()的返回值为true则表示消费了该事件
             if (!result && onTouchEvent(event)) {
                 result = true;
             }
