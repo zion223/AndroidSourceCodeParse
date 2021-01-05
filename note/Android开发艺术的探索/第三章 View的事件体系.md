@@ -133,7 +133,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
             mFirstTouchTarget = null;
         }
         if(mFirstTouchTarget == null){
-            //子控件没有消费事件
+            //子控件没有消费事件 则将自身当成View看待
             return onTouchEvent(event);
         }else{
             //子控件消费了事件
@@ -145,7 +145,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 View的dispatchTouchEvent()方法的伪代码如下，从代码可以看出如果设置了OnTouchListener则先执行onTouch回调，  
 如果onTouch()返回true，则此事件被消费掉不会执行onTouchEvent()，因此onClickListener就不会执行(如果设置了)，
 如果onTouch()返回false，则会继续往下执行 onTouchEvent()被调用，在onTouchEvent()方法里面如果设置了OnClickListener则会回调onClick方法。  
-View的onLongClick()是在ACTION_DOWN时开启检测触发逻辑，onClick()则是在ACTION_UP时触发
+View的onLongClick()是在ACTION_DOWN时开启触发检测逻辑，onClick()则是在ACTION_UP时触发
 
 ``` java
 public boolean dispatchTouchEvent(MotionEvent event) {  
