@@ -29,3 +29,80 @@ Android系统中有两种坐标系，Android坐标系和View坐标系。
 ![坐标系](img/坐标系.png)
 
 ## 3.3 View的滑动
+### 3.3.1 layout()方法
+View在进行绘制时会调用onLayout()方法来设置显示的位置，因此可以通过修改View的left、top、right、bottom这四种属性来控制View的坐标。在自定义View中，通过重写onTouchEvent()方法来实现。  
+```java
+public boolean onTouchEvent(MotionEvent event){
+    int x = (int)event.getX();
+    int y = (int)event.getY();
+
+    switch(event.getAction){
+        case MotionEvent.ACTION_DOWN:
+            lastX = x;
+            lasyY = y;
+            break;
+        case MotionEvent.ACTION_MOVE:
+            int offsetX = x - lastX;
+            int offsetY = y - lastY;
+            layout(getLeft() + offsetX, getTop() + offsetY, getRight() + offsetX, getBottom() + offsetY);
+            break;           
+    }
+    return true;
+}
+
+```
+### 3.3.2 offsetLeftAndRight()与offsetTopAndBottom()方法
+```java
+public boolean onTouchEvent(MotionEvent event){
+    int x = (int)event.getX();
+    int y = (int)event.getY();
+
+    switch(event.getAction){
+        case MotionEvent.ACTION_DOWN:
+            lastX = x;
+            lasyY = y;
+            break;
+        case MotionEvent.ACTION_MOVE:
+            int offsetX = x - lastX;
+            int offsetY = y - lastY;
+            // 移动View
+            offsetLeftAndRight(offsetX);
+            offsetTopAndBottom(offsetY);
+            break;           
+    }
+    return true;
+}
+```
+
+### 3.3.3 改变LayoutParams
+可以通过改变View的参数来达到改变View位置的效果。
+
+```java
+public boolean onTouchEvent(MotionEvent event){
+    int x = (int)event.getX();
+    int y = (int)event.getY();
+
+    switch(event.getAction){
+        case MotionEvent.ACTION_DOWN:
+            lastX = x;
+            lasyY = y;
+            break;
+        case MotionEvent.ACTION_MOVE:
+            int offsetX = x - lastX;
+            int offsetY = y - lastY;
+            // 移动View
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) getLayoutParams();
+            layoutParams.leftMargin +=  (int)dismenX;
+            layoutParams.topMargin += (int)dismenY;
+            setLayoutParams(layoutParams);
+            break;           
+    }
+    return true;
+}
+```
+### 3.3.4 动画
+### 3.3.5 scrollTo和scrollBy
+### 3.3.6 Scroller
+
+
+
