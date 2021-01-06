@@ -14664,6 +14664,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * The horizontal location of this view relative to its {@link #getLeft() left} position.
      * This position is post-layout, in addition to wherever the object's
      * layout placed it.
+     * 水平位置的相对原位置的偏移量 默认是0
      *
      * @return The horizontal position of this view relative to its left position, in pixels.
      */
