@@ -605,6 +605,7 @@ bool Service::Start() {
     // Running processes require no additional work --- if they're in the
     // process of exiting, we've ensured that they will immediately restart
     // on exit, unless they are ONESHOT.
+    // 如果Service已经启动，则不启动
     if (flags_ & SVC_RUNNING) {
         return false;
     }
@@ -718,6 +719,7 @@ bool Service::Start() {
 
         std::vector<char*> strs;
         ExpandArgs(args_, &strs);
+        // 调用execve函数，Service子进程就会被启动
         if (execve(strs[0], (char**) &strs[0], (char**) ENV) < 0) {
             PLOG(ERROR) << "cannot execve('" << strs[0] << "')";
         }

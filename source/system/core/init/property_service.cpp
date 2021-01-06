@@ -163,6 +163,7 @@ bool is_legal_property_name(const std::string& name) {
     return true;
 }
 
+// 设置prop属性
 uint32_t property_set(const std::string& name, const std::string& value) {
     size_t valuelen = value.size();
 
@@ -182,10 +183,11 @@ uint32_t property_set(const std::string& name, const std::string& value) {
             LOG(ERROR) << "Failed to restorecon_recursive " << value;
         }
     }
-
+    // 从属性存储空间中查找该属性
     prop_info* pi = (prop_info*) __system_property_find(name.c_str());
     if (pi != nullptr) {
         // ro.* properties are actually "write-once".
+        // ro开头的属性表示只读
         if (android::base::StartsWith(name, "ro.")) {
             LOG(ERROR) << "property_set(\"" << name << "\", \"" << value << "\") failed: "
                        << "property already set";
@@ -345,9 +347,11 @@ static void handle_property_set(SocketConnection& socket,
   struct ucred cr = socket.cred();
   char* source_ctx = nullptr;
   getpeercon(socket.socket(), &source_ctx);
-
+  // 如果属性名称以"ctl。"开头，说明是控制属性
   if (android::base::StartsWith(name, "ctl.")) {
+    // 检查客户端权限
     if (check_control_mac_perms(value.c_str(), source_ctx, &cr)) {
+      // 设置控制属性
       handle_control_message(name.c_str() + 4, value.c_str());
       if (!legacy_protocol) {
         socket.SendUint32(PROP_SUCCESS);
@@ -665,14 +669,14 @@ void load_system_props() {
 
 void start_property_service() {
     property_set("ro.property_service.version", "2");
-
+    // 创建非阻塞socket
     property_set_fd = create_socket(PROP_SERVICE_NAME, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK,
                                     0666, 0, 0, NULL);
     if (property_set_fd == -1) {
         PLOG(ERROR) << "start_property_service socket creation failed";
         exit(1);
     }
-
+    //对property_set_fd进行监听
     listen(property_set_fd, 8);
 
     register_epoll_handler(property_set_fd, handle_property_set_fd);

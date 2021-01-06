@@ -272,6 +272,7 @@ int main(int argc, char* const argv[])
     while (i < argc) {
         const char* arg = argv[i++];
         if (strcmp(arg, "--zygote") == 0) {
+            // zygote mode
             zygote = true;
             niceName = ZYGOTE_NICE_NAME;
         } else if (strcmp(arg, "--start-system-server") == 0) {
@@ -341,6 +342,7 @@ int main(int argc, char* const argv[])
     }
 
     if (zygote) {
+        // 启动Zygote
         runtime.start("com.android.internal.os.ZygoteInit", args, zygote);
     } else if (className) {
         runtime.start("com.android.internal.os.RuntimeInit", args, zygote);

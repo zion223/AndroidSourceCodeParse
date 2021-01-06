@@ -970,6 +970,7 @@ int main(int argc, char** argv) {
 
         // Get the basic filesystem setup we need put together in the initramdisk
         // on / and then we'll let the rc file figure out the rest.
+        // 挂载基本的文件系统
         mount("tmpfs", "/dev", "tmpfs", MS_NOSUID, "mode=0755");
         mkdir("/dev/pts", 0755);
         mkdir("/dev/socket", 0755);
@@ -982,12 +983,14 @@ int main(int argc, char** argv) {
         setgroups(arraysize(groups), groups);
         mount("sysfs", "/sys", "sysfs", 0, NULL);
         mount("selinuxfs", "/sys/fs/selinux", "selinuxfs", 0, NULL);
+        // 内核的log
         mknod("/dev/kmsg", S_IFCHR | 0600, makedev(1, 11));
         mknod("/dev/random", S_IFCHR | 0666, makedev(1, 8));
         mknod("/dev/urandom", S_IFCHR | 0666, makedev(1, 9));
 
         // Now that tmpfs is mounted on /dev and we have /dev/kmsg, we can actually
         // talk to the outside world...
+        // 初始化Kernel的Log
         InitKernelLogging(argv);
 
         LOG(INFO) << "init first stage started!";
@@ -1036,7 +1039,7 @@ int main(int argc, char** argv) {
 
     // Indicate that booting is in progress to background fw loaders, etc.
     close(open("/dev/.booting", O_WRONLY | O_CREAT | O_CLOEXEC, 0000));
-
+    // 属性服务初始化
     property_init();
 
     // If arguments are passed both on the command line and in DT,
@@ -1071,11 +1074,13 @@ int main(int argc, char** argv) {
         PLOG(ERROR) << "epoll_create1 failed";
         exit(1);
     }
-
+    // 子进程信号处理函数
+    // 防止init进程成为僵尸进程
     signal_handler_init();
 
     property_load_boot_defaults();
     export_oem_lock_status();
+    // 启动属性服务
     start_property_service();
     set_usb_controller();
 
@@ -1088,6 +1093,7 @@ int main(int argc, char** argv) {
     parser.AddSectionParser("import", std::make_unique<ImportParser>());
     std::string bootscript = GetProperty("ro.boot.init_rc", "");
     if (bootscript.empty()) {
+        // 解析init.rc文件
         parser.ParseConfig("/init.rc");
         parser.set_is_system_etc_init_loaded(
                 parser.ParseConfig("/system/etc/init"));
@@ -1141,9 +1147,11 @@ int main(int argc, char** argv) {
         int epoll_timeout_ms = -1;
 
         if (!(waiting_for_prop || ServiceManager::GetInstance().IsWaitingForExec())) {
+            // 执行action中的command对应的执行函数
             am.ExecuteOneCommand();
         }
         if (!(waiting_for_prop || ServiceManager::GetInstance().IsWaitingForExec())) {
+            // 重启死去的进程
             restart_processes();
 
             // If there's a process that needs restarting, wake up in time for that.
