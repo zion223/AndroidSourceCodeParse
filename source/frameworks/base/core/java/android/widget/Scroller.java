@@ -89,7 +89,7 @@ public class Scroller  {
     private int mDistance;
 
     private float mFlingFriction = ViewConfiguration.getScrollFriction();
-
+    // 默认动画持续时间
     private static final int DEFAULT_DURATION = 250;
     private static final int SCROLL_MODE = 0;
     private static final int FLING_MODE = 1;
@@ -295,8 +295,11 @@ public class Scroller  {
     /**
      * Call this when you want to know the new location.  If it returns true,
      * the animation is not yet finished.
+     * 根据当前消逝的事件计算新的位置
+     * 如果返回true 表明动画未结束
      */ 
     public boolean computeScrollOffset() {
+        // 如果动画已经结束 返回false
         if (mFinished) {
             return false;
         }
@@ -306,11 +309,14 @@ public class Scroller  {
         if (timePassed < mDuration) {
             switch (mMode) {
             case SCROLL_MODE:
+                // scroll模式 调用startScroll()时的模式
                 final float x = mInterpolator.getInterpolation(timePassed * mDurationReciprocal);
+                // 计算目标滑动偏移量 供给scrollTo方法使用
                 mCurrX = mStartX + Math.round(x * mDeltaX);
                 mCurrY = mStartY + Math.round(x * mDeltaY);
                 break;
             case FLING_MODE:
+                // fling模式 调用fling()方法时的模式
                 final float t = (float) timePassed / mDuration;
                 final int index = (int) (NB_SAMPLES * t);
                 float distanceCoef = 1.f;
@@ -344,6 +350,7 @@ public class Scroller  {
             }
         }
         else {
+            // 滑动已经结束
             mCurrX = mFinalX;
             mCurrY = mFinalY;
             mFinished = true;
@@ -386,12 +393,16 @@ public class Scroller  {
     public void startScroll(int startX, int startY, int dx, int dy, int duration) {
         mMode = SCROLL_MODE;
         mFinished = false;
+        // 滑动持续的时间
         mDuration = duration;
         mStartTime = AnimationUtils.currentAnimationTimeMillis();
+        // 起点
         mStartX = startX;
         mStartY = startY;
+        // 最终位置
         mFinalX = startX + dx;
         mFinalY = startY + dy;
+        // 偏移量
         mDeltaX = dx;
         mDeltaY = dy;
         mDurationReciprocal = 1.0f / (float) mDuration;
@@ -400,6 +411,7 @@ public class Scroller  {
     /**
      * Start scrolling based on a fling gesture. The distance travelled will
      * depend on the initial velocity of the fling.
+     * 基于fling手势开启滑动，最终滑动的距离将取决于初始的速度
      * 
      * @param startX Starting point of the scroll (X)
      * @param startY Starting point of the scroll (Y)

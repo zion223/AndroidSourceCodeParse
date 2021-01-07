@@ -18886,6 +18886,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         int sx = 0;
         int sy = 0;
         if (!drawingWithRenderNode) {
+            // 可以重写此方法实现弹性滑动
             computeScroll();
             sx = mScrollX;
             sy = mScrollY;
