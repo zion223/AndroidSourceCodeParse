@@ -2581,8 +2581,9 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         }
 
         mDecor.startChanging();
+        // 加载布局资源
         mDecor.onResourcesLoaded(mLayoutInflater, layoutResource);
-
+        // ID_ANDROID_CONTENT: The ID that the main layout in the XML layout file should have.
         ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
         if (contentParent == null) {
             throw new RuntimeException("Window couldn't find content container view");
@@ -2644,7 +2645,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
     private void installDecor() {
         mForceDecorInstall = false;
         if (mDecor == null) {
-            // 初始化mDecor
+            // 初始化mDecor  创建DecorView
             mDecor = generateDecor(-1);
             mDecor.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
             mDecor.setIsRootNamespace(true);

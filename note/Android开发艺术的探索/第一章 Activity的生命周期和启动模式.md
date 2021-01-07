@@ -1,7 +1,8 @@
 # **Activity生命周期和启动模式**
 ## Activity的生命周期
 
-![Activity生命周期](image/activity_lifecycle.png)
+<img src="image/activity_lifecycle.png" style="zoom:75%"/>  
+
 ### 1.典型情况下的生命周期
 
 

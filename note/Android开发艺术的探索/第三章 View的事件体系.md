@@ -6,12 +6,14 @@
 Android坐标系:以屏幕左上角为坐标原点， 向右为x轴增大方向，向下为y轴增大方向。  
 View的位置由四个顶点的位置决定，分别对应于View的四个属性：left、top、right、bottom。这些坐标是相对于view父容器而言的，是相对坐标。  
 
-![View坐标系](image/View坐标系.png)
+<img src="image/View坐标系.png" style="zoom:75%"/>
 
 > 因此，View的宽高和坐标关系：width = right - left，height = bottom - top。
 
-Android3.0后新添加了x、y和translationX、translationY其中x和y是左上角的坐标，translationX和translationY是是View左上角的偏移量。
-![View坐标系](image/view新坐标参数.png)
+Android3.0后新添加了x、y和translationX、translationY其中x和y是左上角的坐标，translationX和translationY是是View左上角的偏移量。  
+
+<img src="image/view新坐标参数.png" style="zoom:50%"/>
+
 
 > 存在关系：x = left + translationX，y = top + translationY  
 > 由此可见，x和left不同体现在：left是View的初始坐标，在绘制完毕后就不会再改变；而x是View偏移后的实时坐标，是实际坐标。y和top的区别同理。
@@ -103,8 +105,8 @@ ObjectAnimator.ofFloat(targetView, "translationX", 0 300).setDuration(1000).star
 
 事件分发其实就是对于MotionEvent对象的传递过程。  
 ViewGroup中dispatchTouchEvent()方法的伪代码如下  
-[ViewGroup事件分发源码分析1](https://juejin.cn/post/6844904065613201421)
-[ViewGroup事件分发源码分析2](https://juejin.cn/post/6844903923770195975)
+[ViewGroup事件分发源码分析1](https://juejin.cn/post/6844904065613201421)  
+[ViewGroup事件分发源码分析2](https://juejin.cn/post/6844903923770195975)  
 [ViewGroup事件分发多点触摸](https://juejin.cn/post/6844904065617362952)
 
 ```java
@@ -157,7 +159,8 @@ public boolean dispatchTouchEvent(MotionEvent event) {
         return onTouchEvent(event);  
   }
 ```
-![View事件传递](image/View事件传递.jpg)
+
+<img src="image/View事件传递.jpg" style="zoom:75%"/>
 
 # **View的滑动冲突**
 

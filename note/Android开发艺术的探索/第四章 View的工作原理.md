@@ -572,7 +572,8 @@ public void layout(int l, int t, int r, int b) {
 6. Draw decorations (scrollbars for instance)(绘制装饰)
 
 
-![View的draw过程](image/View的draw过程.jpg)
+
+<img src="image/View的draw过程.jpg" style="zoom:75%" />
 
 
 ## 自定义View  
