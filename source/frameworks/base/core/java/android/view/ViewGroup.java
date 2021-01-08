@@ -6597,7 +6597,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     protected void measureChild(View child, int parentWidthMeasureSpec,
             int parentHeightMeasureSpec) {
         final LayoutParams lp = child.getLayoutParams();
-        //获取子View的MeasureSpec
+        // 获取子View的MeasureSpec
+        // 子View的MeasureSpec由父容器的测量模式和自身的LayoutParams共同决定的
         final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
                 mPaddingLeft + mPaddingRight, lp.width);
         final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
