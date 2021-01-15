@@ -85,6 +85,7 @@ public final class Looper {
       * this looper, before actually starting the loop. Be sure to call
       * {@link #loop()} after calling this method, and end it by calling
       * {@link #quit()}.
+      * 为当前线程(子线程)创建消息队列Looper 默认是可以退出的
       */
     public static void prepare() {
         prepare(true);
