@@ -64,7 +64,7 @@ View动画的四种变化效果对应的Animation的四个子类：TranslateAnim
 </set>
 
 ```
-  &lt;set&gt;标签对应的是AnimationSet类,它可以包含多个动画并且它的内部也是可以嵌套其他动画集合的，它的两个属性的含义如下  
+  &lt;set&gt;标签对应的是AnimationSet类，它可以包含多个动画并且它的内部也是可以嵌套其他动画集合的，它的两个属性的含义如下  
 
   android:interpolator  
 
@@ -147,7 +147,7 @@ android:shareInterpolator
 ## 属性动画
 
 ### 使用属性动画
-&emsp;&emsp;属性动画可以对任意对象的属性进行动画而不仅仅是View,动画的默认时间间隔为300ms，默认帧率为10ms/帧。属性动画可以完成在一个时间间隔内完成对象的一个属性值到另一个属性值的改变。  
+&emsp;&emsp;属性动画可以对任意对象的属性进行动画而不仅仅是View，动画的默认时间间隔为300ms，默认帧率为10ms/帧。属性动画可以完成在一个时间间隔内完成对象的一个属性值到另一个属性值的改变。  
 &emsp;&emsp; 属性动画和View动画的区别如下。 
 
 ![View动画和属性动画的区别](image/anim.jpg)

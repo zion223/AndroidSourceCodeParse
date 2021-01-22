@@ -200,7 +200,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
 ![总结](image/获取子View测量方式.png)
 ## View的工作流程
 
-View的工作流程主要是指measure、layout、draw这三大流程，即测量、布局和绘制，其中measure主要确定View的宽和高,layout确定View的最终宽/高和四个顶点的位置，而draw会将View绘制到屏幕上。
+View的工作流程主要是指measure、layout、draw这三大流程，即测量、布局和绘制，其中measure主要确定View的宽和高，layout确定View的最终宽/高和四个顶点的位置，而draw会将View绘制到屏幕上。
 
 ### **measure过程**
 - View的measure过程
@@ -312,7 +312,7 @@ public static int getDefaultSize(int size, int measureSpec) {
     /**
     * 根据自身的测量逻辑复写onMeasure()，分为3步
     *   1. 遍历所有子View & 测量：measureChildren()
-    *   2. 合并所有子View的尺寸大小,最终得到ViewGroup父视图的测量值(自身实现)
+    *   2. 合并所有子View的尺寸大小，最终得到ViewGroup父视图的测量值(自身实现)
     *   3. 存储测量后View宽/高的值：调用setMeasuredDimension()  
     **/ 
 
@@ -590,11 +590,11 @@ public void layout(int l, int t, int r, int b) {
 
 自定义View须知
 
-1. 让自定义View支持wrap_content,如果继承自View或者ViewGroup的控件，如果不在onMeasure()方法中对于wrap_content做处理则当view设置为wrap_content时效果和match_parent是一样的。
-2. 如果有必要让自定义View支持padding,如果直接继承自View的控件如果不在draw()方法中处理padding,那么padding属性是无法起作用的。
-3. 尽量不要在View中使用Handler,View本身提供了post系列的方法可以代替Handler的作用
-4. View中如果有线程在运行或者动画在执行，在View#onDetachedFromWindow方法中及时停止，否则可能导致内存泄漏
-5. View可以滑动嵌套情形时，需要处理好滑动冲突
+1. 让自定义View支持wrap_content，如果继承自View或者ViewGroup的控件，如果不在onMeasure()方法中对于wrap_content做处理则当view设置为wrap_content时效果和match_parent是一样的。
+2. 如果有必要让自定义View支持padding，如果直接继承自View的控件如果不在draw()方法中处理padding，那么padding属性是无法起作用的。
+3. 尽量不要在View中使用Handler，View本身提供了post系列的方法可以代替Handler的作用。
+4. View中如果有线程在运行或者动画在执行，在View#onDetachedFromWindow方法中及时停止，否则可能导致内存泄漏。
+5. View可以滑动嵌套情形时，需要处理好滑动冲突。
 
 
 

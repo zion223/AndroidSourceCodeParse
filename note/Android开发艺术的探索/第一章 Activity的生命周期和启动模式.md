@@ -30,7 +30,7 @@ ActivityA onStop()
 2. 资源内存不足时低优先级的Activity被系统杀死
    此情况的恢复过程与上述情况相同
 
-AndroidManifest.xml中在activity节点下有android:ConfigChanges属性可以设置当此选项情况发生时不会重建Activity,配置后不会调用onSaveInstanceState()方法而是会调用onConfigurationChanged()方法
+AndroidManifest.xml中在activity节点下有android:ConfigChanges属性可以设置当此选项情况发生时不会重建Activity，配置后不会调用onSaveInstanceState()方法而是会调用onConfigurationChanged()方法
 
 ## Activity的启动模式
 启动模式: LaunchMode
@@ -43,13 +43,13 @@ AndroidManifest.xml中在activity节点下有android:ConfigChanges属性可以�
 ### singleTask模式场景:
   - 当前任务栈S1中有ABC，这时启动以singleTask模式配置的Activity D，此Activity需要的任务栈为S2，由于S2和D都不存在，则系统会先创建S2然后创建D的实例放入S2中。
   - 如果Activity D需要的任务栈是S1，则系统直接创建D实例然后放入S1
-  - 如果Activity D需要的任务栈是S1，并且当前S1栈内的情况为ADBC四个Activity,此时D不会被重新创建，系统会把D切换到栈顶并且调用onNewIntent()，由于singleTask具有clearTop效果，于是BC会被出栈，最终任务栈S1中的情况为AD。
+  - 如果Activity D需要的任务栈是S1，并且当前S1栈内的情况为ADBC四个Activity，此时D不会被重新创建，系统会把D切换到栈顶并且调用onNewIntent()，由于singleTask具有clearTop效果，于是BC会被出栈，最终任务栈S1中的情况为AD。
 
 
 ### 任务栈
 &emsp;TaskAffinity：这个参数标识了当前Activity所需要的的任务栈的名字，默认情况下所有Activity启动的任务栈的名字为当前应用的包名。TaskAffinity属性主要和singleTask启动模式或者allowTaskReParenting属性配合使用，任务栈分为前台任务栈和后台任务栈。后台任务栈的Activity处于暂停状态，用户可以切换将后台任务栈再次调到前台。  
 &emsp;&nbsp;TaskAffinity和singleTask模式配合使用时，新启动的Activity将会运行在和TaskAffinity相同名字的任务栈中。  
-&emsp;&nbsp;TaskAffinity和allowTaskReParenting结合使用的时候。当应用A启动了应用B的一个ActivityC，这个Activity的allowTaskReParenting属性设置为true,那么当应用B被启动后，此ActivityC会从应用A的任务栈转移到任务B的任务栈。因此会直接启动ActivityC而不是应用B的默认Activity。
+&emsp;&nbsp;TaskAffinity和allowTaskReParenting结合使用的时候。当应用A启动了应用B的一个ActivityC，这个Activity的allowTaskReParenting属性设置为true，那么当应用B被启动后，此ActivityC会从应用A的任务栈转移到任务B的任务栈。因此会直接启动ActivityC而不是应用B的默认Activity。
 
 ### 指定Activity启动方式
   - 通过AndroidManifest.xml中指定android:launchMode

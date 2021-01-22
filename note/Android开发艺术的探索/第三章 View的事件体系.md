@@ -29,7 +29,7 @@ getX()/getY() 相对于当前View左上角的坐标
 getRawX()/getRawY() 相对于屏幕左上角的坐标
 
 2. TouchSlop
- TouchSlop 是系统所能识别出的被认为是滑动的最小距离,处理滑动时可以利用这个常量来做一些过滤.  
+ TouchSlop 是系统所能识别出的被认为是滑动的最小距离，处理滑动时可以利用这个常量来做一些过滤。 
  /frameworks/base/core/res/res/values/config.xml  
  `
 <dimen name="config_viewConfigurationTouchSlop">8dp</dimen>
@@ -132,7 +132,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
                 mFirstTouchTarget = addTouchTarget(child, idBitsToAssign);
             }
         }else{
-            //如果拦截,子控件没有消费事件
+            //如果拦截，子控件没有消费事件
             mFirstTouchTarget = null;
         }
         if(mFirstTouchTarget == null){
