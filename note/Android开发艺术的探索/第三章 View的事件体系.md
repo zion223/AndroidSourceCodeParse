@@ -61,6 +61,7 @@ Scroller: 弹性滑动对象，实现View的弹性滑动。
             mScrollX = x;
             mScrollY = y;
             invalidateParentCaches();
+            // 触发onScrollChanged回调
             onScrollChanged(mScrollX, mScrollY, oldX, oldY);
             if (!awakenScrollBars()) {
                 postInvalidateOnAnimation();
@@ -73,7 +74,7 @@ Scroller: 弹性滑动对象，实现View的弹性滑动。
     }
 ```
 
-使用scrollTo()和scrollBy()实现View的滑动只能将View的内容进行移动，并不能将View本身移动。  
+**使用scrollTo()和scrollBy()实现View的滑动只能将View的内容进行移动，并不能将View本身移动。**  
 使用scrollBy()方法进行滑动时是基于当前位置进行滑动的，mScrollX表示View内容左边缘和View左边缘的差值。
 ``` java
  /**
@@ -93,7 +94,7 @@ Scroller: 弹性滑动对象，实现View的弹性滑动。
 ## 2.使用动画
 可以使用属性动画完成View的移动
 ``` java
-ObjectAnimator.ofFloat(targetView, "translationX", 0 300).setDuration(1000).start();
+ObjectAnimator.ofFloat(targetView, "translationX", 0, 300).setDuration(1000).start();
 ```
 ## 3.改变布局参数
 通过改变View的LayoutParams即可改变View的位置
@@ -136,7 +137,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
         }
         if(mFirstTouchTarget == null){
             //子控件没有消费事件 则将自身当成View看待
-            return onTouchEvent(event);
+            return super.dispatchTouchEvent(event);
         }else{
             //子控件消费了事件
             return true;
@@ -155,7 +156,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
         if (mOnTouchListener != null && (mViewFlags & ENABLED_MASK) == ENABLED &&  
                 mOnTouchListener.onTouch(this, event)) {  
             return true;  
-        } 
+        }
         return onTouchEvent(event);  
   }
 ```

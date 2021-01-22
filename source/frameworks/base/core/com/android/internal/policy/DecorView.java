@@ -442,6 +442,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         return super.dispatchKeyShortcutEvent(event);
     }
 
+    // 由PhoneWindow的superDispatchTouchEvent调用至此
     public boolean superDispatchTouchEvent(MotionEvent event) {
         return super.dispatchTouchEvent(event);
     }

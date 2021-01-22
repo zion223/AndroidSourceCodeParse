@@ -1,7 +1,7 @@
 # **View的工作原理**
 
 ## 初识ViewRoot和DecorView
-&ensp;&ensp;ViewRoot对应于的是ViewRootImpl类，它是连接WindowManager和DecorView的纽带。在ActivityThread中当Activity对象被创建完毕后，会将DecorView添加到Window中,同时创建ViewRootImpl对象，并且将ViewRootImpl对象和DecorView建立关联。
+&ensp;&ensp;ViewRoot对应于的是ViewRootImpl类，它是连接WindowManager和DecorView的纽带。在ActivityThread中当Activity对象被创建完毕后，会将DecorView添加到Window中，同时创建ViewRootImpl对象，并且将ViewRootImpl对象和DecorView建立关联。
 ``` java
 /**
  * ViewRootImpl
@@ -53,12 +53,12 @@
         public static final int AT_MOST     = 2 << MODE_SHIFT;
 
         //获取测量模式
-        //保留measureSpec的高两位 (measureSpec & 11 00...000) 30个0
+        //保留measureSpec的高两位 (measureSpec & 11 00...000) 11后面30个0
         public static int getMode(int measureSpec) {
             return (measureSpec & MODE_MASK);
         }
-        //获取测量模式
-        //保留measureSpec的低30位
+        //获取测量尺寸
+        //保留measureSpec的低30位(measureSpec & 00 11...111) 00后面30个1
         public static int getSize(int measureSpec) {
             return (measureSpec & ~MODE_MASK);
         }
@@ -242,7 +242,7 @@ View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下
      * {@link #getSuggestedMinimumWidth()}).
      * </p>
      */
-protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
                 getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
     }
@@ -290,29 +290,30 @@ public static int getDefaultSize(int size, int measureSpec) {
 
         //另外一种解决方案
         // 当布局参数设置为wrap_content时，设置默认值
-    if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT && getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-        setMeasuredDimension(mWidth, mHeight);
-    // 宽/高任意一个布局参数为= wrap_content时，都设置默认值
-    } else if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT) {
-        setMeasuredDimension(mWidth, heightSize);
-    } else if (getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-        setMeasuredDimension(widthSize, mHeight);
-}
+        if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT 
+                && getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            setMeasuredDimension(mWidth, mHeight);
+            // 宽/高任意一个布局参数为= wrap_content时，都设置默认值
+        } else if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            setMeasuredDimension(mWidth, heightSize);
+        } else if (getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            setMeasuredDimension(widthSize, mHeight);
+        }
     }
 ```
-- ViewGroup的measure过程
+- ViewGroup的measure过程  
   ViewGroup除了完成自己的measure过程以外，还会去遍历调用所有子元素的measure方法，各个子元素再去递归的执行这个过程，与View不同的是ViewGroup是一个抽象类，因此它没有重写View的onMeasure方法，但是提供了一个measureChildren()方法
 
-  ![ViewGroup的Measure过程](image/ViewGroup的Measure过程.jpg)  
+  ![ViewGroup的measure过程](image/ViewGroup的Measure过程.jpg)  
 
   ViewGroup没有定义其测量的具体过程，那是因为ViewGroup是一个抽象类，其测量过程的onMeasure方法需要各自子类去实现。
   当measure完成后，就可以通过view.getMeasuredWidth/Height方法就可以正确的获取到View的宽和高。自定义ViewGroup实现onMeasure()方法的思路如下
   ```java
     /**
     * 根据自身的测量逻辑复写onMeasure()，分为3步
-    * 1. 遍历所有子View & 测量：measureChildren()
-    * 2. 合并所有子View的尺寸大小,最终得到ViewGroup父视图的测量值(自身实现)
-    * 3. 存储测量后View宽/高的值：调用setMeasuredDimension()  
+    *   1. 遍历所有子View & 测量：measureChildren()
+    *   2. 合并所有子View的尺寸大小,最终得到ViewGroup父视图的测量值(自身实现)
+    *   3. 存储测量后View宽/高的值：调用setMeasuredDimension()  
     **/ 
 
   @Override
@@ -372,10 +373,12 @@ public static int getDefaultSize(int size, int measureSpec) {
         final LayoutParams lp = child.getLayoutParams();
 
         // 2. 根据父视图的MeasureSpec & 布局参数LayoutParams，计算单个子View的MeasureSpec
-        // getChildMeasureSpec() 请看上面第2节储备知识处
-        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,// 获取 ChildView 的 widthMeasureSpec
+        // getChildMeasureSpec() 请看上面代码
+        // 获取 ChildView 的 widthMeasureSpec
+        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
                 mPaddingLeft + mPaddingRight, lp.width);
-        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,// 获取 ChildView 的 heightMeasureSpec
+        // 获取 ChildView 的 heightMeasureSpec
+        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
                 mPaddingTop + mPaddingBottom, lp.height);
 
         // 3. 将计算好的子View的MeasureSpec值传入measure()，进行最后的测量
@@ -388,7 +391,7 @@ public static int getDefaultSize(int size, int measureSpec) {
 
 
   **如何在Activity中获取view的宽度和高度 ?**  
-  Activity的生命周期和view的measure过程并没有同步，因为无法再Activity的生命周期回调中获取view的宽度和高度。  
+  Activity的生命周期和view的measure过程并没有同步，因为无法在Activity的生命周期回调中获取view的宽度和高度。  
   1. Activity/View#onWindowFocusChanged
     onWindowFocusChanged()回调发生时View已经初始化完毕了，可以再此方法中获取View的宽度和高度，需要注意的是此方法可能会被调用多次。
   2. view.post(runnable)

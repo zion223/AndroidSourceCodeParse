@@ -4596,6 +4596,7 @@ public final class ViewRootImpl implements ViewParent,
             } else {
                 final int source = q.mEvent.getSource();
                 if ((source & InputDevice.SOURCE_CLASS_POINTER) != 0) {
+                    // 处理Pointer事件
                     return processPointerEvent(q);
                 } else if ((source & InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
                     return processTrackballEvent(q);
@@ -4784,6 +4785,8 @@ public final class ViewRootImpl implements ViewParent,
             mAttachInfo.mUnbufferedDispatchRequested = false;
             mAttachInfo.mHandlingPointerEvent = true;
             // DecorView的dispatchPointerEvent
+            // 如果event是touchEvent则调用dispatchTouchEvent()
+            // 否则调用dispatchGenericMotionEvent()
             boolean handled = mView.dispatchPointerEvent(event);
             maybeUpdatePointerIcon(event);
             maybeUpdateTooltip(event);
@@ -6562,7 +6565,7 @@ public final class ViewRootImpl implements ViewParent,
     void enqueueInputEvent(InputEvent event) {
         enqueueInputEvent(event, null, 0, false);
     }
-
+    // 输入事件入队列
     void enqueueInputEvent(InputEvent event,
             InputEventReceiver receiver, int flags, boolean processImmediately) {
         adjustInputEventForCompatibility(event);
@@ -6651,7 +6654,7 @@ public final class ViewRootImpl implements ViewParent,
         } else {
             stage = q.shouldSkipIme() ? mFirstPostImeInputStage : mFirstInputStage;
         }
-
+        // 这里的stage是ViewPostImeInputStage
         if (stage != null) {
             stage.deliver(q);
         } else {
