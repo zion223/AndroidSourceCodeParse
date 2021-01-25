@@ -598,8 +598,7 @@ public class Handler {
      *         the looper is quit before the delivery time of the message
      *         occurs then the message will be dropped.
      */
-    public final boolean sendMessageDelayed(Message msg, long delayMillis)
-    {
+    public final boolean sendMessageDelayed(Message msg, long delayMillis){
         if (delayMillis < 0) {
             delayMillis = 0;
         }
