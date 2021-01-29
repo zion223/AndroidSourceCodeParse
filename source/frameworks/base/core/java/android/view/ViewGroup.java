@@ -2539,7 +2539,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                     || actionMasked == MotionEvent.ACTION_CANCEL;
 
             // Update list of touch targets for pointer down, if needed.
-            // 标记当前ViewGroup是否启用了事件拆分
+            // 标记当前ViewGroup是否启用了事件拆分 多点触摸事件
             final boolean split = (mGroupFlags & FLAG_SPLIT_MOTION_EVENTS) != 0;
             // 新的触摸分配对象
             TouchTarget newTouchTarget = null;
@@ -2612,6 +2612,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                             if (newTouchTarget != null) {
                                 // Child is already receiving touch within its bounds.
                                 // Give it the new pointer in addition to the ones it is handling.
+                                // 多点触摸事件
                                 // 派发目标view已经存在，给newTouchTarget的触摸点ID集合添加新的ID，然后退出循环
                                 newTouchTarget.pointerIdBits |= idBitsToAssign;
                                 break;
@@ -2656,9 +2657,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                     if (newTouchTarget == null && mFirstTouchTarget != null) {
                         // Did not find a child to receive the event.
                         // Assign the pointer to the least recently added target.
-                        // 若没有找到派发目标（没有命中child或命中的child不消费），但是存在
-                        // 旧的TouchTarget，那么将该事件派发给最开始添加的那个TouchTarget，
-                        // 多点触摸情况下有可能这个事件是它想要的。
+                        // 若没有找到派发目标（没有命中child或命中的child不消费），但是存在旧的TouchTarget，那么将该事件派发给最开始添加的那个TouchTarget。
+                        // 如果没有找到合适的子View，那么就被认为是和上一个手指点击的是同个View
                         // 没有子View接受事件，则将指针指向最近添加的target
                         newTouchTarget = mFirstTouchTarget;
                         while (newTouchTarget.next != null) {
@@ -2688,6 +2688,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                     if (alreadyDispatchedToNewTouchTarget && target == newTouchTarget) {
                         handled = true;
                     } else {
+                        // 正常分发事件或者分发取消事件
                         // 如果intercepted为true 表明viewGroup拦截了此事件则cancelChild也为true
                         final boolean cancelChild = resetCancelNextUpFlag(target.child)
                                 || intercepted;
@@ -2697,7 +2698,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                             // 如果子View消费了事件
                             handled = true;
                         }
-                        // 如果ViewGroup拦截了此事件 则取消子节点内容
+                        // 如果ViewGroup拦截了此事件 则移除该target
                         if (cancelChild) {
                             // 清空节点
                             if (predecessor == null) {
@@ -2720,6 +2721,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                     || actionMasked == MotionEvent.ACTION_UP
                     || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
                 // Resets all touch state in preparation for a new cycle.
+                // 重置状态
                 resetTouchState();
             } else if (split && actionMasked == MotionEvent.ACTION_POINTER_UP) {
                 final int actionIndex = ev.getActionIndex();
