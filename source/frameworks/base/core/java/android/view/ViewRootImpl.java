@@ -713,7 +713,7 @@ public final class ViewRootImpl implements ViewParent,
                 // Schedule the first layout -before- adding to the window
                 // manager, to make sure we do the relayout before receiving
                 // any other events from the system.
-                // 第一次layout
+                // 第一次layout 完成异步刷新
                 requestLayout();
                 if ((mWindowAttributes.inputFeatures
                         & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
@@ -3463,6 +3463,7 @@ public final class ViewRootImpl implements ViewParent,
         }
     }
 
+    // 真正的移除View的逻辑
     void dispatchDetachedFromWindow() {
         if (mView != null && mView.mAttachInfo != null) {
             mAttachInfo.mTreeObserver.dispatchOnWindowAttachedChange(false);
@@ -3497,6 +3498,7 @@ public final class ViewRootImpl implements ViewParent,
             mInputEventReceiver = null;
         }
         try {
+            // IPC调用
             mWindowSession.remove(mWindow);
         } catch (RemoteException e) {
         }
@@ -6292,6 +6294,7 @@ public final class ViewRootImpl implements ViewParent,
     }
 
     /**
+     * 参数表示是同步还是异步删除
      * @param immediate True, do now if not in traversal. False, put on queue and do later.
      * @return True, request has been queued. False, request has been completed.
      */
@@ -6299,6 +6302,7 @@ public final class ViewRootImpl implements ViewParent,
         // Make sure we do execute immediately if we are in the middle of a traversal or the damage
         // done by dispatchDetachedFromWindow will cause havoc on return.
         if (immediate && !mIsInTraversal) {
+            // 同步删除
             doDie();
             return false;
         }
@@ -6309,6 +6313,7 @@ public final class ViewRootImpl implements ViewParent,
             Log.e(mTag, "Attempting to destroy the window while drawing!\n" +
                     "  window=" + this + ", title=" + mWindowAttributes.getTitle());
         }
+        // 异步删除
         mHandler.sendEmptyMessage(MSG_DIE);
         return true;
     }

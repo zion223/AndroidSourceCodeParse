@@ -277,6 +277,7 @@ public final class WindowManagerGlobal {
     // 由WindowManagerImpl类的addView方法调用
     public void addView(View view, ViewGroup.LayoutParams params,
             Display display, Window parentWindow) {
+        // 检查参数是否合法                
         if (view == null) {
             throw new IllegalArgumentException("view must not be null");
         }
@@ -346,7 +347,7 @@ public final class WindowManagerGlobal {
             root = new ViewRootImpl(view.getContext(), display);
 
             view.setLayoutParams(wparams);
-
+            // 存储起来
             mViews.add(view);
             mRoots.add(root);
             mParams.add(wparams);
@@ -386,12 +387,14 @@ public final class WindowManagerGlobal {
         }
     }
 
+    // 移除View
     public void removeView(View view, boolean immediate) {
         if (view == null) {
             throw new IllegalArgumentException("view must not be null");
         }
 
         synchronized (mLock) {
+            // 查找待移除的View的索引
             int index = findViewLocked(view, true);
             View curView = mRoots.get(index).getView();
             removeViewLocked(index, immediate);
@@ -456,6 +459,7 @@ public final class WindowManagerGlobal {
                 imm.windowDismissed(mViews.get(index).getWindowToken());
             }
         }
+        // 具体的删除操作
         boolean deferred = root.die(immediate);
         if (view != null) {
             view.assignParent(null);
