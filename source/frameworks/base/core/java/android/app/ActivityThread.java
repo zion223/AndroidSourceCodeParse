@@ -3725,6 +3725,7 @@ public final class ActivityThread {
             if (r.window == null && !a.mFinished && willBeVisible) {
                 r.window = r.activity.getWindow();
                 View decor = r.window.getDecorView();
+                // 暂时设置为不可见
                 decor.setVisibility(View.INVISIBLE);
                 ViewManager wm = a.getWindowManager();
                 WindowManager.LayoutParams l = r.window.getAttributes();

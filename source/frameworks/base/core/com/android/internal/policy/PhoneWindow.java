@@ -405,7 +405,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         // decor, when theme attributes and the like are crystalized. Do not check the feature
         // before this happens.
         if (mContentParent == null) {
-            // 初始化DecorView
+            // 初始化DecorView和mContentParent
             installDecor();
         } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
             // 清空mContentParent下的view
@@ -415,8 +415,10 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
             final Scene newScene = Scene.getSceneForLayout(mContentParent, layoutResID,
                     getContext());
+            // 转场动画                    
             transitionTo(newScene);
         } else {
+            // mContentParent加载布局文件
             mLayoutInflater.inflate(layoutResID, mContentParent);
         }
         mContentParent.requestApplyInsets();
@@ -2310,6 +2312,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         return new DecorView(context, featureId, this, getAttributes());
     }
 
+    // 加载具体的布局文件到DecorView
     protected ViewGroup generateLayout(DecorView decor) {
         // Apply data from current theme.
 
@@ -2584,6 +2587,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         // 加载布局资源
         mDecor.onResourcesLoaded(mLayoutInflater, layoutResource);
         // ID_ANDROID_CONTENT: The ID that the main layout in the XML layout file should have.
+        // 关联contentParent
         ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
         if (contentParent == null) {
             throw new RuntimeException("Window couldn't find content container view");
@@ -2656,7 +2660,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             mDecor.setWindow(this);
         }
         if (mContentParent == null) {
-            // 初始化mContentParent
+            // 通过mDecor 初始化mContentParent
             mContentParent = generateLayout(mDecor);
 
             // Set up decor part of UI to ignore fitsSystemWindows if appropriate.

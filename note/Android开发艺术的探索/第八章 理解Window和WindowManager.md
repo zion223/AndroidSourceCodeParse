@@ -69,3 +69,87 @@ Window的添加过程需要通过WindowManager的addView实现，WindowManager�
     }
 ```
 ## 8.3 Window的创建过程
+
+View是Android中视图的呈现形式，但是View不能单独存在，它必须附着在Window这个抽象概念上，因此有视图的地方就有Window。
+### 8.3.1 Activity的Window创建过程
+
+**1. Window的创建过程**
+Activity的Window创建过程和Activity的启动过程有关。Activity的启动最终是由ActivityThread的performLaunchActivity()来完成启动过程。在方法内部调用Activity的attach()方法为其关联运行过程中所依赖的上下文变量。  
+在Activity的attach()方法中，会创建Activity所属于的Window对象并为其设置回调接口。Activity实现了Window的Callback接口。
+
+```java
+    mWindow = new PhoneWindow(this, window, activityConfigCallback);
+    mWindow.setWindowControllerCallback(this);
+    // 设置 callback
+    mWindow.setCallback(this);
+    mWindow.setOnWindowDismissedCallback(this);        
+    mWindow.getLayoutInflater().setPrivateFactory(this);
+
+```
+Window的Callback接口中有一些常用的方法如下
+```java
+   public interface Callback {
+
+        public void onWindowFocusChanged(boolean hasFocus);
+
+        public void onAttachedToWindow();
+
+        public void onDetachedFromWindow();
+   }
+```
+Activity的视图由setContentView()方法提供，其方法代码如下。
+```java
+    public void setContentView(@LayoutRes int layoutResID) {
+        getWindow().setContentView(layoutResID);
+        initWindowDecorActionBar();
+    }
+```
+Activity的setContentView()方法中把具体的实现交给Window处理。在PhoneWindow的setContentView()方法中布局文件被成功的添加到了DecorView的mContentParent中，但是此时DecorView还没有被WindowManager正式添加到Window中。  
+
+**2. Window的添加过程**  
+PhoneWindow只是负责处理一些应用窗口通用的逻辑。但是真正把一个View作为窗口添加WindowManagerService的过程是由WindowManager来完成。  
+在ActivityThread的handleResumeActivity()中会先调用Activity的onResume()方法，然后调用makeVisible()方法。这时Activity的视图才能被用户看到。  
+```java
+final void handleResumeActivity(IBinder token,
+            boolean clearHide, boolean isForward, boolean reallyResume, int seq, String reason) {
+        r = performResumeActivity(token, clearHide, reason); 
+        if (r != null) { 
+            if (r.window == null && !a.mFinished && willBeVisible) { 
+                r.window = r.activity.getWindow(); 
+                View decor = r.window.getDecorView(); 
+                decor.setVisibility(View.INVISIBLE);//不可见 
+                ViewManager wm = a.getWindowManager(); 
+                WindowManager.LayoutParams l = r.window.getAttributes(); 
+                a.mDecor = decor; 
+                l.type = WindowManager.LayoutParams.TYPE_BASE_APPLICATION; 
+                ... 
+                if (a.mVisibleFromClient && !a.mWindowAdded) { 
+                    a.mWindowAdded = true; 
+                    wm.addView(decor, l);//把decor添加到窗口上
+                } 
+            }  
+            //屏幕参数发生了改变 
+            performConfigurationChanged(r.activity, r.tmpConfig); 
+            WindowManager.LayoutParams l = r.window.getAttributes(); 
+            if (r.activity.mVisibleFromClient) { 
+                ViewManager wm = a.getWindowManager(); 
+                View decor = r.window.getDecorView(); 
+                wm.updateViewLayout(decor, l);//更新窗口状态 
+            }
+            ...                
+            if (r.activity.mVisibleFromClient) { 
+                //已经成功添加到窗口上了（绘制和事件接收），设置为可见 
+                r.activity.makeVisible(); 
+            }
+            //通知ActivityManagerService，Activity完成Resumed 
+            ActivityManagerNative.getDefault().activityResumed(token); 
+        }  
+    }
+```
+Activity的Window添加流程图如下  
+
+<img src="image/Activity的Window添加流程.png" style="zoom:50%"/>  
+
+### 8.3.2 Dialog的Window创建过程
+
+### 8.3.3 Toast的Window创建过程
