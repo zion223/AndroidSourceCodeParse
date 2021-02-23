@@ -1,6 +1,6 @@
 # 理解Window和WindowManager
 
-  Window表示窗口的概念，某些情况下需要在桌面上显示一个类似悬浮窗的东西，这时需要使用Window来实现。Window是一个抽象类，具体实现是PhoneWindow。
+&emsp; Window表示窗口的概念，某些情况下需要在桌面上显示一个类似悬浮窗的东西，这时需要使用Window来实现。Window是一个抽象类，具体实现是PhoneWindow。
 
 
 ## 8.1 Window和WindowManager
@@ -28,7 +28,7 @@ type参数表示Window的类型，**Window有三种类型，分别是应用Windo
 - 子Window需要依赖于特定的父Window，比如Dialog
 - 系统Window是需要声明权限才能创建的Window，比如Toast和系统状态栏
 
-Window的分层的，每个Window都有对应的z-ordered，层级大的会覆盖在层级小Window上面，在三大类Window中，应用Window的层级是1~99，子Window的层级是1000~1999，系统Window的范围是2000~9999。如果想要Window位于所有Window的最顶层，那么采用较大的层级即可。如果采用系统的层级需要申请权限。
+&emsp; Window的分层的，每个Window都有对应的z-ordered，层级大的会覆盖在层级小Window上面，在三大类Window中，应用Window的层级是1~99，子Window的层级是1000~1999，系统Window的范围是2000~9999。如果想要Window位于所有Window的最顶层，那么采用较大的层级即可。如果采用系统的层级需要申请权限。
 ```java
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 ```
@@ -40,10 +40,10 @@ WindowManager继承了ViewManager实现了其定义的方法，分别是添加Vi
 ```
 ## 8.2 Window的内部机制
 
-Window是一个抽象的概念，每一个Window都对应一个View和ViewRootImpl，Window和View通过ViewRootImpl来建立联系，因此Window是以View的形式存在的。
+&emsp; Window是一个抽象的概念，每一个Window都对应一个View和ViewRootImpl，Window和View通过ViewRootImpl来建立联系，因此Window是以View的形式存在的。
 
 ### 8.2.1 Window的添加过程
-Window的添加过程需要通过WindowManager的addView实现，WindowManager的实现类是WindowManagerImpl类，最终是调用WindowManagerGlobal的addView方法。
+&emsp; Window的添加过程需要通过WindowManager的addView实现，WindowManager的实现类是WindowManagerImpl类，最终是调用WindowManagerGlobal的addView方法。
 
 ### 8.2.2 Window的删除过程
 
@@ -68,14 +68,14 @@ Window的添加过程需要通过WindowManager的addView实现，WindowManager�
         }
     }
 ```
-## 8.3 Window的创建过程
+## 8.3 Window的创建过程 
 
 View是Android中视图的呈现形式，但是View不能单独存在，它必须附着在Window这个抽象概念上，因此有视图的地方就有Window。
 ### 8.3.1 Activity的Window创建过程
 
-**1. Window的创建过程**
-Activity的Window创建过程和Activity的启动过程有关。Activity的启动最终是由ActivityThread的performLaunchActivity()来完成启动过程。在方法内部调用Activity的attach()方法为其关联运行过程中所依赖的上下文变量。  
-在Activity的attach()方法中，会创建Activity所属于的Window对象并为其设置回调接口。Activity实现了Window的Callback接口。
+**1. Window的创建过程**  
+&emsp; Activity的Window创建过程和Activity的启动过程有关。Activity的启动最终是由ActivityThread的performLaunchActivity()来完成启动过程。在方法内部调用Activity的attach()方法为其关联运行过程中所依赖的上下文变量。  
+&emsp; 在Activity的attach()方法中，会创建Activity所属于的Window对象并为其设置回调接口。Activity实现了Window的Callback接口。
 
 ```java
     mWindow = new PhoneWindow(this, window, activityConfigCallback);
@@ -104,11 +104,11 @@ Activity的视图由setContentView()方法提供，其方法代码如下。
         initWindowDecorActionBar();
     }
 ```
-Activity的setContentView()方法中把具体的实现交给Window处理。在PhoneWindow的setContentView()方法中布局文件被成功的添加到了DecorView的mContentParent中，但是此时DecorView还没有被WindowManager正式添加到Window中。  
+&emsp; Activity的setContentView()方法中把具体的实现交给Window处理。在PhoneWindow的setContentView()方法中布局文件被成功的添加到了DecorView的mContentParent中，但是此时DecorView还没有被WindowManager正式添加到Window中。  
 
 **2. Window的添加过程**  
-PhoneWindow只是负责处理一些应用窗口通用的逻辑。但是真正把一个View作为窗口添加WindowManagerService的过程是由WindowManager来完成。  
-在ActivityThread的handleResumeActivity()中会先调用Activity的onResume()方法，然后调用makeVisible()方法。这时Activity的视图才能被用户看到。  
+&emsp; PhoneWindow只是负责处理一些应用窗口通用的逻辑。但是真正把一个View作为窗口添加WindowManagerService的过程是由WindowManager来完成。  
+&emsp; 在ActivityThread的handleResumeActivity()中会先调用Activity的onResume()方法，然后调用makeVisible()方法。这时Activity的视图才能被用户看到。  
 ```java
 final void handleResumeActivity(IBinder token,
             boolean clearHide, boolean isForward, boolean reallyResume, int seq, String reason) {
