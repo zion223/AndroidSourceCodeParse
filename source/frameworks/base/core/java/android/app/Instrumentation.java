@@ -1744,6 +1744,7 @@ public class Instrumentation {
                 .startActivity(whoThread, who.getBasePackageName(), intent,
                         intent.resolveTypeIfNeeded(who.getContentResolver()),
                         token, target, requestCode, 0, null, options);
+            // 检查启动Activity的结果
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -1812,6 +1813,7 @@ public class Instrumentation {
                         intent.resolveTypeIfNeeded(who.getContentResolver()),
                         token, resultWho,
                         requestCode, 0, null, options, user.getIdentifier());
+            // 检查启动Activity的结果
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -1858,6 +1860,7 @@ public class Instrumentation {
                         intent.resolveTypeIfNeeded(who.getContentResolver()),
                         token, target != null ? target.mEmbeddedID : null,
                         requestCode, 0, null, options, ignoreTargetSecurity, userId);
+            // 检查启动Activity的结果                        
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -1919,6 +1922,7 @@ public class Instrumentation {
         mUiAutomationConnection = uiAutomationConnection;
     }
 
+    // 检查启动Activity的结果
     /** @hide */
     public static void checkStartActivityResult(int res, Object intent) {
         if (!ActivityManager.isStartResultFatalError(res)) {

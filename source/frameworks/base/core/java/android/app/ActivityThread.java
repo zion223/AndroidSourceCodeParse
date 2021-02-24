@@ -2704,12 +2704,12 @@ public final class ActivityThread {
             component = new ComponentName(r.activityInfo.packageName,
                     r.activityInfo.targetActivity);
         }
-
+        // 创建ContextImpl
         ContextImpl appContext = createBaseContextForActivity(r);
         Activity activity = null;
         try {
             java.lang.ClassLoader cl = appContext.getClassLoader();
-            // 通过反射创建Activity
+            // 通过反射创建Activity对象
             activity = mInstrumentation.newActivity(
                     cl, component.getClassName(), r.intent);
             StrictMode.incrementExpectedActivityCount(activity.getClass());
@@ -2727,6 +2727,7 @@ public final class ActivityThread {
         }
 
         try {
+            // 调用LoadedApk类的makeApplication()方法创建Application对象
             Application app = r.packageInfo.makeApplication(false, mInstrumentation);
 
             if (localLOGV) Slog.v(TAG, "Performing launch of " + r);
@@ -2770,7 +2771,7 @@ public final class ActivityThread {
                 }
 
                 activity.mCalled = false;
-                // onCreate
+                // onCreate方法被调用
                 if (r.isPersistable()) {
                     mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);
                 } else {
