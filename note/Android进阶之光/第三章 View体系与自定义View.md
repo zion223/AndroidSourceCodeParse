@@ -127,7 +127,7 @@ scrollTo()方法本身滚动的是View的内容，View本身位置不变。可�
         int scrollY = getScrollY();
         int deltaX = destX - scrollX;
         int deltay = destY - scrollY;
-        mScroller.startScroll(scrollX, scrollY, deltaX, deltay,20000);
+        mScroller.startScroll(scrollX, scrollY, deltaX, deltay, 20000);
         invalidate();
     }
 
