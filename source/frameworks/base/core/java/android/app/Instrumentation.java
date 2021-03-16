@@ -1932,6 +1932,7 @@ public class Instrumentation {
         switch (res) {
             case ActivityManager.START_INTENT_NOT_RESOLVED:
             case ActivityManager.START_CLASS_NOT_FOUND:
+                // 没有在AndroidManifest.xml 文件中声明Activity
                 if (intent instanceof Intent && ((Intent)intent).getComponent() != null)
                     throw new ActivityNotFoundException(
                             "Unable to find explicit activity class "

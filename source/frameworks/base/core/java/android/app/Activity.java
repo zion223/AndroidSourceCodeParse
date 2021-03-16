@@ -6948,7 +6948,7 @@ public class Activity extends ContextThemeWrapper
                         Looper.myLooper());
             }
         }
-
+        // 设置WindowManager
         mWindow.setWindowManager(
                 (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),
                 mToken, mComponent.flattenToString(),
@@ -6993,6 +6993,7 @@ public class Activity extends ContextThemeWrapper
         mFragments.noteStateNotSaved();
         mCalled = false;
         mFragments.execPendingActions();
+        // 调用OnStart方法
         mInstrumentation.callActivityOnStart(this);
         if (!mCalled) {
             throw new SuperNotCalledException(

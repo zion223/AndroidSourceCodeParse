@@ -2753,6 +2753,7 @@ public final class ActivityThread {
                     r.mPendingRemoveWindowManager = null;
                 }
                 appContext.setOuterContext(activity);
+                // 创建PhoneWindow 初始化成员变量
                 activity.attach(appContext, this, getInstrumentation(), r.token,
                         r.ident, app, r.intent, r.activityInfo, title, r.parent,
                         r.embeddedID, r.lastNonConfigurationInstances, config,
@@ -2771,7 +2772,8 @@ public final class ActivityThread {
                 }
 
                 activity.mCalled = false;
-                // onCreate方法被调用
+                // Activity的onCreate方法被调用
+                // 通常在onCreate()方法中会调用setContentView()方法设置布局的Id
                 if (r.isPersistable()) {
                     mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);
                 } else {
@@ -2785,7 +2787,7 @@ public final class ActivityThread {
                 r.activity = activity;
                 r.stopped = true;
                 if (!r.activity.mFinished) {
-                    // onStart
+                    // Acticicty的onStart方法被调用
                     activity.performStart();
                     r.stopped = false;
                 }
@@ -2905,6 +2907,7 @@ public final class ActivityThread {
             reportSizeConfigurations(r);
             Bundle oldState = r.state;
             // resumeActivity onResume
+            // Activity的onResume方法
             handleResumeActivity(r.token, false, r.isForward,
                     !r.activity.mFinished && !r.startsNotResumed, r.lastProcessedSeq, reason);
 
@@ -3726,7 +3729,7 @@ public final class ActivityThread {
             if (r.window == null && !a.mFinished && willBeVisible) {
                 r.window = r.activity.getWindow();
                 View decor = r.window.getDecorView();
-                // 暂时设置为不可见
+                // 暂时将DecorView设置为INVISIBLE
                 decor.setVisibility(View.INVISIBLE);
                 ViewManager wm = a.getWindowManager();
                 WindowManager.LayoutParams l = r.window.getAttributes();
@@ -3801,7 +3804,7 @@ public final class ActivityThread {
                 r.activity.mVisibleFromServer = true;
                 mNumVisibleActivities++;
                 if (r.activity.mVisibleFromClient) {
-                    // 在调用此方法后才对用户可见 而不是在onResume()后 
+                    // 严格意义上，在调用此方法后视图才对用户可见，而不是在onResume()后 
                     // 最终调用 mDecor.setVisibility(View.VISIBLE)
                     r.activity.makeVisible();
                 }
