@@ -1890,6 +1890,7 @@ public class ViewPager extends ViewGroup {
                 }
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
+                    // 处理滑动
                     if (performDrag(x)) {
                         postInvalidateOnAnimation();
                     }

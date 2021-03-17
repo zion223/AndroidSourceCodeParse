@@ -1,49 +1,53 @@
-# **View的基础知识**
+# **View的事件体系**
 
 
+## 3.1 View基础知识
 
-## View的位置参数
-Android坐标系:以屏幕左上角为坐标原点， 向右为x轴增大方向，向下为y轴增大方向。  
-View的位置由四个顶点的位置决定，分别对应于View的四个属性：left、top、right、bottom。这些坐标是相对于view父容器而言的，是相对坐标。  
+### 3.1.1 什么是View
+### 3.1.2 View的位置参数
+Android坐标系：以屏幕左上角为坐标原点，向右为x轴增大方向，向下为y轴增大方向。  
+View的位置由四个顶点的位置决定，分别对应于View的四个属性：left、top、right、bottom。这些坐标是相对于View父容器而言的，是相对坐标。  
 
-<img src="image/View坐标系.png" style="zoom:75%"/>
+<img src="image/View坐标系.png" style="zoom:50%"/>    
+<br>  </br>
 
 > 因此，View的宽高和坐标关系：width = right - left，height = bottom - top。
 
-Android3.0后新添加了x、y和translationX、translationY其中x和y是左上角的坐标，translationX和translationY是是View左上角的偏移量。  
+Android3.0后新添加了x、y和translationX、translationY，其中x和y是左上角的坐标，translationX和translationY是相对于View左上角的偏移量。    
 
 <img src="image/view新坐标参数.png" style="zoom:50%"/>
-
+<br>  </br>
 
 > 存在关系：x = left + translationX，y = top + translationY  
 > 由此可见，x和left不同体现在：left是View的初始坐标，在绘制完毕后就不会再改变；而x是View偏移后的实时坐标，是实际坐标。y和top的区别同理。
 
-## MotionEvent和TouchSlop
+### 3.1.3 MotionEvent和TouchSlop
 1. MotionEvent
  - Action_DOWN 手指刚接触屏幕
  - ACTION_MOVE 手机在屏幕上滑动
  - ACTION_UP 手指从屏幕上松开的一瞬间
 
 通过MotionEvent对象可以得到点击事件的x和y坐标  
-getX()/getY() 相对于当前View左上角的坐标  
-getRawX()/getRawY() 相对于屏幕左上角的坐标
+- getX()/getY() 相对于当前View左上角的坐标  
+- getRawX()/getRawY() 相对于屏幕左上角的坐标
 
-2. TouchSlop
+2. TouchSlop  
  TouchSlop 是系统所能识别出的被认为是滑动的最小距离，处理滑动时可以利用这个常量来做一些过滤。 
  /frameworks/base/core/res/res/values/config.xml  
  `
 <dimen name="config_viewConfigurationTouchSlop">8dp</dimen>
 `
+<br></br>  
 
-## VelocityTracker、GestureDetector和Scroller
+### 3.1.4 VelocityTracker、GestureDetector和Scroller
 
-VelocityTracker: 用于跟踪手指在滑动过程中的速度，包括水平和垂直方向上的速度。  
-GestureDetector: 手势检测，用于辅助检测用户的单击、滑动、长按、双击等行为。  
-Scroller: 弹性滑动对象，实现View的弹性滑动。
+VelocityTracker： 用于跟踪手指在滑动过程中的速度，包括水平和垂直方向上的速度。  
+GestureDetector：手势检测，用于辅助检测用户的单击、滑动、长按、双击等行为。  
+Scroller：弹性滑动对象，实现View的弹性滑动。
 
-# View的滑动
+## 3.2 View的滑动
 
-## 1.使用scrollTo/scrollBy
+### 3.2.1 使用scrollTo/scrollBy
 
 ``` java
 
@@ -75,6 +79,7 @@ Scroller: 弹性滑动对象，实现View的弹性滑动。
 ```
 
 **使用scrollTo()和scrollBy()实现View的滑动只能将View的内容进行移动，并不能将View本身移动。**  
+
 使用scrollBy()方法进行滑动时是基于当前位置进行滑动的，mScrollX表示View内容左边缘和View左边缘的差值。
 ``` java
  /**
@@ -91,24 +96,31 @@ Scroller: 弹性滑动对象，实现View的弹性滑动。
     protected int mScrollY;
 ```    
 
-## 2.使用动画
+### 3.2.2 使用动画
 可以使用属性动画完成View的移动
 ``` java
 ObjectAnimator.ofFloat(targetView, "translationX", 0, 300).setDuration(1000).start();
 ```
-## 3.改变布局参数
+### 3.2.3 改变布局参数
 通过改变View的LayoutParams即可改变View的位置
 
-# View的事件分发机制
-事件传递从底层传递到Activity的流程图  
+### 3.2.4 各种滑动方式对比
+- scrollTo/scrollBy：操作简单，适合对View内容的滑动
+- 动画：操作简单，主要适用于没有交互的View和实现复杂的动画效果
+- 改变布局参数：操作稍微复杂，适用于没有交互的View
+ 
+## 3.4 View的事件分发机制  
 
-![Activity事件传递](image/Activity事件传递.png)
+事件传递从底层传递到Activity的流程图如下    
+
+<img src="image/Activity事件传递.png" style="zoom:60%"/>  
+
 
 事件分发其实就是对于MotionEvent对象的传递过程。  
-ViewGroup中dispatchTouchEvent()方法的伪代码如下  
 [ViewGroup事件分发源码分析1](https://juejin.cn/post/6844904065613201421)  
 [ViewGroup事件分发源码分析2](https://juejin.cn/post/6844903923770195975)  
-[ViewGroup事件分发多点触摸](https://juejin.cn/post/6844904065617362952)
+[ViewGroup事件分发多点触摸](https://juejin.cn/post/6844904065617362952)  
+ViewGroup中dispatchTouchEvent()方法的伪代码如下  
 
 ```java
 
@@ -145,9 +157,9 @@ public boolean dispatchTouchEvent(MotionEvent event) {
     }
 
 ```
-View的dispatchTouchEvent()方法的伪代码如下，从代码可以看出如果设置了OnTouchListener则先执行onTouch回调，  
+View的dispatchTouchEvent()方法的伪代码如下，从代码可以看出如果设置了OnTouchListener则先执行onTouch()回调，  
 如果onTouch()返回true，则此事件被消费掉不会执行onTouchEvent()，因此onClickListener就不会执行(如果设置了)，
-如果onTouch()返回false，则会继续往下执行 onTouchEvent()被调用，在onTouchEvent()方法里面如果设置了OnClickListener则会回调onClick方法。  
+如果onTouch()返回false，则会继续往下执行 onTouchEvent()被调用，在onTouchEvent()方法里面如果设置了OnClickListener则会回调onClick()方法。  
 View的onLongClick()是在ACTION_DOWN时开启触发检测逻辑，onClick()则是在ACTION_UP时触发
 
 ``` java
@@ -163,22 +175,22 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 
 <img src="image/View事件传递.jpg" style="zoom:75%"/>
 
-# **View的滑动冲突**
+## 3.5 **View的滑动冲突**
 
-## 常见的滑动冲突场景
- 场景一: 外部滑动方向和内部滑动方向不一致 (ViewPager嵌套RecyclerView)  
- 场景二: 外部滑动方向和内部滑动方向一致 (同方向RecyclerView嵌套RecyclerView)  
- 场景三: 上面两种情况的结合
+### 3.5.1 常见的滑动冲突场景
+ 场景一：外部滑动方向和内部滑动方向不一致 (ViewPager嵌套RecyclerView)  
+ 场景二：外部滑动方向和内部滑动方向一致 (同方向RecyclerView嵌套RecyclerView)  
+ 场景三：上面两种情况的结合
 
 
-## 滑动冲突的处理规则
-场景一: 根据手指滑动方向来判断，当左右滑动时让外部View拦截点击事件，当上下滑动时让内部View拦截点击事件。根据特征来解决滑动冲突。判断滑动方向可以通过滑动路径和水平方向的夹角、水平方向和竖直方向的距离差、水平方向和竖直方向的速度差。  
-场景二: 无法根据滑动的方向来判断，根据业务规则来进行处理。  
-场景三: 根据业务规则找到突破点。
+### 3.5.2 滑动冲突的处理规则
+场景一：根据手指滑动方向来判断，当左右滑动时让外部View拦截点击事件，当上下滑动时让内部View拦截点击事件。根据特征来解决滑动冲突。判断滑动方向可以通过滑动路径和水平方向的夹角、水平方向和竖直方向的距离差、水平方向和竖直方向的速度差。  
+场景二：无法根据滑动的方向来判断，根据业务规则来进行处理。  
+场景三：根据业务规则找到突破点。
 
-## 滑动冲突的解决方式
+### 3.5.3 滑动冲突的解决方式
 
-- 外部拦截法 点击事件先经过父容器的拦截处理，父容器需要拦截此事件就拦截不需要拦截此事件就交由子View处理事件。
+- 外部拦截法 点击事件先经过父容器的拦截处理，如果父容器需要此事件就拦截，如果不需要此事件就交由子View处理事件。
 
 ``` java
 public boolean onInterceptTouchEvent(MotionEvent event){
@@ -188,6 +200,7 @@ public boolean onInterceptTouchEvent(MotionEvent event){
     int y = (int)event.getY();
     switch(event.getAction()){
         case MotionEvent.ACTION_DOWN:
+            // ACTION_DOWN事件必须返回false，即不拦截此事件
             intercepted = false;
             break;
         case MotionEvent.ACTION_MOVE:
@@ -207,151 +220,10 @@ public boolean onInterceptTouchEvent(MotionEvent event){
     return intercepted;
 }
 ```
-在上面代码中，ACTION_DOWN事件必须返回false，即不拦截此事件
 
-ViewPager中处理滑动冲突就是采用的此方法。
-``` java
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        /*
-         * This method JUST determines whether we want to intercept the motion.
-         * If we return true, onMotionEvent will be called and we do the actual
-         * scrolling there.
-         */
+ViewPager中处理滑动冲突就是采用的此方法。详见ViewPager的onInterceptTouchEvent()方法
 
-        final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
-
-        // Always take care of the touch gesture being complete.
-        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            // Release the drag.
-            if (DEBUG) Log.v(TAG, "Intercept done!");
-            resetTouch();
-            return false;
-        }
-
-        // Nothing more to do here if we have decided whether or not we
-        // are dragging.
-        if (action != MotionEvent.ACTION_DOWN) {
-            if (mIsBeingDragged) {
-                if (DEBUG) Log.v(TAG, "Intercept returning true!");
-                return true;
-            }
-            if (mIsUnableToDrag) {
-                if (DEBUG) Log.v(TAG, "Intercept returning false!");
-                return false;
-            }
-        }
-
-        switch (action) {
-            case MotionEvent.ACTION_MOVE: {
-                /*
-                 * mIsBeingDragged == false, otherwise the shortcut would have caught it. Check
-                 * whether the user has moved far enough from his original down touch.
-                 */
-
-                /*
-                * Locally do absolute value. mLastMotionY is set to the y value
-                * of the down event.
-                */
-                final int activePointerId = mActivePointerId;
-                if (activePointerId == INVALID_POINTER) {
-                    // If we don't have a valid id, the touch down wasn't on content.
-                    break;
-                }
-
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
-                final float x = MotionEventCompat.getX(ev, pointerIndex);
-                final float dx = x - mLastMotionX;
-                final float xDiff = Math.abs(dx);
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
-                final float yDiff = Math.abs(y - mInitialMotionY);
-                if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
-
-                if (dx != 0 && !isGutterDrag(mLastMotionX, dx) &&
-                        canScroll(this, false, (int) dx, (int) x, (int) y)) {
-                    // Nested view has scrollable area under this point. Let it be handled there.
-                    mLastMotionX = x;
-                    mLastMotionY = y;
-                    mIsUnableToDrag = true;
-                    return false;
-                }
-                // 通过滑动的角度来判断 xDiff * 0.5f > yDiff
-                if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
-                    if (DEBUG) Log.v(TAG, "Starting drag!");
-                    mIsBeingDragged = true;
-                    requestParentDisallowInterceptTouchEvent(true);
-                    setScrollState(SCROLL_STATE_DRAGGING);
-                    mLastMotionX = dx > 0 ? mInitialMotionX + mTouchSlop :
-                            mInitialMotionX - mTouchSlop;
-                    mLastMotionY = y;
-                    setScrollingCacheEnabled(true);
-                } else if (yDiff > mTouchSlop) {
-                    // The finger has moved enough in the vertical
-                    // direction to be counted as a drag...  abort
-                    // any attempt to drag horizontally, to work correctly
-                    // with children that have scrolling containers.
-                    if (DEBUG) Log.v(TAG, "Starting unable to drag!");
-                    mIsUnableToDrag = true;
-                }
-                if (mIsBeingDragged) {
-                    // Scroll to follow the motion event
-                    // 处理滑动
-                    if (performDrag(x)) {
-                        ViewCompat.postInvalidateOnAnimation(this);
-                    }
-                }
-                break;
-            }
-
-            case MotionEvent.ACTION_DOWN: {
-                /*
-                 * Remember location of down touch.
-                 * ACTION_DOWN always refers to pointer index 0.
-                 */
-                mLastMotionX = mInitialMotionX = ev.getX();
-                mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-                mIsUnableToDrag = false;
-
-                mScroller.computeScrollOffset();
-                if (mScrollState == SCROLL_STATE_SETTLING &&
-                        Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) > mCloseEnough) {
-                    // Let the user 'catch' the pager as it animates.
-                    mScroller.abortAnimation();
-                    mPopulatePending = false;
-                    populate();
-                    mIsBeingDragged = true;
-                    requestParentDisallowInterceptTouchEvent(true);
-                    setScrollState(SCROLL_STATE_DRAGGING);
-                } else {
-                    completeScroll(false);
-                    mIsBeingDragged = false;
-                }
-
-                if (DEBUG) Log.v(TAG, "Down at " + mLastMotionX + "," + mLastMotionY
-                        + " mIsBeingDragged=" + mIsBeingDragged
-                        + "mIsUnableToDrag=" + mIsUnableToDrag);
-                break;
-            }
-
-            case MotionEventCompat.ACTION_POINTER_UP:
-                onSecondaryPointerUp(ev);
-                break;
-        }
-
-        if (mVelocityTracker == null) {
-            mVelocityTracker = VelocityTracker.obtain();
-        }
-        mVelocityTracker.addMovement(ev);
-
-        /*
-         * The only time we want to intercept motion events is if we are in the
-         * drag mode.
-         */
-        return mIsBeingDragged;
-    }
-```
-- 内部拦截法，内部拦截法是指父容器不拦截任何事件，所有的点击事件交于子View来处理，如果子元素需要处理则消耗掉该事件，否则交由父容器去处理
+- 内部拦截法，内部拦截法是指父容器不拦截任何事件，所有的点击事件交于子View来处理，如果子元素需要处理则消耗掉该事件，否则交由父容器去处理。
 
 ``` java
 public boolean dispatchTouchEvent(MotionEvent event){
