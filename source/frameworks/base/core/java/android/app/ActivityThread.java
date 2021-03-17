@@ -840,7 +840,7 @@ public final class ActivityThread {
             sendMessage(H.DESTROY_BACKUP_AGENT, d);
         }
 
-        // 创建Service
+        // 创建Service对象 并且调用onCreate()方法
         public final void scheduleCreateService(IBinder token,
                 ServiceInfo info, CompatibilityInfo compatInfo, int processState) {
             updateProcessState(processState, false);
@@ -3388,6 +3388,7 @@ public final class ActivityThread {
         }
     }
 
+    // 真正实现CreateService的方法
     private void handleCreateService(CreateServiceData data) {
         // If we are getting ready to gc after going to the background, well
         // we are back active so skip it.
@@ -3554,6 +3555,7 @@ public final class ActivityThread {
                 }
                 int res;
                 if (!data.taskRemoved) {
+                    // Service的onStartCommand()方法
                     res = s.onStartCommand(data.args, data.flags, data.startId);
                 } else {
                     s.onTaskRemoved(data.args);
