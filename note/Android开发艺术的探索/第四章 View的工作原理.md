@@ -1,24 +1,23 @@
-# **View的工作原理**
+# View的工作原理
 
-## 初识ViewRoot和DecorView
-&ensp;&ensp;ViewRoot对应于的是ViewRootImpl类，它是连接WindowManager和DecorView的纽带。在ActivityThread中当Activity对象被创建完毕后，会将DecorView添加到Window中，同时创建ViewRootImpl对象，并且将ViewRootImpl对象和DecorView建立关联(参见WindowManagerGlobal类345行)。
+## 4.1 初识ViewRoot和DecorView
+&ensp;&ensp; ViewRoot对应于的是**ViewRootImpl类，它是连接WindowManager和DecorView的纽带**。在ActivityThread中当Activity对象被创建完毕后，会将DecorView添加到Window中，同时创建ViewRootImpl对象，并且将ViewRootImpl对象和DecorView建立关联(参见WindowManagerGlobal类345行)。
 ``` java
 /**
- * ViewRootImpl
+ * ViewRootImpl类头部注释
  * The top of a view hierarchy, implementing the needed protocol between View
  * and the WindowManager.  This is for the most part an internal implementation
  * detail of {@link WindowManagerGlobal}.
- *
  */
 ```
 
-&ensp;&ensp;View的绘制流程是从ViewRootImpl的performTraversals方法开始的，其中measure用来测量View的宽和高，layout用来确定View的位置，draw用来负责将View绘制在屏幕上。
+&ensp;&ensp;View的绘制流程是从ViewRootImpl的performTraversals()方法开始的，其中measure用来测量View的宽和高，layout用来确定View的位置，draw用来负责将View绘制在屏幕上。
 
 &ensp;&ensp;DecorView作为顶级的View，一般情况下它内部会包含一个竖直方向的LinearLayout，在这个LinearLayout中有上下两部分，上面是标题栏下面是内容栏。在Activity中的onCreate()方法中通过setContentView()方法设置的layout的id就是设置内容栏的布局。  
 
 ![Avtivity窗口](image/Activity窗口.jpg)
 
-## 理解MeasureSpec
+## 4.2 理解MeasureSpec
 
 &ensp;&ensp;MeaureSpec代表一个32位的int值，高2位代表的是SpecMode，低30位代表的是SpecSize，SpecMode代表的是测量模式，SpecSize代表的是某种测量模式下的规格大小。SpecMode有三类在下面代码注释中有说明。
 ```java
@@ -197,17 +196,18 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
     }
 
 ```
-![总结](image/获取子View测量方式.png)
-## View的工作流程
+<img src="image/获取子View测量方式.png" style="zoom:50%"/>  
+
+## 4.3 View的工作流程
 
 View的工作流程主要是指measure、layout、draw这三大流程，即测量、布局和绘制，其中measure主要确定View的宽和高，layout确定View的最终宽/高和四个顶点的位置，而draw会将View绘制到屏幕上。
 
-### **measure过程**
+### 4.3.1 **measure过程**
 - View的measure过程
   
-![View的Measure过程](image/View的Measure过程.jpg)
+<img src="image/View的Measure过程.jpg" style="zoom:75%"/>    
 
-View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下
+View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下。
 ```java
  /**
      * <p>
@@ -261,18 +261,19 @@ public static int getDefaultSize(int size, int measureSpec) {
             break;
         case MeasureSpec.AT_MOST:
         case MeasureSpec.EXACTLY:
+            // 对应于wrap_content和match_parent
             result = specSize;
             break;
         }
         return result;
     }
 ```
-从getDefaultSize()方法来看，不去考虑UNSPECIFIED情况，这种情况一般出现在系统内部的测量过程，那么View的宽/高由specSize决定，由此可以得出结论:直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样([链接文章](https://www.jianshu.com/p/ca118d704b5e))，解决此问题的代码如下。
+从getDefaultSize()方法来看，不去考虑UNSPECIFIED情况，这种情况一般出现在系统内部的测量过程，那么View的宽/高由specSize决定，由此可以得出结论：直接继承自View的自定义控件需要重写onMeasure()方法并且设置wrap_content时的自身大小，否则在布局中使用wrap_content和使用match_parent的效果一样([简书文章链接](https://www.jianshu.com/p/ca118d704b5e))，解决此问题的代码如下。
 ```java
-@Override
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec,heightMeasureSpec);
-        
+
         int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -288,7 +289,7 @@ public static int getDefaultSize(int size, int measureSpec) {
             setMeasuredDimension(widthSpecSize, mHeight);
         }
 
-        //另外一种解决方案
+        // 另外一种解决方案=============================================
         // 当布局参数设置为wrap_content时，设置默认值
         if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT 
                 && getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
@@ -302,12 +303,13 @@ public static int getDefaultSize(int size, int measureSpec) {
     }
 ```
 - ViewGroup的measure过程  
-  ViewGroup除了完成自己的measure过程以外，还会去遍历调用所有子元素的measure方法，各个子元素再去递归的执行这个过程，与View不同的是ViewGroup是一个抽象类，因此它没有重写View的onMeasure方法，但是提供了一个measureChildren()方法
+
+  ViewGroup除了完成自己的measure过程以外，还会去遍历调用所有子元素的measure方法，各个子元素再去递归的执行这个过程，与View不同的是ViewGroup是一个抽象类，因此它没有重写View的onMeasure方法，但是提供了一个measureChildren()方法。
 
   ![ViewGroup的measure过程](image/ViewGroup的Measure过程.jpg)  
 
   ViewGroup没有定义其测量的具体过程，那是因为ViewGroup是一个抽象类，其测量过程的onMeasure方法需要各自子类去实现。
-  当measure完成后，就可以通过view.getMeasuredWidth/Height方法就可以正确的获取到View的宽和高。自定义ViewGroup实现onMeasure()方法的思路如下
+  当measure完成后，就可以通过view.getMeasuredWidth/Height方法就可以正确的获取到View的宽和高。自定义ViewGroup实现onMeasure()方法的思路如下。
   ```java
     /**
     * 根据自身的测量逻辑复写onMeasure()，分为3步
@@ -315,7 +317,6 @@ public static int getDefaultSize(int size, int measureSpec) {
     *   2. 合并所有子View的尺寸大小，最终得到ViewGroup父视图的测量值(自身实现)
     *   3. 存储测量后View宽/高的值：调用setMeasuredDimension()  
     **/ 
-
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {  
 
@@ -391,6 +392,7 @@ public static int getDefaultSize(int size, int measureSpec) {
 
 
   **如何在Activity中获取view的宽度和高度 ?**  
+
   Activity的生命周期和view的measure过程并没有同步，因为无法在Activity的生命周期回调中获取view的宽度和高度。  
   1. Activity/View#onWindowFocusChanged
     onWindowFocusChanged()回调发生时View已经初始化完毕了，可以再此方法中获取View的宽度和高度，需要注意的是此方法可能会被调用多次。
@@ -414,10 +416,10 @@ public static int getDefaultSize(int size, int measureSpec) {
     2. view.measure(int widthMeasureSpec, int heightMeasureSpec)  
     手动对View进行measure来得到View的宽/高     
 
-### **layout过程**
-layout过程的作用是确定View的四个顶点的位置top、left、right和bottom。
+### 4.3.2 **layout过程**
+&emsp; layout过程的作用是确定View的四个顶点的位置top、left、right和bottom。
 
-![View计算图例](image/View计算图例.png)  
+&emsp;  <img src="image/View计算图例.png" style="zoom:75%"/>    
 
 View的绘制流程是从ViewRootImpl的performTraversals方法开始的，在此方法中会依次调用performMeasure()、performLayout()、performDraw()。
 ``` java
@@ -565,7 +567,7 @@ public void layout(int l, int t, int r, int b) {
     }
 ```
 
-### **draw过程**
+### 4.3.3 **draw过程**
 
 1. Draw the background(绘制背景)
 2. If necessary, save the canvas' layers to prepare for fading
@@ -578,17 +580,15 @@ public void layout(int l, int t, int r, int b) {
 
 <img src="image/View的draw过程.jpg" style="zoom:75%" />
 
+## 4.4 自定义View  
 
-## 自定义View  
-
-
-自定义View的分类
+### 4.4.1 自定义View的分类
 - 继承View重写onDraw()方法，采用这种方式需要自己支持wrap_content并且padding也需要自己处理
 - 继承ViewGroup派生特殊的Layout
 - 继承特殊的View(TextView、ImageView)
 - 继承特殊的ViewGroup(LinearLayout)
 
-自定义View须知
+### 4.4.2 自定义View须知
 
 1. 让自定义View支持wrap_content，如果继承自View或者ViewGroup的控件，如果不在onMeasure()方法中对于wrap_content做处理则当view设置为wrap_content时效果和match_parent是一样的。
 2. 如果有必要让自定义View支持padding，如果直接继承自View的控件如果不在draw()方法中处理padding，那么padding属性是无法起作用的。
