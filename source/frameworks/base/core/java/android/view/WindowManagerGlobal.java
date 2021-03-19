@@ -459,7 +459,7 @@ public final class WindowManagerGlobal {
                 imm.windowDismissed(mViews.get(index).getWindowToken());
             }
         }
-        // 具体的删除操作
+        // 具体的删除操作 最终通过ViewRootImpl来实现
         boolean deferred = root.die(immediate);
         if (view != null) {
             view.assignParent(null);

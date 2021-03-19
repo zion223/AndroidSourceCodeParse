@@ -1,4 +1,4 @@
-# 理解Window和WindowManager
+# 第八章 理解Window和WindowManager
 
 &emsp; Window表示窗口的概念，某些情况下需要在桌面上显示一个类似悬浮窗的东西，这时需要使用Window来实现。Window是一个抽象类，具体实现是PhoneWindow。
 
@@ -43,11 +43,11 @@ WindowManager继承了ViewManager实现了其定义的方法，分别是添加Vi
 &emsp; Window是一个抽象的概念，每一个Window都对应一个View和ViewRootImpl，Window和View通过ViewRootImpl来建立联系，因此Window是以View的形式存在的。
 
 ### 8.2.1 Window的添加过程
-&emsp; Window的添加过程需要通过WindowManager的addView实现，WindowManager的实现类是WindowManagerImpl类，最终是调用WindowManagerGlobal的addView方法。
+&emsp; Window的添加过程需要通过WindowManager的addView实现，WindowManager的实现类是WindowManagerImpl类，最终是调用WindowManagerGlobal的addView()方法。
 
 ### 8.2.2 Window的删除过程
 
-见代码注释
+见代码注释 WindowManagerGlobal.java removeView()方法
 ### 8.2.3 Window的更新过程
 
 ```java

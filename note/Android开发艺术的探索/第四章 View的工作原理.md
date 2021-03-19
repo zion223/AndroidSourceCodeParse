@@ -248,7 +248,7 @@ View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下�
     }
 
 ```
-setMeasuredDimension方法会设置测量好的View的宽/高的值。
+setMeasuredDimension()方法会设置测量完的View的宽/高的值。
 ```java
 public static int getDefaultSize(int size, int measureSpec) {
         int result = size;
