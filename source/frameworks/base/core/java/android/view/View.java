@@ -19648,6 +19648,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     /**
      * Called from layout when this view should
      * assign a size and position to each of its children.
+     * 在父容器中确定子View的位置
      *
      * Derived classes with children should override
      * this method and call layout on each of

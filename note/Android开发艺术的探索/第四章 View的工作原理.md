@@ -211,12 +211,6 @@ View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下�
 ```java
  /**
      * <p>
-     * Measure the view and its content to determine the measured width and the
-     * measured height. This method is invoked by {@link #measure(int, int)} and
-     * should be overridden by subclasses to provide accurate and efficient
-     * measurement of their contents.
-     * </p>
-     * <p>
      * 这个方法由measure(int, int)调用，并且应该被子类覆盖，以提供对其内容的准确和有效的度量。
      * </p>
      * <p>
@@ -226,20 +220,6 @@ View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下�
      * <code>IllegalStateException</code>, thrown by
      * {@link #measure(int, int)}. Calling the superclass'
      * {@link #onMeasure(int, int)} is a valid use.
-     * </p>
-     *
-     * <p>
-     * The base class implementation of measure defaults to the background size,
-     * unless a larger size is allowed by the MeasureSpec. Subclasses should
-     * override {@link #onMeasure(int, int)} to provide better measurements of
-     * their content.
-     * </p>
-     *
-     * <p>
-     * If this method is overridden, it is the subclass's responsibility to make
-     * sure the measured height and width are at least the view's minimum height
-     * and width ({@link #getSuggestedMinimumHeight()} and
-     * {@link #getSuggestedMinimumWidth()}).
      * </p>
      */
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -528,7 +508,7 @@ public void layout(int l, int t, int r, int b) {
                     * (parentRight - parentLeft -width)/2 此时得出的是父容器减去子View宽度后的
                     * 剩余空间的一半，那么再加上parentLeft后，就是子View初始左上角横坐标(此时正好位于中间位置)，
                     * 假如子View还受到margin约束，由于leftMargin使子View右偏而rightMargin使子View左偏，所以最后
-                    * 是 +leftMargin - rightMargin .
+                    * 是 + leftMargin - rightMargin
                     */
                     case Gravity.CENTER_HORIZONTAL:
                         childLeft = parentLeft + (parentRight - parentLeft - width) / 2 +
