@@ -1,24 +1,23 @@
 # View的工作原理
 
 ## 4.1 初识ViewRoot和DecorView
-&ensp;&ensp; ViewRoot对应于的是**ViewRootImpl类，它是连接WindowManager和DecorView的纽带**。在ActivityThread中当Activity对象被创建完毕后，会将DecorView添加到Window中，同时创建ViewRootImpl对象，并且将ViewRootImpl对象和DecorView建立关联(参见WindowManagerGlobal类345行)。
-``` java
-/**
- * ViewRootImpl类头部注释
- * The top of a view hierarchy, implementing the needed protocol between View
- * and the WindowManager.  This is for the most part an internal implementation
- * detail of {@link WindowManagerGlobal}.
- */
+&ensp;&ensp; ViewRoot对应于**ViewRootImpl类，它是连接WindowManager和DecorView的纽带**。View的三大流程均是通过ViewRoot来完成。在ActivityThread中当Activity对象被创建完毕后，会将DecorView添加到Window中，同时创建ViewRootImpl对象，并且将ViewRootImpl对象和DecorView建立关联(参见WindowManagerGlobal类345行)。
+
+```java
+    root = new ViewRootImpl(view.getContext(), display);
+    // 与DecorView建立关联
+    root.setView(view, wparams, panelParentView);
 ```
 
 &ensp;&ensp;View的绘制流程是从ViewRootImpl的performTraversals()方法开始的，其中measure用来测量View的宽和高，layout用来确定View的位置，draw用来负责将View绘制在屏幕上。
 
-&ensp;&ensp;DecorView作为顶级的View，一般情况下它内部会包含一个竖直方向的LinearLayout，在这个LinearLayout中有上下两部分，上面是标题栏下面是内容栏。在Activity中的onCreate()方法中通过setContentView()方法设置的layout的id就是设置内容栏的布局。  
+&ensp;&ensp;DecorView作为顶级View，一般情况下它内部会包含一个竖直方向的LinearLayout，在这个LinearLayout中有上下两部分，上面是标题栏下面是内容栏。在Activity中的onCreate()方法中通过setContentView()方法设置的layout的id就是设置内容栏的布局。可以通过 ViewGroup contentView = findViewById(R.android.id.content)获取到content布局。
 
 ![Avtivity窗口](image/Activity窗口.jpg)
 
 ## 4.2 理解MeasureSpec
 
+### 4.2.1 MesaureSpec
 &ensp;&ensp;MeaureSpec代表一个32位的int值，高2位代表的是SpecMode，低30位代表的是SpecSize，SpecMode代表的是测量模式，SpecSize代表的是某种测量模式下的规格大小。SpecMode有三类在下面代码注释中有说明。
 ```java
         private static final int MODE_SHIFT = 30;
@@ -62,18 +61,18 @@
             return (measureSpec & ~MODE_MASK);
         }
 ```
-
-&ensp;&ensp;在View进行测量的时候，系统会将LayoutParams在父容器的约束下转换成对应的MeasureSpec，然后再根据这个MeasureSpec来确定View测量后的宽/高。MeasureSpec不是唯一由LayoutParams决定的，LayoutParams需要和父容器一起才决定View的MeasureSpec，从而决定View的宽/高。
+### 4.2.2 MesaureSpec和LayoutParams的对应关系
+&ensp;&ensp; 在View进行测量的时候，系统会将LayoutParams在父容器的约束下转换成对应的MeasureSpec，然后再根据这个MeasureSpec来确定View测量后的宽/高。MeasureSpec不是唯一由LayoutParams决定的，LayoutParams需要和父容器一起才决定View的MeasureSpec，从而决定View的宽/高。
 - 对于顶级View(DecorView)，其MeasureSpec由窗口的尺寸和其自身的LayoutParams来共同确定
 - 对于普通View，其MeasureSpec由父容器的MeasureSpec和其自身的LayoutParams来确定
 
 对于顶级View的情况: ViewRootImpl中的measureHierarchy()方法中显示了DecorView的MeasureSpec的创建过程。
 ```java
-    childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
+    childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
     childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
     performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 ```
-getRootMeasureSpec()方法实现如下
+传入的desiredWindowWidth就是屏幕的尺寸，其中getRootMeasureSpec()方法实现如下。
 ```java
 private static int getRootMeasureSpec(int windowSize, int rootDimension) {
         int measureSpec;
@@ -95,16 +94,15 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
         return measureSpec;
     }
 ```
+从上面代码可以总结出DecorView的MeasureSpec产生规则如下，  
+- LayoutParams.MATCH_PARENT：精确模式，大小就是窗口的大小。
+- LayoutParams.WRAP_CONTENT：最大模式，大小不定，但是不能超过窗口的大小。
+- 固定大小：精确模式，大小就是LayoutParams中指定的大小。
 
-对于普通的View的来说，View的measure过程由ViewGroup传递过来，
+
+对于普通的View的来说，View的measure过程由ViewGroup传递过来，ViewGroup的measureChildWithMargins()方法如下。
 ``` java
- /**
-     * Ask one of the children of this view to measure itself, taking into
-     * account both the MeasureSpec requirements for this view and its padding
-     * and margins. The child must have MarginLayoutParams The heavy lifting is
-     * done in getChildMeasureSpec.
-     *
-     */
+
     protected void measureChildWithMargins(View child,
             int parentWidthMeasureSpec, int widthUsed,
             int parentHeightMeasureSpec, int heightUsed) {
@@ -122,7 +120,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
 
 ```
 
-**从代码可以看出来子View的MeasureSpec的创建与父容器的MeasureSpec和其自身的LayoutParams有关**。此外还与View的margin及padding有关。
+从代码可以看出来**子View的MeasureSpec的创建与父容器的MeasureSpec和其自身的LayoutParams有关**。此外还与View的margin及padding有关。ViewGroup的getChildMeasureSpec()方法如下。
 
 ```java 
  public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
@@ -130,6 +128,7 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
         int specMode = MeasureSpec.getMode(spec);
         int specSize = MeasureSpec.getSize(spec);
         //父容器最大可用尺寸 容器尺寸 - padding
+        //子元素可用的大小
         int size = Math.max(0, specSize - padding);
         //算出的子View的尺寸和模式
         int resultSize = 0;
@@ -202,12 +201,12 @@ private static int getRootMeasureSpec(int windowSize, int rootDimension) {
 
 View的工作流程主要是指measure、layout、draw这三大流程，即测量、布局和绘制，其中measure主要确定View的宽和高，layout确定View的最终宽/高和四个顶点的位置，而draw会将View绘制到屏幕上。
 
-### 4.3.1 **measure过程**
+### 4.3.1 measure过程
 - View的measure过程
   
 <img src="image/View的Measure过程.jpg" style="zoom:75%"/>    
 
-View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下。
+View的measure过程会去调用onMeasure()方法，onMeasure()方法实现如下。
 ```java
  /**
      * <p>
@@ -216,10 +215,7 @@ View的measure过程会去调用onMeasure()方法，onMeasure方法实现如下�
      * <p>
      *  When overriding this method, you must call        
      * {@link#setMeasuredDimension(int, int)} to store the
-     * measured width and height of this view. Failure to do so will trigger an
-     * <code>IllegalStateException</code>, thrown by
-     * {@link #measure(int, int)}. Calling the superclass'
-     * {@link #onMeasure(int, int)} is a valid use.
+     * measured width and height of this view
      * </p>
      */
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

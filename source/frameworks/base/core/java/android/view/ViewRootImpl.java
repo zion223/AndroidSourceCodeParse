@@ -1498,6 +1498,7 @@ public final class ViewRootImpl implements ViewParent,
         }
 
         if (!goodMeasure) {
+             // 获取DecorView的MeasureSpec
             childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
             childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
             performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);

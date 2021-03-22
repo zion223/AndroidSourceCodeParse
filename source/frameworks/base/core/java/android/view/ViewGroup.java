@@ -6634,7 +6634,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
                 mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin
                         + heightUsed, lp.height);
-
+        // 让子View去测量自己
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
 
