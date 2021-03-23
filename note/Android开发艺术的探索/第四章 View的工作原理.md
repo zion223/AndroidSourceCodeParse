@@ -325,25 +325,25 @@ public static int getDefaultSize(int size, int measureSpec) {
     protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
         // 参数说明：父视图的测量规格（MeasureSpec）
 
-                final int size = mChildrenCount;
-                final View[] children = mChildren;
+        final int size = mChildrenCount;
+        final View[] children = mChildren;
 
-                // 遍历所有子view
-                for (int i = 0; i < size; ++i) {
-                    final View child = children[i];
-                     // 调用measureChild()进行下一步的测量 ->>分析1
-                    if ((child.mViewFlags & VISIBILITY_MASK) != GONE) {
-                        measureChild(child, widthMeasureSpec, heightMeasureSpec);
-                    }
-                }
+        // 遍历所有子view
+        for (int i = 0; i < size; ++i) {
+            final View child = children[i];
+             // 调用measureChild()进行下一步的测量 ->>分析1
+            if ((child.mViewFlags & VISIBILITY_MASK) != GONE) {
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
             }
+        }
+    }
 
     /**
     * 分析2：measureChild()
     * 作用：a. 计算单个子View的MeasureSpec
     *      b. 测量每个子View最后的宽 / 高：调用子View的measure()
     **/ 
-  protected void measureChild(View child, int parentWidthMeasureSpec,
+    protected void measureChild(View child, int parentWidthMeasureSpec,
             int parentHeightMeasureSpec) {
 
         // 1. 获取子视图的布局参数
@@ -392,7 +392,8 @@ public static int getDefaultSize(int size, int measureSpec) {
     2. view.measure(int widthMeasureSpec, int heightMeasureSpec)  
     手动对View进行measure来得到View的宽/高     
 
-### 4.3.2 **layout过程**
+### 4.3.2 **layout过程**  
+
 &emsp; layout过程的作用是确定View的四个顶点的位置top、left、right和bottom。
 
 &emsp;  <img src="image/View计算图例.png" style="zoom:75%"/>    

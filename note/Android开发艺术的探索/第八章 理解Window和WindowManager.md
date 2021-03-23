@@ -6,22 +6,23 @@
 ## 8.1 Window和WindowManager
 使用WindowManager添加Window的代码如下所示
 ```java
-        mButton = new Button(this);
-        mButton.setText("button");
-        mLayoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,0,0, PixelFormat.TRANSLUCENT);
-        mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE| WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
-        mLayoutParams.gravity = Gravity.LEFT| Gravity.TOP;
-        mLayoutParams.x = 100;
-        mLayoutParams.y = 300;
+    mButton = new Button(this);
+    mButton.setText("button");
+    mLayoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, 0, 0, PixelFormat.TRANSLUCENT);
+    mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE| WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+    mLayoutParams.gravity = Gravity.LEFT| Gravity.TOP;
+    mLayoutParams.x = 100;
+    mLayoutParams.y = 300;
         
-        getWindowManager().addView(mButton,mLayoutParams);
-```
+    getWindowManager().addView(mButton,mLayoutParams);
+```  
+
 上面的代码可以将一个Button添加到屏幕坐标(100, 300)的位置上。WindowManager.LayoutParams中的flags和type这两个参数比较重要。 
 
 flags参数表示Window的属性，常见的属性如下。
 - FLAG_NOT_FOCUSABLE 表示window不需要获取焦点，也不需要接收输入事件，此标记同时启用FLAG_NOT_TOUCH_MODAL，最终事件会直接传递给下层具有焦点的Window
 - FLAG_NOT_TOUCH_MODAL 和FLAG_NOT_FOCUSABLE同理
-- FLAG_SHOW_WHEN_LOCKED window可以显示在锁屏的界面上
+- FLAG_SHOW_WHEN_LOCKED表示window可以显示在锁屏的界面上
 
 type参数表示Window的类型，**Window有三种类型，分别是应用Window、子Window和系统Window**。
 - 应用类Window对应着一个Activity

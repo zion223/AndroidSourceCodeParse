@@ -1,12 +1,12 @@
-# Android 动画深入分析
+# 第七章 Android 动画深入分析
 
-Android中的动画分为三种View动画、帧动画和属性动画，其中帧动画也属于View动画的一种，只不过它和平移、旋转等常见的View动画在表现形式上略有不同而已。View动画通过对场景里的对象不断做图像变换(平移、缩放、旋转、透明度)从而产生动画效果，它是一种渐进式动画,并且View动画支持自定义。帧动画通过播放一系列图像从而产生动画效果，可以简单的理解为图片切换动画，很显然，如果图片过大会产生OOM，属性动画通过动态的改变对象的属性从而产生动画效果。
+&emsp; Android中的动画分为三种View动画、帧动画和属性动画，其中帧动画也属于View动画的一种，只不过它和平移、旋转等常见的View动画在表现形式上略有不同而已。View动画通过对场景里的对象不断做图像变换(平移、缩放、旋转、透明度)从而产生动画效果，它是一种渐进式动画,并且View动画支持自定义。帧动画通过播放一系列图像从而产生动画效果，可以简单的理解为图片切换动画，很显然，如果图片过大会产生OOM，属性动画通过动态的改变对象的属性从而产生动画效果。
 
-## View动画
-View动画的作用对象是View，它支持四种动画效果，分别是平移动画、缩放动画、旋转动画、透明度动画。
+## 7.1 View动画
+&emsp; View动画的作用对象是View，它支持四种动画效果，分别是平移动画、缩放动画、旋转动画、透明度动画。
 
-### View动画的种类
-View动画的四种变化效果对应的Animation的四个子类：TranslateAnimation、AlphaAnimation、RotateAnimation、ScaleAnimation。
+### 7.1.1 View动画的种类
+&emsp; View动画的四种变化效果对应的Animation的四个子类：TranslateAnimation、AlphaAnimation、RotateAnimation、ScaleAnimation。
 
 |   名称       | xml标签        | 子类                |   效果
 |  ----        |  ----      |----                 |   ----
@@ -101,11 +101,11 @@ android:shareInterpolator
 
 ```
 
-### 自定义View动画
-自定义View动画需要继承Animation类并且重写applyTransformation()和initialize()方法。
+### 7.1.2 自定义View动画
+&emsp; 自定义View动画需要继承Animation类并且重写applyTransformation()和initialize()方法。
 
-### 帧动画
-帧动画是顺序播放一组预先定义好的图片，类似于电影播放。不同于View动画，系统提供了另外一个类AnimationDrawable来使用帧动画。在res/drawable目录下新建xml文件。
+### 7.1.3 帧动画
+&emsp; 帧动画是顺序播放一组预先定义好的图片，类似于电影播放。不同于View动画，系统提供了另外一个类AnimationDrawable来使用帧动画。在res/drawable目录下新建xml文件。
 ``` xml
 <?xml version="1.0" encoding="utf-8"?>
 <animation-list xmlns:android="http://schemas.android.com/apk/res/android"
@@ -118,7 +118,7 @@ android:shareInterpolator
 </animation-list>
 
 ```
-然后将上述Drawable作为View的背景并通过Drawable来显示动画即可。
+&emsp; 然后将上述Drawable作为View的背景并通过Drawable来显示动画即可。
 ``` java
     view.setBackgroundResources(R.drawable.frame_animation);
     AnimationDrawable drawable = view.getBackground();
@@ -126,9 +126,9 @@ android:shareInterpolator
 ```
 > 在使用帧动画时避免使用尺寸较大的图片容易引起OOM。
 
-## View动画的特殊使用场景
-### LayoutAnimation  
-### Activity的切换效果
+## 7.2 View动画的特殊使用场景
+### 7.2.1 LayoutAnimation  
+### 7.2.2 Activity的切换效果
 启动Activity时可以设置自定义的切换效果
 ```java
     Intent intent = new Intent(MainActivity.this, TestActivity.class);
@@ -144,9 +144,9 @@ android:shareInterpolator
         overridePendingTransition(R.anim.enter_anim, R.anim.exit_anim);//用于activity间的切换动画
     }
 ```
-## 属性动画
+## 7.3 属性动画
 
-### 使用属性动画
+### 7.3.1 使用属性动画
 &emsp;&emsp;属性动画可以对任意对象的属性进行动画而不仅仅是View，动画的默认时间间隔为300ms，默认帧率为10ms/帧。属性动画可以完成在一个时间间隔内完成对象的一个属性值到另一个属性值的改变。  
 &emsp;&emsp; 属性动画和View动画的区别如下。 
 
@@ -202,8 +202,8 @@ Button mButton = (Button) findViewById(R.id.Button);
         return anim;
     }
 ```
-### 理解插值器和估值器
-TimeInterpolator翻译为时间差值器，它的作用是根据时间流逝的百分比来计算出当前属性值改变的百分比。  
+### 7.3.2 理解插值器和估值器
+&emsp; TimeInterpolator翻译为时间差值器，它的作用是根据时间流逝的百分比来计算出当前属性值改变的百分比。  
 系统预置时间差值器
 - LinearInterpolator(线性差值器: 匀速动画)
 - AccelerateDecelerateInterpolator(加速减速差值器：动画两头慢中间快)
@@ -211,7 +211,7 @@ TimeInterpolator翻译为时间差值器，它的作用是根据时间流逝的�
 - BounceInterpolator(弹性差值器：高空下落重力影响效果)
 
 TypeEvaluator的翻译为类型估值法，也叫估值器。它的作用是根据当前属性改变的百分比计算出改变后的属性值。
-### 属性动画的监听器
+### 7.3.3 属性动画的监听器
 &emsp;&emsp;属性动画提供了监听器用于监听动画的播放过程，主要提供了两个接口。AnimationListener和AnimatorUpdateListener。  
 AnimationListener的定义如下。
 ```java
@@ -234,7 +234,7 @@ AnimationListener的定义如下。
         void onAnimationRepeat(Animation animation);
     }
 ```
-AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播放一帧，onAnimationUpdate()就会被调用一次。
+&emsp; AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播放一帧，onAnimationUpdate()就会被调用一次。
 ```java
 
     public static interface AnimatorUpdateListener {
@@ -245,7 +245,7 @@ AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播�
 
     }
 ```
-### 对任意属性做动画
+### 7.3.4 对任意属性做动画
 &emsp;&emsp;View动画只支持四种类型:平移、旋转、缩放、透明度。能够实现的效果有限。  
 
 **属性动画的工作原理**  
@@ -259,14 +259,11 @@ AnimatorUpdateListener的定义如下，它会监听整个动画过程，每播�
 - 用一个包装类来包装原始对象，间接提供set和get方法
 - 采用ValueAnimator，监听动画过程，自己实现属性的改变
 
-```java
+### 7.3.5 属性动画的工作原理
 
 
-```
-### 属性动画的工作原理
+## 7.4 使用动画的注意事项  
 
-
-## 使用动画的注意事项
 - OOM问题 主要出现在帧动画上，当图片数量较多并且较大时就容易出现OOM。
 - 内存泄漏 在属性动画中有一种无限循环的动画，这类动画在Activity退出时及时停止，否则将导致Activity无法释放从而造成内存泄漏，View动画中不存在此现象。
 - View的动画问题 View动画是对View的影像做动画，并不是真正的改变View的状态，因此有时候会出现动画完成后View无法隐藏的现象，即setVisibility(View.GONE)失效，这时调用下view.clearAnimation()方法即可。

@@ -1,4 +1,4 @@
-# **Android的消息机制**
+# 第十章 Android的消息机制
 &emsp; 从开发的角度来说Handler是Android消息机制的上层接口，这样在开发的过程中只需和Handler交互即可，Handler常用来更新UI，也可以用来在子线程执行一些耗时操作的I/O操作，或者是读取文件或者访问网络。  
 Android的消息机制是指Handler的运行机制，Handler的运行需要底层的MessageQueue和Looper的支撑。  
 
@@ -22,11 +22,12 @@ A: Android中的UI控件不是线程安全的，在多线程中访问UI会导致
         }
     }
 ```
-&emsp; Handler创建完毕后，内部的Looper和MessageQueue就可以和Handler协同工作了，通过Handler的sendMessage和post方法最终将会通过MessageQueue的enqueueMessage()方法入队列，Looper发现有消息时就会处理这个消息，最终消息中的Runnable或者Handler的handlerMessage就会被调用。Looper是运行在创建Handler中的线程中的，所以Handler中的业务逻辑就会被切换到创建Handler所在的线程中去执行了。  
+&emsp; Handler创建完毕后，内部的Looper和MessageQueue就可以和Handler协同工作了，通过Handler的sendMessage()和post()方法最终将会通过MessageQueue的enqueueMessage()方法入队列，Looper发现有消息时就会处理这个消息，最终消息中的Runnable或者Handler的handlerMessage()就会被调用。Looper是运行在创建Handler中的线程中的，所以Handler中的业务逻辑就会被切换到创建Handler所在的线程中去执行了。  
 
 **Handler机制相关类的重要方法如下**
 
-![Handler机制相关方法](image/Handler机制相关方法.png)
+<img src="image/Handler机制相关方法.png" style="zoom:75%"/>  
+
 ## 10.2 Android的消息机制分析
 ### 10.2.1 ThreadLocal的工作原理
 &emsp; Threadlocal而是一个线程内部的存储类，可以在指定线程内存储数据，数据存储以后，只有指定线程可以得到存储数据。官方文档的解释如下。
