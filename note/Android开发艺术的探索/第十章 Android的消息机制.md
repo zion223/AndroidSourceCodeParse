@@ -149,29 +149,21 @@ Looper中有一个重要的方法loop()，只有调用了loop方法，消息循�
         }
     }
 ```
-## 10.3 主线程的消息循环
+## 10.3 主线程的消息循环  
+
 &emsp; Android的主线程是ActivityThread，主线程入口的方法是main，Looper中提供了prepareMainLooper方法来开启主线程的消息循环。
 ```java
     public static void main(String[] args) {
         // 省略代码
         Process.setArgV0("<pre-initialized>");
-
+        // 创建主线程消息循环
         Looper.prepareMainLooper();
 
         ActivityThread thread = new ActivityThread();
         thread.attach(false);
+        ...
 
-        if (sMainThreadHandler == null) {
-            sMainThreadHandler = thread.getHandler();
-        }
-
-        if (false) {
-            Looper.myLooper().setMessageLogging(new
-                    LogPrinter(Log.DEBUG, "ActivityThread"));
-        }
-
-        // End of event ActivityThreadMain.
-        Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+        // 开启消息循环，并且此方法不能退出否则会抛出RuntimeException异常
         Looper.loop();
 
         throw new RuntimeException("Main thread loop unexpectedly exited");
