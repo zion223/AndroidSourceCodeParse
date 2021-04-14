@@ -274,7 +274,7 @@ public final class SystemServer {
             // APIs crash dealing with negative numbers, notably
             // java.io.File#setLastModified, so instead we fake it and
             // hope that time from cell towers or NTP fixes it shortly.
-            //设置初始时间
+            // 设置系统时间 如果当前系统时间小于1970年 则设置为1970年
             if (System.currentTimeMillis() < EARLIEST_SUPPORTED_TIME) {
                 Slog.w(TAG, "System clock is before 1970; setting to 1970.");
                 SystemClock.setCurrentTimeMillis(EARLIEST_SUPPORTED_TIME);
@@ -282,7 +282,7 @@ public final class SystemServer {
 
             //
             // Default the timezone property to GMT if not set.
-            //
+            // 如果没有设置timezone则默认设置为GMT格林威治中央区时
             String timezoneProperty =  SystemProperties.get("persist.sys.timezone");
             if (timezoneProperty == null || timezoneProperty.isEmpty()) {
                 Slog.w(TAG, "Timezone not set; setting to GMT.");
@@ -297,7 +297,7 @@ public final class SystemServer {
             //
             // NOTE: Most changes made here will need an equivalent change to
             // core/jni/AndroidRuntime.cpp
-            //系统语言
+            // 设置系统语言
             if (!SystemProperties.get("persist.sys.language").isEmpty()) {
                 final String languageTag = Locale.getDefault().toLanguageTag();
 
