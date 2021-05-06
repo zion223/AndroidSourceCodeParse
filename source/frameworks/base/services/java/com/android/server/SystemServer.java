@@ -394,11 +394,11 @@ public final class SystemServer {
         // 开启服务
         try {
             traceBeginAndSlog("StartServices");
-            //引导服务
+            // 引导服务
             startBootstrapServices();
-            //核心服务
+            // 核心服务
             startCoreServices();
-            //其他服务
+            // 其他服务
             startOtherServices();
             SystemServerInitThreadPool.shutdown();
         } catch (Throwable ex) {
@@ -493,6 +493,7 @@ public final class SystemServer {
      * which is why we initialize them all in one place here.  Unless your service
      * is also entwined in these dependencies, it should be initialized in one of
      * the other functions.
+     * 启动引导服务
      */
     private void startBootstrapServices() {
         Slog.i(TAG, "Reading configuration...");
@@ -645,6 +646,7 @@ public final class SystemServer {
 
     /**
      * Starts some essential services that are not tangled up in the bootstrap process.
+     * 核心服务
      */
     private void startCoreServices() {
         // Records errors and logs, for example wtf()
@@ -1649,6 +1651,7 @@ public final class SystemServer {
         // where third party code can really run (but before it has actually
         // started launching the initial applications), for us to complete our
         // initialization.
+        // 通知ActivityManagerService现在系统可以启动第三方应用
         mActivityManagerService.systemReady(() -> {
             Slog.i(TAG, "Making services ready");
             traceBeginAndSlog("StartActivityManagerReadyPhase");

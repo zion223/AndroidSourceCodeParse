@@ -4035,11 +4035,14 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
     }
 
+    // 启动Launcher的Intent
     Intent getHomeIntent() {
         Intent intent = new Intent(mTopAction, mTopData != null ? Uri.parse(mTopData) : null);
         intent.setComponent(mTopComponent);
         intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
         if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
+            // 设置Category为CATEGORY_HOME 启动桌面
+            // Intent.CATEGORY_HOME: This is the home activity, that is the first activity that is displayed when the device boots.
             intent.addCategory(Intent.CATEGORY_HOME);
         }
         return intent;
@@ -14032,6 +14035,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
     }
 
+    // 由SystemServer在创建完系统所需要的服务后调用
     public void systemReady(final Runnable goingCallback, BootTimingsTraceLog traceLog) {
         traceLog.traceBegin("PhaseActivityManagerReady");
         synchronized(this) {
