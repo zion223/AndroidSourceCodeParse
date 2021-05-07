@@ -160,7 +160,7 @@ public class ActivityStartController {
         mLastStarter.postStartActivityProcessing(r, result, targetStack);
     }
 
-    // 启动Launcher
+    // 启动Launcher应用
     void startHomeActivity(Intent intent, ActivityInfo aInfo, String reason) {
         mSupervisor.moveHomeStackTaskToTop(reason);
 
@@ -168,7 +168,7 @@ public class ActivityStartController {
                 .setOutActivity(tmpOutRecord)
                 .setCallingUid(0)
                 .setActivityInfo(aInfo)
-                //启动Activity
+                //在ActivityStarter中启动Activity
                 .execute();
         mLastHomeActivityStartRecord = tmpOutRecord[0];
         if (mSupervisor.inResumeTopActivity) {
