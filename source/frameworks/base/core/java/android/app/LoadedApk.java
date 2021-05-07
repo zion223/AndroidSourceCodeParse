@@ -947,7 +947,8 @@ public final class LoadedApk {
         Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "makeApplication");
 
         Application app = null;
-
+        // 查找Manifest中的Application的classaname
+        // 如果没有指定，则使用默认的android.app.Application
         String appClass = mApplicationInfo.className;
         if (forceDefaultAppClass || (appClass == null)) {
             appClass = "android.app.Application";

@@ -5793,6 +5793,8 @@ public final class ActivityThread {
         try {
             // If the app is being launched for full backup or restore, bring it up in
             // a restricted environment with the base application class.
+            // LoadApk类的makeApplication方法
+            // 创建Application对象
             Application app = data.info.makeApplication(data.restrictedBackupMode, null);
             mInitialApplication = app;
 
@@ -5819,7 +5821,7 @@ public final class ActivityThread {
             }
 
             try {
-                // Application onCreate
+                // 回调Application的onCreate()方法
                 mInstrumentation.callApplicationOnCreate(app);
             } catch (Exception e) {
                 if (!mInstrumentation.onException(app, e)) {
@@ -6404,7 +6406,7 @@ public final class ActivityThread {
             android.ddm.DdmHandleAppName.setAppName("<pre-initialized>",
                                                     UserHandle.myUserId());
             RuntimeInit.setApplicationObject(mAppThread.asBinder());
-            // ActivityManagerService
+            // ActivityManagerService对象
             final IActivityManager mgr = ActivityManager.getService();
             try {
                 // 调用attachApplication方法
