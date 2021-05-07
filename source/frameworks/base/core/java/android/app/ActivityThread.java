@@ -2880,6 +2880,7 @@ public final class ActivityThread {
         return appContext;
     }
 
+    // 启动Activity
     private void handleLaunchActivity(ActivityClientRecord r, Intent customIntent, String reason) {
         // If we are getting ready to gc after going to the background, well
         // we are back active so skip it.
