@@ -317,11 +317,15 @@ public final class MessageQueue {
 
         int pendingIdleHandlerCount = -1; // -1 only during first iteration
         int nextPollTimeoutMillis = 0;
+        // 死循环
         for (;;) {
             if (nextPollTimeoutMillis != 0) {
                 Binder.flushPendingCommands();
             }
-
+            // 唤醒线程
+            // 1.出现错误
+            // 2.超时，有消息的触发时间到了
+            // 3.有新的的事件,如新消息插入
             nativePollOnce(ptr, nextPollTimeoutMillis);
 
             synchronized (this) {
@@ -331,6 +335,7 @@ public final class MessageQueue {
                 Message msg = mMessages;
                 if (msg != null && msg.target == null) {
                     // Stalled by a barrier.  Find the next asynchronous message in the queue.
+                    // 被同步屏障给阻碍。 找到队列里的下一个异步消息
                     do {
                         prevMsg = msg;
                         msg = msg.next;
@@ -339,22 +344,30 @@ public final class MessageQueue {
                 if (msg != null) {
                     if (now < msg.when) {
                         // Next message is not ready.  Set a timeout to wake up when it is ready.
+                        // 下一个消息还没到时间，设置一个超时时间等待下一次处理
                         nextPollTimeoutMillis = (int) Math.min(msg.when - now, Integer.MAX_VALUE);
                     } else {
                         // Got a message.
                         mBlocked = false;
                         if (prevMsg != null) {
+                            // 如果prevMsg不为空则说明head节点是同步屏障
+                            // 将msg从队列中删除
+                            // prevMsg msg msg.next => prevMsg msg.next
                             prevMsg.next = msg.next;
                         } else {
+                            // 将head设置为当前消息
                             mMessages = msg.next;
                         }
+                        // 取出的消息的next设置为null
                         msg.next = null;
                         if (DEBUG) Log.v(TAG, "Returning message: " + msg);
+                        // 设置标志位
                         msg.markInUse();
                         return msg;
                     }
                 } else {
                     // No more messages.
+                    // 没有消息
                     nextPollTimeoutMillis = -1;
                 }
 
@@ -376,6 +389,7 @@ public final class MessageQueue {
                 }
                 if (pendingIdleHandlerCount <= 0) {
                     // No idle handlers to run.  Loop and wait some more.
+                    // 设置当前为block状态
                     mBlocked = true;
                     continue;
                 }
@@ -440,6 +454,7 @@ public final class MessageQueue {
     }
 
     /**
+     * 在message queue中插入同步消息屏障
      * Posts a synchronization barrier to the Looper's message queue.
      *
      * Message processing occurs as usual until the message queue encounters the
@@ -471,6 +486,7 @@ public final class MessageQueue {
         // We don't need to wake the queue because the purpose of a barrier is to stall it.
         synchronized (this) {
             final int token = mNextBarrierToken++;
+            // 屏障Message没有target
             final Message msg = Message.obtain();
             msg.markInUse();
             msg.when = when;
@@ -479,6 +495,7 @@ public final class MessageQueue {
             Message prev = null;
             Message p = mMessages;
             if (when != 0) {
+                // 根据时间顺序插入屏障
                 while (p != null && p.when <= when) {
                     prev = p;
                     p = p.next;
@@ -557,10 +574,12 @@ public final class MessageQueue {
 
             msg.markInUse();
             msg.when = when;
+            // 设置p指向队列的head
             Message p = mMessages;
             boolean needWake;
             if (p == null || when == 0 || when < p.when) {
                 // New head, wake up the event queue if blocked.
+                // 把消息插到队列头，如果当前线程是休眠的，就要唤醒它
                 msg.next = p;
                 mMessages = msg;
                 needWake = mBlocked;
@@ -568,11 +587,16 @@ public final class MessageQueue {
                 // Inserted within the middle of the queue.  Usually we don't have to wake
                 // up the event queue unless there is a barrier at the head of the queue
                 // and the message is the earliest asynchronous message in the queue.
+                // 如果当前队列的head是屏障消息并且当前消息是异步的时才需要唤醒队列
                 needWake = mBlocked && p.target == null && msg.isAsynchronous();
                 Message prev;
                 for (;;) {
+                    // brfore: p    p.next  p.next.next
+                    // after : prev p       p.next
+                    //              prev    p           p.next
                     prev = p;
                     p = p.next;
+                    // 按照时间先后
                     if (p == null || when < p.when) {
                         break;
                     }
@@ -580,6 +604,8 @@ public final class MessageQueue {
                         needWake = false;
                     }
                 }
+                // 将msg设置为p节点的前面
+                // prev -> msg ->  p -> p.next
                 msg.next = p; // invariant: p == prev.next
                 prev.next = msg;
             }

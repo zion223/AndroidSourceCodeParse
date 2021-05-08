@@ -387,9 +387,9 @@ public static int getDefaultSize(int size, int measureSpec) {
         });
     }
     ```
-    1. ViewTreeObserver  
-        使用ViewTreeObserver的众多接口回调可以完成这个功能，比如使用OnGlobalLayoutListener这个接口。
-    2. view.measure(int widthMeasureSpec, int heightMeasureSpec)  
+    3. ViewTreeObserver  
+        使用ViewTreeObserver的众多接口回调可以完成这个功能，比如使用OnGlobalLayoutListener这个接口。PS. 可能会回调多次。
+    4. view.measure(int widthMeasureSpec, int heightMeasureSpec)  
     手动对View进行measure来得到View的宽/高     
 
 ### 4.3.2 **layout过程**  

@@ -509,6 +509,8 @@ public final class ViewRootImpl implements ViewParent,
         mDensity = context.getResources().getDisplayMetrics().densityDpi;
         mNoncompatDensity = context.getResources().getDisplayMetrics().noncompatDensityDpi;
         mFallbackEventHandler = new PhoneFallbackEventHandler(context);
+        // 系统的时间脉冲(垂直同步信号-VSync信号)  根据手机屏幕刷新率 60Hz 则为每16.7ms刷新一次
+        // 通过mChoreographer来执行异步测绘流程
         mChoreographer = Choreographer.getInstance();
         mDisplayManager = (DisplayManager)context.getSystemService(Context.DISPLAY_SERVICE);
 
@@ -713,7 +715,7 @@ public final class ViewRootImpl implements ViewParent,
                 // Schedule the first layout -before- adding to the window
                 // manager, to make sure we do the relayout before receiving
                 // any other events from the system.
-                // 第一次layout 完成异步刷新
+                // 第一次layout 完成异步刷新  页面三大流程的入口
                 requestLayout();
                 if ((mWindowAttributes.inputFeatures
                         & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
@@ -765,6 +767,7 @@ public final class ViewRootImpl implements ViewParent,
                     switch (res) {
                         case WindowManagerGlobal.ADD_BAD_APP_TOKEN:
                         case WindowManagerGlobal.ADD_BAD_SUBWINDOW_TOKEN:
+                            // 此时Activity已经被销毁，因此无法添加View
                             throw new WindowManager.BadTokenException(
                                     "Unable to add window -- token " + attrs.token
                                     + " is not valid; is your activity running?");
@@ -813,6 +816,7 @@ public final class ViewRootImpl implements ViewParent,
                         mInputQueue = new InputQueue();
                         mInputQueueCallback.onInputQueueCreated(mInputQueue);
                     }
+                    // 创建事件接收器
                     mInputEventReceiver = new WindowInputEventReceiver(mInputChannel,
                             Looper.myLooper());
                 }
@@ -1358,8 +1362,11 @@ public final class ViewRootImpl implements ViewParent,
 
     void scheduleTraversals() {
         if (!mTraversalScheduled) {
+            // 过滤
             mTraversalScheduled = true;
+            // Handler消息屏障
             mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();
+            // 异步执行mTraversalRunnable
             mChoreographer.postCallback(
                     Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
             if (!mUnbufferedInputDispatch) {
@@ -2159,6 +2166,7 @@ public final class ViewRootImpl implements ViewParent,
                             + " coveredInsetsChanged=" + contentInsetsChanged);
 
                      // Ask host how big it wants to be
+                     // measure操作
                     performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 
                     // Implementation of weights from WindowManager.LayoutParams
@@ -2204,6 +2212,7 @@ public final class ViewRootImpl implements ViewParent,
         boolean triggerGlobalLayoutListener = didLayout
                 || mAttachInfo.mRecomputeGlobalAttributes;
         if (didLayout) {
+            // layout操作
             performLayout(lp, mWidth, mHeight);
 
             // By this point all views have been sized and positioned
@@ -6922,7 +6931,7 @@ public final class ViewRootImpl implements ViewParent,
         dispatchInputEvent(event, null);
     }
 
-    // 分发输入时间
+    // 分发输入事件
     public void dispatchInputEvent(InputEvent event, InputEventReceiver receiver) {
         SomeArgs args = SomeArgs.obtain();
         args.arg1 = event;

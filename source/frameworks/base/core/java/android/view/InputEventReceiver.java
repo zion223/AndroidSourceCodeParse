@@ -179,7 +179,7 @@ public abstract class InputEventReceiver {
     }
 
     // Called from native code.
-    // 从android_view_InputEventReceiver.cpp调用
+    // 从android_view_InputEventReceiver.cpp调用 分发输入事件
     @SuppressWarnings("unused")
     private void dispatchInputEvent(int seq, InputEvent event) {
         mSeqMap.put(event.getSequenceNumber(), seq);

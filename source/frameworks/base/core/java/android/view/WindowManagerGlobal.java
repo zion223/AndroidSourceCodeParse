@@ -347,7 +347,7 @@ public final class WindowManagerGlobal {
             root = new ViewRootImpl(view.getContext(), display);
 
             view.setLayoutParams(wparams);
-            // 存储起来
+            // 存储起来 方便管理(更新或者移除)
             mViews.add(view);
             mRoots.add(root);
             mParams.add(wparams);
