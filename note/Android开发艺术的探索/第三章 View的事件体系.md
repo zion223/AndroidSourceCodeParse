@@ -113,7 +113,7 @@ ObjectAnimator.ofFloat(targetView, "translationX", 0, 300).setDuration(1000).sta
 
 事件传递从底层传递到Activity的流程图如下    
 
-<img src="image/Activity事件传递.png" style="zoom:60%"/>  
+<img src="image/Activity事件传递.png" style="zoom:80%"/>  
 
 
 事件分发其实就是对于MotionEvent对象的传递过程。  

@@ -422,6 +422,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 ? cb.dispatchGenericMotionEvent(ev) : super.dispatchGenericMotionEvent(ev);
     }
 
+    // 由PhoneWindow的superDispatchKeyEvent()方法转发到此处
     public boolean superDispatchKeyEvent(KeyEvent event) {
         // Give priority to closing action modes if applicable.
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
@@ -434,7 +435,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 return true;
             }
         }
-
+        // 转发到ViewGroup
         return super.dispatchKeyEvent(event);
     }
 
@@ -444,6 +445,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     // 由PhoneWindow的superDispatchTouchEvent调用至此
     public boolean superDispatchTouchEvent(MotionEvent event) {
+        // 转发给ViewGroup
         return super.dispatchTouchEvent(event);
     }
 

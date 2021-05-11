@@ -834,6 +834,7 @@ public final class ViewRootImpl implements ViewParent,
                 }
 
                 // Set up the input pipeline.
+                // 设置input 事件流
                 CharSequence counterSuffix = attrs.getTitle();
                 mSyntheticInputStage = new SyntheticInputStage();
                 InputStage viewPostImeStage = new ViewPostImeInputStage(mSyntheticInputStage);
@@ -4608,7 +4609,7 @@ public final class ViewRootImpl implements ViewParent,
             } else {
                 final int source = q.mEvent.getSource();
                 if ((source & InputDevice.SOURCE_CLASS_POINTER) != 0) {
-                    // 处理Pointer事件
+                    // 处理Pointer事件 屏幕点击事件
                     return processPointerEvent(q);
                 } else if ((source & InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
                     return processTrackballEvent(q);
@@ -4796,8 +4797,8 @@ public final class ViewRootImpl implements ViewParent,
 
             mAttachInfo.mUnbufferedDispatchRequested = false;
             mAttachInfo.mHandlingPointerEvent = true;
-            // DecorView的dispatchPointerEvent
-            // 如果event是touchEvent则调用dispatchTouchEvent()
+            // DecorView的dispatchPointerEvent()方法
+            // 如果event是touchEvent则调用dispatchTouchEvent() 调用DecorView的dispatchTouchEvent()方法，最终调用到Activity中
             // 否则调用dispatchGenericMotionEvent()
             boolean handled = mView.dispatchPointerEvent(event);
             maybeUpdatePointerIcon(event);
@@ -6607,7 +6608,7 @@ public final class ViewRootImpl implements ViewParent,
             // 同步处理
             doProcessInputEvents();
         } else {
-            // 异步
+            // 异步处理
             scheduleProcessInputEvents();
         }
     }
@@ -6885,6 +6886,7 @@ public final class ViewRootImpl implements ViewParent,
 
             for (int i = 0; i < viewRectCount; i++) {
                 final View.AttachInfo.InvalidateInfo info = mTempViewRects[i];
+                // 触发动画的更新
                 info.target.invalidate(info.left, info.top, info.right, info.bottom);
                 info.recycle();
             }
@@ -6892,6 +6894,7 @@ public final class ViewRootImpl implements ViewParent,
 
         private void postIfNeededLocked() {
             if (!mPosted) {
+                // 执行动画也是通过 Choreographer来调度的
                 mChoreographer.postCallback(Choreographer.CALLBACK_ANIMATION, this, null);
                 mPosted = true;
             }

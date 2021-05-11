@@ -230,6 +230,7 @@ public final class Choreographer {
     private Choreographer(Looper looper, int vsyncSource) {
         mLooper = looper;
         mHandler = new FrameHandler(looper);
+        // 接受垂直同步脉冲，也就是vsync信号
         mDisplayEventReceiver = USE_VSYNC
                 ? new FrameDisplayEventReceiver(looper, vsyncSource)
                 : null;
@@ -245,6 +246,7 @@ public final class Choreographer {
         setFPSDivisor(SystemProperties.getInt(ThreadedRenderer.DEBUG_FPS_DIVISOR, 1));
     }
 
+    // 屏幕刷新率
     private static float getRefreshRate() {
         DisplayInfo di = DisplayManagerGlobal.getInstance().getDisplayInfo(
                 Display.DEFAULT_DISPLAY);
@@ -646,6 +648,7 @@ public final class Choreographer {
             if (jitterNanos >= mFrameIntervalNanos) {
                 final long skippedFrames = jitterNanos / mFrameIntervalNanos;
                 if (skippedFrames >= SKIPPED_FRAME_WARNING_LIMIT) {
+                    // 出现丢帧现象  超过30
                     Log.i(TAG, "Skipped " + skippedFrames + " frames!  "
                             + "The application may be doing too much work on its main thread.");
                 }
@@ -686,6 +689,7 @@ public final class Choreographer {
             Trace.traceBegin(Trace.TRACE_TAG_VIEW, "Choreographer#doFrame");
             AnimationUtils.lockAnimationClock(frameTimeNanos / TimeUtils.NANOS_PER_MS);
 
+            // 用户输入事件 > 动画 > 页面重绘
             mFrameInfo.markInputHandlingStart();
             doCallbacks(Choreographer.CALLBACK_INPUT, frameTimeNanos);
 
@@ -924,6 +928,7 @@ public final class Choreographer {
 
             mTimestampNanos = timestampNanos;
             mFrame = frame;
+            // 设置callback为自己
             Message msg = Message.obtain(mHandler, this);
             msg.setAsynchronous(true);
             mHandler.sendMessageAtTime(msg, timestampNanos / TimeUtils.NANOS_PER_MS);
@@ -931,6 +936,7 @@ public final class Choreographer {
 
         @Override
         public void run() {
+            // 执行时回调到这里
             mHavePendingVsync = false;
             doFrame(mTimestampNanos, mFrame);
         }
