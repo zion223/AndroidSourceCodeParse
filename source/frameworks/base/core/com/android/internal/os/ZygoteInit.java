@@ -611,6 +611,7 @@ public class ZygoteInit {
             capabilities |= posixCapabilitiesAsBits(OsConstants.CAP_BLOCK_SUSPEND);
         }
         /* Hardcoded command line to start the system server */
+        // 启动SystemServer
         String args[] = {
             "--setuid=1000",
             "--setgid=1000",

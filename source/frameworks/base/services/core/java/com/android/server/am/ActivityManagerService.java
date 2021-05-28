@@ -4049,7 +4049,7 @@ public class ActivityManagerService extends IActivityManager.Stub
     }
 
     boolean startHomeActivityLocked(int userId, String reason) {
-        //工厂模式
+        // 工厂模式
         if (mFactoryTest == FactoryTest.FACTORY_TEST_LOW_LEVEL
                 && mTopAction == null) {
             // We are running in factory test mode, but unable to find
@@ -4057,7 +4057,7 @@ public class ActivityManagerService extends IActivityManager.Stub
             // error message and don't try to start anything.
             return false;
         }
-        //创建启动Launcher所需要的Intent
+        // 创建启动Launcher所需要的Intent
         Intent intent = getHomeIntent();
         ActivityInfo aInfo = resolveActivityInfo(intent, STOCK_PM_FLAGS, userId);
         if (aInfo != null) {
@@ -4074,7 +4074,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                 // For ANR debugging to verify if the user activity is the one that actually
                 // launched.
                 final String myReason = reason + ":" + userId + ":" + resolvedUserId;
-                //启动Launcher
+                // 启动Launcher
                 mActivityStarter.startHomeActivityLocked(intent, aInfo, myReason);
             }
         } else {
@@ -6962,6 +6962,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         // See if the top visible activity is waiting to run in this process...
         if (normalMode) {
             try {
+                // 调用ActivityStackSupervisor的attachApplicationLocked()方法
                 if (mStackSupervisor.attachApplicationLocked(app)) {
                     didSomething = true;
                 }
@@ -14165,6 +14166,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                     throw e.rethrowAsRuntimeException();
                 }
             }
+            //启动Home Activity
             startHomeActivityLocked(currentUserId, "systemReady");
 
             try {

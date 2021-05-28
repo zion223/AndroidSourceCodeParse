@@ -1486,6 +1486,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         boolean result = false;
         for (int tcNdx = display.getTaskDisplayAreaCount() - 1; tcNdx >= 0; --tcNdx) {
             final TaskDisplayArea taskDisplayArea = display.getTaskDisplayAreaAt(tcNdx);
+            // 启动Launcher
             result |= startHomeOnTaskDisplayArea(userId, reason, taskDisplayArea,
                     allowInstrumenting, fromHomeKey);
         }
@@ -1493,7 +1494,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
     }
 
     /**
-     * 启动Home Activity
+     * 启动 HomeActivity
      * This starts home activity on display areas that can have system decorations based on
      * displayId - default display area always uses primary home component.
      * For secondary display areas, the home activity must have category SECONDARY_HOME and then
@@ -1521,6 +1522,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // 查找合适的Home Activity
             aInfo = resolveHomeActivity(userId, homeIntent);
         } else if (shouldPlaceSecondaryHomeOnDisplayArea(taskDisplayArea)) {
+            // the display area is valid for secondary home activity.
             Pair<ActivityInfo, Intent> info = resolveSecondaryHomeActivity(userId, taskDisplayArea);
             aInfo = info.first;
             homeIntent = info.second;
@@ -1545,7 +1547,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         // actually launched.
         final String myReason = reason + ":" + userId + ":" + UserHandle.getUserId(
                 aInfo.applicationInfo.uid) + ":" + taskDisplayArea.getDisplayId();
-        // 启动Launcher                
+        // 启动Launcher ActivityStartController的startHomeActivity()
         mService.getActivityStartController().startHomeActivity(homeIntent, aInfo, myReason,
                 taskDisplayArea);
         return true;

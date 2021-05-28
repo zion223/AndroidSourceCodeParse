@@ -229,7 +229,7 @@ public final class ActivityThread {
     final ApplicationThread mAppThread = new ApplicationThread();
     final Looper mLooper = Looper.myLooper();
     final H mH = new H();
-    //存储了所有的Activity
+    // 存储了所有的Activity
     final ArrayMap<IBinder, ActivityClientRecord> mActivities = new ArrayMap<>();
     // List of new activities (via ActivityRecord.nextIdle) that should
     // be reported when next we idle.
@@ -238,7 +238,7 @@ public final class ActivityThread {
     int mNumVisibleActivities = 0;
     ArrayList<WeakReference<AssistStructure>> mLastAssistStructures = new ArrayList<>();
     private int mLastSessionId;
-    //存储了所有的Service
+    // 存储了所有的Service
     final ArrayMap<IBinder, Service> mServices = new ArrayMap<>();
     AppBindData mBoundApplication;
     Profiler mProfiler;
@@ -749,6 +749,7 @@ public final class ActivityThread {
 
         // we use token to identify this activity without having to send the
         // activity itself back to the activity manager. (matters more with ipc)
+        // 启动Activity
         @Override
         public final void scheduleLaunchActivity(Intent intent, IBinder token, int ident,
                 ActivityInfo info, Configuration curConfig, Configuration overrideConfig,

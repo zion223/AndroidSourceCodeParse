@@ -5852,11 +5852,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         return mAppWarnings;
     }
 
+    // 获取HomeIntent
     Intent getHomeIntent() {
         Intent intent = new Intent(mTopAction, mTopData != null ? Uri.parse(mTopData) : null);
         intent.setComponent(mTopComponent);
         intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
         if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
+            // 添加Category Intent.CATEGORY_HOME
             intent.addCategory(Intent.CATEGORY_HOME);
         }
         return intent;

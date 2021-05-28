@@ -969,6 +969,7 @@ public class ActivityStackSupervisor extends ConfigurationContainer implements D
                     if (hr.app == null && app.uid == hr.info.applicationInfo.uid
                             && processName.equals(hr.processName)) {
                         try {
+                            // 启动Activity
                             if (realStartActivityLocked(hr, app, true, true)) {
                                 didSomething = true;
                             }
@@ -1464,7 +1465,7 @@ public class ActivityStackSupervisor extends ConfigurationContainer implements D
             final MergedConfiguration mergedConfiguration = new MergedConfiguration(
                     mService.getGlobalConfiguration(), r.getMergedOverrideConfiguration());
             r.setLastReportedConfiguration(mergedConfiguration);
-            // 启动Activity  ActivityThread的scheduleLaunchActivity()方法
+            // 启动Activity  调用ActivityThread的scheduleLaunchActivity()方法
             app.thread.scheduleLaunchActivity(new Intent(r.intent), r.appToken,
                     System.identityHashCode(r), r.info,
                     // TODO: Have this take the merged configuration instead of separate global and

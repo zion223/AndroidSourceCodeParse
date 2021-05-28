@@ -368,6 +368,7 @@ public final class SystemServer {
             android.os.Process.setThreadPriority(
                 android.os.Process.THREAD_PRIORITY_FOREGROUND);
             android.os.Process.setCanSelfBackground(false);
+            // Looper循环
             Looper.prepareMainLooper();
 
             // Initialize native services. 加载动态库
@@ -488,12 +489,12 @@ public final class SystemServer {
     }
 
     /**
+     * 启动引导服务
      * Starts the small tangle of critical services that are needed to get
      * the system off the ground.  These services have complex mutual dependencies
      * which is why we initialize them all in one place here.  Unless your service
      * is also entwined in these dependencies, it should be initialized in one of
      * the other functions.
-     * 启动引导服务
      */
     private void startBootstrapServices() {
         Slog.i(TAG, "Reading configuration...");
@@ -517,6 +518,7 @@ public final class SystemServer {
 
         // Activity manager runs the show. Start ActivityManagerService
         traceBeginAndSlog("StartActivityManager");
+        // 启动ActivityManagerService
         mActivityManagerService = mSystemServiceManager.startService(
                 ActivityManagerService.Lifecycle.class).getService();
         mActivityManagerService.setSystemServiceManager(mSystemServiceManager);
@@ -528,6 +530,7 @@ public final class SystemServer {
         // to handle incoming binder calls immediately (including being able to verify
         // the permissions for those calls).
         traceBeginAndSlog("StartPowerManager");
+        // 启动PowerManagerService
         mPowerManagerService = mSystemServiceManager.startService(PowerManagerService.class);
         traceEnd();
 
@@ -540,6 +543,7 @@ public final class SystemServer {
         // Bring up recovery system in case a rescue party needs a reboot
         if (!SystemProperties.getBoolean("config.disable_noncore", false)) {
             traceBeginAndSlog("StartRecoverySystemService");
+            // 启动RecoverySystemService服务
             mSystemServiceManager.startService(RecoverySystemService.class);
             traceEnd();
         }
@@ -551,6 +555,7 @@ public final class SystemServer {
 
         // Manages LEDs and display backlight so we need it to bring up the display.
         traceBeginAndSlog("StartLightsService");
+        // 启动LightsService服务
         mSystemServiceManager.startService(LightsService.class);
         traceEnd();
 
@@ -566,6 +571,7 @@ public final class SystemServer {
         traceEnd();
 
         // Only run "core" apps if we're encrypting the device.
+        // 加密设备
         String cryptState = SystemProperties.get("vold.decrypt");
         if (ENCRYPTING_STATE.equals(cryptState)) {
             Slog.w(TAG, "Detected encryption in progress - only parsing core apps");
@@ -581,6 +587,7 @@ public final class SystemServer {
                     (int) SystemClock.elapsedRealtime());
         }
         traceBeginAndSlog("StartPackageManagerService");
+        // 启动PackageManagerService服务
         mPackageManagerService = PackageManagerService.main(mSystemContext, installer,
                 mFactoryTestMode != FactoryTest.FACTORY_TEST_OFF, mOnlyCore);
         mFirstBoot = mPackageManagerService.isFirstBoot();
@@ -609,6 +616,7 @@ public final class SystemServer {
         }
 
         traceBeginAndSlog("StartUserManagerService");
+        // 启动UserManagerService
         mSystemServiceManager.startService(UserManagerService.LifeCycle.class);
         traceEnd();
 
@@ -645,8 +653,8 @@ public final class SystemServer {
     }
 
     /**
+     * 启动核心服务
      * Starts some essential services that are not tangled up in the bootstrap process.
-     * 核心服务
      */
     private void startCoreServices() {
         // Records errors and logs, for example wtf()
@@ -656,6 +664,7 @@ public final class SystemServer {
 
         traceBeginAndSlog("StartBatteryService");
         // Tracks the battery level.  Requires LightService.
+        // 启动BatteryService服务
         mSystemServiceManager.startService(BatteryService.class);
         traceEnd();
 
@@ -809,6 +818,7 @@ public final class SystemServer {
             }
 
             traceBeginAndSlog("StartAlarmManagerService");
+            // 时钟服务
             mSystemServiceManager.startService(AlarmManagerService.class);
             traceEnd();
 
@@ -875,6 +885,7 @@ public final class SystemServer {
                 Slog.i(TAG, "Bluetooth Service disabled by config");
             } else {
                 traceBeginAndSlog("StartBluetoothService");
+                // 蓝牙服务
                 mSystemServiceManager.startService(BluetoothService.class);
                 traceEnd();
             }
@@ -1053,6 +1064,7 @@ public final class SystemServer {
 
                 traceBeginAndSlog("StartNetworkStatsService");
                 try {
+                    // 网络状态服务
                     networkStats = NetworkStatsService.create(context, networkManagement);
                     ServiceManager.addService(Context.NETWORK_STATS_SERVICE, networkStats);
                 } catch (Throwable e) {
@@ -1072,6 +1084,7 @@ public final class SystemServer {
 
                 // Wifi Service must be started first for wifi-related services.
                 traceBeginAndSlog("StartWifi");
+                // wifi 服务
                 mSystemServiceManager.startService(WIFI_SERVICE_CLASS);
                 traceEnd();
                 traceBeginAndSlog("StartWifiScanning");
@@ -1157,6 +1170,7 @@ public final class SystemServer {
             }
 
             traceBeginAndSlog("StartNotificationManager");
+            // 通知服务
             mSystemServiceManager.startService(NotificationManagerService.class);
             SystemNotificationChannels.createAll(context);
             notification = INotificationManager.Stub.asInterface(
@@ -1201,11 +1215,13 @@ public final class SystemServer {
             if (!disableNonCoreServices && context.getResources().getBoolean(
                         R.bool.config_enableWallpaperService)) {
                 traceBeginAndSlog("StartWallpaperManagerService");
+                // 壁纸服务
                 mSystemServiceManager.startService(WALLPAPER_SERVICE_CLASS);
                 traceEnd();
             }
 
             traceBeginAndSlog("StartAudioService");
+            // 音频服务
             mSystemServiceManager.startService(AudioService.Lifecycle.class);
             traceEnd();
 
@@ -1652,6 +1668,7 @@ public final class SystemServer {
         // started launching the initial applications), for us to complete our
         // initialization.
         // 通知ActivityManagerService现在系统可以启动第三方应用
+        // 启动Launcher应用
         mActivityManagerService.systemReady(() -> {
             Slog.i(TAG, "Making services ready");
             traceBeginAndSlog("StartActivityManagerReadyPhase");
@@ -1711,6 +1728,7 @@ public final class SystemServer {
             traceEnd();
             traceBeginAndSlog("MakeNetworkStatsServiceReady");
             try {
+                // 网络状态服务的systemReady()方法
                 if (networkStatsF != null) networkStatsF.systemReady();
             } catch (Throwable e) {
                 reportWtf("making Network Stats Service ready", e);
