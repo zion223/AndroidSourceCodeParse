@@ -218,11 +218,11 @@ public class FrameLayout extends ViewGroup {
             maxHeight = Math.max(maxHeight, drawable.getMinimumHeight());
             maxWidth = Math.max(maxWidth, drawable.getMinimumWidth());
         }
-        //保存测量结果
+        // 保存测量结果
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState),
                 resolveSizeAndState(maxHeight, heightMeasureSpec,
                         childState << MEASURED_HEIGHT_STATE_SHIFT));
-        //子View中设置为match_parent的个数并且 当前FrameLayout设置为wrap_content模式
+        // 子View中设置为match_parent的个数并且 当前FrameLayout设置为wrap_content模式
         count = mMatchParentChildren.size();
         if (count > 1) {
             for (int i = 0; i < count; i++) {
@@ -231,19 +231,19 @@ public class FrameLayout extends ViewGroup {
 
                 final int childWidthMeasureSpec;
                 /**
-                * 如果子View的宽度是match_parent属性，那么对当前FrameLayout的MeasureSpec修改：
-                * 把widthMeasureSpec的宽度规格修改为:总宽度 - padding - margin，这样做的意思是：
-                * 对于子Viw来说，如果要match_parent，那么它可以覆盖的范围是FrameLayout的测量宽度
-                * 减去padding和margin后剩下的空间。
-                *
-                * 以下两点的结论，可以查看getChildMeasureSpec()方法：
-                *
-                * 如果子View的宽度是一个确定的值，比如50dp，那么FrameLayout的widthMeasureSpec的宽度规格修改为：
-                * SpecSize为子View的宽度，即50dp，SpecMode为EXACTLY模式
-                * 
-                * 如果子View的宽度是wrap_content属性，那么FrameLayout的widthMeasureSpec的宽度规格修改为：
-                * SpecSize为子View的宽度减去padding减去margin，SpecMode为AT_MOST模式
-                */
+                 * 如果子View的宽度是match_parent属性，那么对当前FrameLayout的MeasureSpec修改：
+                 * 把widthMeasureSpec的宽度规格修改为:总宽度 - padding - margin，这样做的意思是：
+                 * 对于子Viw来说，如果要match_parent，那么它可以覆盖的范围是FrameLayout的测量宽度
+                 * 减去padding和margin后剩下的空间。
+                 *
+                 * 以下两点的结论，可以查看getChildMeasureSpec()方法：
+                 *
+                 * 如果子View的宽度是一个确定的值，比如50dp，那么FrameLayout的widthMeasureSpec的宽度规格修改为：
+                 * SpecSize为子View的宽度，即50dp，SpecMode为EXACTLY模式
+                 * 
+                 * 如果子View的宽度是wrap_content属性，那么FrameLayout的widthMeasureSpec的宽度规格修改为：
+                 * SpecSize为子View的宽度减去padding减去margin，SpecMode为AT_MOST模式
+                 */
                 if (lp.width == LayoutParams.MATCH_PARENT) {
                     final int width = Math.max(0, getMeasuredWidth()
                             - getPaddingLeftWithForeground() - getPaddingRightWithForeground()
@@ -283,20 +283,20 @@ public class FrameLayout extends ViewGroup {
     }
 
     void layoutChildren(int left, int top, int right, int bottom, boolean forceLeftGravity) {
-        //子View数量
+        // 子View数量
         final int count = getChildCount();
-        //影响子View的布局参数
+        // 影响子View的布局参数
         final int parentLeft = getPaddingLeftWithForeground();
         final int parentRight = right - left - getPaddingRightWithForeground();
 
         final int parentTop = getPaddingTopWithForeground();
         final int parentBottom = bottom - top - getPaddingBottomWithForeground();
-        //循环遍历子View
+        // 循环遍历子View
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
-             //View的visibility属性不为GONE类型的
+             // View的Visibility属性不为GONE类型的
             if (child.getVisibility() != GONE) {
-                 //子View的布局参数
+                 // 子View的布局参数
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
                 final int width = child.getMeasuredWidth();
@@ -313,19 +313,20 @@ public class FrameLayout extends ViewGroup {
                 final int layoutDirection = getLayoutDirection();
                 final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
                 final int verticalGravity = gravity & Gravity.VERTICAL_GRAVITY_MASK;
-                //子View设置了 水平方向的layout_gravity参数
+                // 子View设置了 水平方向的layout_gravity参数
                 switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
-                    /* 水平居中，由于子View要在水平中间的位置显示，因此，要先计算出以下：
-                    * (parentRight - parentLeft -width)/2 此时得出的是父容器减去子View宽度后的
-                    * 剩余空间的一半，那么再加上parentLeft后，就是子View初始左上角横坐标(此时正好位于中间位置)，
-                    * 假如子View还受到margin约束，由于leftMargin使子View右偏而rightMargin使子View左偏，所以最后
-                    * 是 +leftMargin - rightMargin .
-                    */
+                    /* 
+                     * 水平居中，由于子View要在水平中间的位置显示，因此，要先计算出以下：
+                     * (parentRight - parentLeft -width)/2 此时得出的是父容器减去子View宽度后的
+                     * 剩余空间的一半，那么再加上parentLeft后，就是子View初始左上角横坐标(此时正好位于中间位置)，
+                     * 假如子View还受到margin约束，由于leftMargin使子View右偏而rightMargin使子View左偏，所以最后
+                     * 是 +leftMargin - rightMargin .
+                     */
                     case Gravity.CENTER_HORIZONTAL:
                         childLeft = parentLeft + (parentRight - parentLeft - width) / 2 +
                         lp.leftMargin - lp.rightMargin;
                         break;
-                    //水平居右 父容器Right-子View宽度 - 子View右Margin    
+                    // 水平居右 父容器Right-子View宽度 - 子View右Margin    
                     case Gravity.RIGHT:
                         if (!forceLeftGravity) {
                             childLeft = parentRight - width - lp.rightMargin;
@@ -336,27 +337,27 @@ public class FrameLayout extends ViewGroup {
                     default:
                         childLeft = parentLeft + lp.leftMargin;
                 }
-                //垂直方向的layout_gravity
+                // 垂直方向的layout_gravity
                 switch (verticalGravity) {
-                    //顶部
+                    // 顶部
                     case Gravity.TOP:
                         //父容器top + 子View的topMargin
                         childTop = parentTop + lp.topMargin;
                         break;
-                    //垂直居中                        
+                    // 垂直居中
                     case Gravity.CENTER_VERTICAL:
                         childTop = parentTop + (parentBottom - parentTop - height) / 2 +
                         lp.topMargin - lp.bottomMargin;
                         break;
-                    //底部                        
+                    // 底部                        
                     case Gravity.BOTTOM:
                         childTop = parentBottom - height - lp.bottomMargin;
                         break;
-                    //不设置时默认为Gravity.TOP                        
+                    // 不设置时默认为Gravity.TOP                        
                     default:
                         childTop = parentTop + lp.topMargin;
                 }
-                //子View的layout方法
+                // 调用子View的layout方法
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
             }
         }
