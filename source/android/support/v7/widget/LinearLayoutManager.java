@@ -168,6 +168,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     public LinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
+        // 开启自动测量模式
         setAutoMeasureEnabled(true);
     }
 
@@ -1555,7 +1556,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,
             LayoutState layoutState, LayoutChunkResult result) {
-        // 查找下一个要布局的View
+        // 查找下一个要布局的View 复用机制
         View view = layoutState.next(recycler);
         if (view == null) {
             if (DEBUG && layoutState.mScrapList == null) {
@@ -1583,6 +1584,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 addDisappearingView(view, 0);
             }
         }
+        // 测量view
         measureChildWithMargins(view, 0, 0);
         result.mConsumed = mOrientationHelper.getDecoratedMeasurement(view);
         int left, top, right, bottom;
@@ -1615,6 +1617,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
         // We calculate everything with View's bounding box (which includes decor and margins)
         // To calculate correct layout position, we subtract margins.
+        // 摆放View
         layoutDecoratedWithMargins(view, left, top, right, bottom);
         if (DEBUG) {
             Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
@@ -2230,7 +2233,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             if (mScrapList != null) {
                 return nextViewFromScrapList();
             }
-            // Recycler的getViewForPosition()方法
+            // Recycler的getViewForPosition()方法 回收复用机制
             final View view = recycler.getViewForPosition(mCurrentPosition);
             mCurrentPosition += mItemDirection;
             return view;

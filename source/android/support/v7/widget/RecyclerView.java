@@ -1106,6 +1106,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // TODO We should do this switch a dispatchLayout pass and animate children. There is a good
         // chance that LayoutManagers will re-use views.
         if (mLayout != null) {
+            // 之前设置过LayoutManager 则要进行清除
             // end all running animations
             if (mItemAnimator != null) {
                 mItemAnimator.endAnimations();
@@ -1127,9 +1128,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mLayout = layout;
         if (layout != null) {
             if (layout.mRecyclerView != null) {
+                // 新设置的LayoutManager不能已经和RecyclerView有关联 否则抛出异常
                 throw new IllegalArgumentException("LayoutManager " + layout +
                         " is already attached to a RecyclerView: " + layout.mRecyclerView);
             }
+            // 设置RecyclerView
             mLayout.setRecyclerView(this);
             if (mIsAttached) {
                 mLayout.dispatchAttachedToWindow(this);
@@ -2884,15 +2887,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         if (mLayout == null) {
+            // 默认的宽高测量值
             defaultOnMeasure(widthSpec, heightSpec);
             return;
         }
+        // 是否开启自动测量模式 LinearLayoutManager、GridLayoutManager默认都是开启
         if (mLayout.mAutoMeasure) {
             final int widthMode = MeasureSpec.getMode(widthSpec);
             final int heightMode = MeasureSpec.getMode(heightSpec);
-            // 是否跳过测量
+            // 是否跳过测量(如果有确定的宽高值)
             final boolean skipMeasure = widthMode == MeasureSpec.EXACTLY
                     && heightMode == MeasureSpec.EXACTLY;
+            // 交给LayoutManager去测量                    
             mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
             if (skipMeasure || mAdapter == null) {
                 return;
@@ -2913,7 +2919,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
             // if RecyclerView has non-exact width and height and if there is at least one child
             // which also has non-exact width & height, we have to re-measure.
+            // 如果RecyclerView没有固定的宽和高，并且child中至少有一个没有确定的宽和高
             if (mLayout.shouldMeasureTwice()) {
+                // 进行二次测量
                 mLayout.setMeasureSpecs(
                         MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY));
@@ -3373,6 +3381,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     /**
      * The second layout step where we do the actual layout of the views for the final state.
      * This step might be run multiple times if necessary (e.g. measure).
+     * 真正的layout过程
      */
     private void dispatchLayoutStep2() {
         eatRequestLayout();
@@ -5259,7 +5268,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     }
                 }
                 if (holder == null) {
-                    // 前面都找不到ViewHolder, 那么创建新的ViewHolder
+                    // 前面都找不到ViewHolder, 那么重新创建新的ViewHolder
                     holder = mAdapter.createViewHolder(RecyclerView.this, type);
                     if (DEBUG) {
                         Log.d(TAG, "getViewForPosition created new ViewHolder");
@@ -10891,8 +10900,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * data between your components without needing to manage their lifecycles.</p>
      */
     public static class State {
+        // 预布局阶段
         static final int STEP_START = 1;
+        // 布局阶段
         static final int STEP_LAYOUT = 1 << 1;
+        // 动画效果
         static final int STEP_ANIMATIONS = 1 << 2;
 
         void assertLayoutStep(int accepted) {

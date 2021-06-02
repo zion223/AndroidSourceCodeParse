@@ -4797,6 +4797,7 @@ public final class ActivityThread {
         }
     }
 
+    // 回调OnSaveInstanceState()方法
     private void callCallActivityOnSaveInstanceState(ActivityClientRecord r) {
         r.state = new Bundle();
         r.state.setAllowFds(false);
